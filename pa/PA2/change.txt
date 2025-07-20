@@ -1,0 +1,13 @@
+1. project plan
+- changed the roles to more realistically reflect the roles in a small development team, with the main role(s) of each member in bold
+- sprints in the development plan were changed to align with the plans in the PA, deliverables and dates are updated accordingly
+- added a gantt chart to visualize the development schedule
+
+2. vision document
+- added plans for the following features:
+	+ schedule sharing feature
+	+ notification configurability and customizability
+	+ offline mode support
+
+3. other changes
+- the revision history in both documents now include the edit history of the documents

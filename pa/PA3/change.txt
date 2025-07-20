@@ -1,0 +1,50 @@
+===================================================================
+CHANGELOG - Use-Case Specifications (Version 2.0 vs. Version 1.0)
+===================================================================
+
+This document details the comprehensive revisions made to the Use-Case Specification document, addressing feedback from the Teaching Assistant (TA) and improving overall quality and clarity. The new version demonstrates a significant enhancement over the original draft.
+
+
+SUMMARY OF CHANGES
+
+
+The revisions focused on three key areas as suggested by the TA:
+1.Refactoring with UML Relationships: Correctly applied <<Extend>> and <<Include>> relationships to reduce redundancy and model system behavior more accurately.
+2.Resolving Logical Redundancy: Eliminated the critical logic flaw where "View Shared Schedule" duplicated the content of "Accept/Decline Invitation".
+3.Enhancing Detail: Expanded both Basic and Alternative Flows to cover more comprehensive, real-world scenarios.
+
+DETAILED LIST OF REVISIONS
+
+1.  Addressed: "Re-analyze to use <<include>>, <<extend>> relationships"
+
+    -Manage Profile (UC04): This use case was successfully refactored. In the original version, it was a monolithic block. In the new version, it acts as a base use case that is now extended (<<Extend>>) by two more specific use cases:
+        +   `Update Profile` (UC04.1)
+        +   `Switch Profile` (UC04.2)
+        This change accurately models the user's options from the profile screen and follows best practices for using the <<Extend>> relationship.
+
+    -View Shared Schedule (UC18): This use case now correctly uses the <<Include>> relationship to encapsulate the "Access Shared Schedule" functionality. This effectively separates the business logic (viewing a schedule) from the technical, reusable function of secure data retrieval.
+
+2.  Addressed: "Reduce UC overlap like 'Accept/Decline Invitation' and 'View Shared Schedule'"
+
+    -Logical Flaw Corrected: This was the most critical correction. The original document had "View Shared Schedule" incorrectly repeating the entire flow of "Accept/Decline Invitation".
+    -Clear Separation Achieved: In the revised document, these two use cases are now logically distinct and sequential:
+        +   `Accept/Decline Invitation` (UC17) now exclusively handles the caregiver's response to an invitation.
+        +   `View Shared Schedule` (UC18) focuses solely on viewing the data, with a pre-condition that the invitation must have already been accepted. This resolves the redundancy and makes the system flow logical.
+
+3.  Addressed: "Some main and alternative flows are too brief"
+
+    -Expanded Alternative Flows: Virtually all use cases have been enriched with more detailed and relevant alternative flows. The original document often had only one simple alternative flow.
+    -Key Examples of Enhancements:
+        +   `Register` (UC01, UC14): Added "Passwords do not match" flow.
+        +   `Log In` (UC02, UC15): Added "Account is locked" flow for multiple failed attempts.
+        +   `Accept/Decline Invitation` (UC17): Added "Invitation is expired or revoked" flow.
+        +   `Receive Missed Dose Alert` (UC19): Added "Alert escalation is not configured" flow.
+        +   `Add Health Profile Information` (UC13): Added a flow for adding information after the initial setup.
+
+4.  Other Major Improvements
+
+    -   Actor-Specific Use Cases: Instead of merging use cases, the final version provides separate specifications for "Primary User" and "Caregiver" (e.g., `Register as Primary User`, `Register as Caregiver`). This greatly improves clarity regarding each actor's capabilities.
+    -   New Use Case Added: The `Add Health Profile Information` (UC13) use case has been fully specified.
+    -   Improved Structure and Numbering:A clear and hierarchical numbering system (UC01, UC04.1, etc.) has been implemented, making the document easier to navigate and reference.
+
+In conclusion, Version 2.0 is a substantial upgrade that successfully addresses all feedback points, resulting in a more robust, logical, and professional specification document.
