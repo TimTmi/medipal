@@ -19,6 +19,6 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "MediPal"
+rootProject.name = "medipal"
 include(":app")
  

@@ -1,45 +1,50 @@
-package com.example.medipal.presentation.ui.screens
+    package com.example.medipal.presentation.ui.screens
 
-import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
+    import androidx.compose.foundation.Image
+    import androidx.compose.foundation.background
+    import androidx.compose.foundation.clickable
+    import androidx.compose.foundation.layout.*
+    import androidx.compose.foundation.lazy.LazyColumn
+    import androidx.compose.foundation.lazy.items
+    import androidx.compose.foundation.shape.CircleShape
+    import androidx.compose.foundation.shape.RoundedCornerShape
+    import androidx.compose.material.icons.Icons
+    import androidx.compose.material.icons.filled.*
+    import androidx.compose.material.icons.outlined.AccountCircle
+    import androidx.compose.material.icons.outlined.Home
+    import androidx.compose.material.icons.outlined.Medication
+    import androidx.compose.material3.*
+    import androidx.compose.runtime.*
+    import androidx.compose.ui.Alignment
+    import androidx.compose.ui.Modifier
+    import androidx.compose.ui.draw.clip
+    import androidx.compose.ui.graphics.Color
+    import androidx.compose.ui.layout.ContentScale
+    import androidx.compose.ui.res.painterResource
+    import androidx.compose.ui.text.font.FontWeight
+    import androidx.compose.ui.text.style.TextAlign
+    import androidx.compose.ui.unit.dp
+    import androidx.compose.ui.unit.sp
+    import androidx.lifecycle.viewmodel.compose.viewModel
+    import androidx.navigation.NavController
+    import com.example.medipal.R
+    import com.example.medipal.domain.model.ScheduledEvent
+    import com.example.medipal.presentation.navigation.Screen
+    import com.example.medipal.presentation.viewmodel.CalendarUiState
+    import com.example.medipal.presentation.viewmodel.CalendarViewModel
+    import com.example.medipal.presentation.viewmodel.HomeViewModel
+    import androidx.compose.foundation.background
+    import androidx.compose.foundation.clickable
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.*
-import androidx.compose.material.icons.outlined.AccountCircle
-import androidx.compose.material.icons.outlined.Home
-import androidx.compose.material.icons.outlined.Medication
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
-import androidx.compose.ui.Alignment
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
-import androidx.lifecycle.viewmodel.compose.viewModel
-import androidx.navigation.NavController
-import com.example.medipal.R
-import com.example.medipal.domain.model.ScheduledEvent
-import com.example.medipal.presentation.navigation.Screen
-import com.example.medipal.presentation.viewmodel.CalendarUiState
-import com.example.medipal.presentation.viewmodel.CalendarViewModel
-import com.example.medipal.presentation.viewmodel.HomeViewModel
-import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import java.time.DayOfWeek
+import androidx.compose.ui.graphics.ColorFilter
+import androidx.compose.ui.graphics.ColorMatrix
 
 @OptIn(ExperimentalMaterial3Api::class)
+
+
 @Composable
 fun HomeScreen(navController: NavController, viewModel: HomeViewModel) {
     val events by viewModel.events.collectAsState(initial = emptyList())
@@ -58,13 +63,20 @@ fun HomeScreen(navController: NavController, viewModel: HomeViewModel) {
             )
         }
     }
-
+    val brightness = 0.5f
+    val colorMatrix = ColorMatrix().apply {
+        setToScale(brightness, brightness, brightness, 1f)
+    }
     Box(modifier = Modifier.fillMaxSize()) {
+
+
         Image(
-            painter = painterResource(id = R.drawable.forest_background), // Đảm bảo bạn có ảnh này
+            painter = painterResource(id = R.drawable.forest_background),
             contentDescription = "background",
             contentScale = ContentScale.Crop,
             modifier = Modifier.fillMaxSize()
+                .alpha(0.90f),
+            colorFilter = ColorFilter.colorMatrix(colorMatrix)
         )
 
         Scaffold(

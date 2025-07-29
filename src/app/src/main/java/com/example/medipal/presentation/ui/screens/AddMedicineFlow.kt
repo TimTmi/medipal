@@ -15,7 +15,9 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.example.medipal.presentation.viewmodel.AddMedicineViewModel
-
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 // Các route cho các bước con bên trong luồng thêm thuốc
 private const val STEP_NAME = "step_name"
 private const val STEP_FREQUENCY = "step_frequency"
@@ -28,12 +30,15 @@ fun AddMedicineFlow(
 ) {
     val flowNavController = rememberNavController()
     val showSuccessDialog by viewModel.showSuccessDialog.collectAsState()
+    val lastSavedMedicine by viewModel.lastSavedMedicineName.collectAsState()
 
-    if (showSuccessDialog) {
+    // 2. Chỉ hiển thị dialog khi cần thiết và có tên thuốc để hiển thị
+    if (showSuccessDialog && lastSavedMedicine != null) {
         SuccessDialog(
+            medicineName = lastSavedMedicine!!, // Truyền tên thuốc vào
             onDismiss = {
                 viewModel.dismissSuccessDialog()
-                mainNavController.popBackStack() // Quay về màn hình Home
+                mainNavController.popBackStack()
             }
         )
     }
@@ -102,6 +107,13 @@ fun SelectMedicineNameScreen(viewModel: AddMedicineViewModel, onNext: () -> Unit
 @Composable
 fun SelectFrequencyScreen(viewModel: AddMedicineViewModel, onNext: () -> Unit, onCancel: () -> Unit) {
     val medicineName by viewModel.medicineName.collectAsState()
+
+    // SỬA LỖI Ở ĐÂY: Lấy danh sách tĩnh trực tiếp, không dùng collectAsState
+    val options = viewModel.frequencyOptions
+
+    // Dòng này đúng vì selectedFrequency là StateFlow
+    val selectedOption by viewModel.selectedFrequency.collectAsState()
+
     Scaffold(
         topBar = {
             TopAppBar(
@@ -114,21 +126,57 @@ fun SelectFrequencyScreen(viewModel: AddMedicineViewModel, onNext: () -> Unit, o
             modifier = Modifier
                 .fillMaxSize()
                 .padding(padding)
-                .padding(16.dp),
-            horizontalAlignment = Alignment.CenterHorizontally
+                .padding(16.dp)
         ) {
-            Text("How often do you take it?")
+            Text(
+                "How often do you take it?",
+                style = MaterialTheme.typography.titleLarge,
+                modifier = Modifier.align(Alignment.CenterHorizontally)
+            )
             Spacer(modifier = Modifier.height(16.dp))
-            Text("Every day", modifier = Modifier.padding(16.dp))
-            Text("Only as needed", modifier = Modifier.padding(16.dp))
 
-            Spacer(modifier = Modifier.weight(1f))
-            Button(onClick = onNext) {
+            LazyColumn(modifier = Modifier.weight(1f)) {
+                items(options) { option ->
+                    FrequencyOptionRow(
+                        text = option,
+                        selected = (option == selectedOption),
+                        onClick = { viewModel.onFrequencySelected(option) }
+                    )
+                }
+            }
+
+            Button(
+                onClick = onNext,
+                modifier = Modifier.fillMaxWidth()
+            ) {
                 Text("Next")
             }
         }
     }
 }
+
+@Composable
+fun FrequencyOptionRow(
+    text: String,
+    selected: Boolean,
+    onClick: () -> Unit
+) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable(onClick = onClick)
+            .padding(vertical = 12.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        RadioButton(
+            selected = selected,
+            onClick = onClick
+        )
+        Spacer(modifier = Modifier.width(16.dp))
+        Text(text = text, style = MaterialTheme.typography.bodyLarge)
+    }
+}
+
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -166,11 +214,15 @@ fun SelectTimeScreen(viewModel: AddMedicineViewModel, onSave: () -> Unit, onCanc
 }
 
 @Composable
-fun SuccessDialog(onDismiss: () -> Unit) {
+fun SuccessDialog(
+    medicineName: String, // Thêm tham số medicineName
+    onDismiss: () -> Unit
+) {
     AlertDialog(
         onDismissRequest = onDismiss,
         title = { Text(text = "Successfully Added") },
-        text = { Text(text = "Paracetamol has been added to your schedule.") },
+        // Sử dụng medicineName trong nội dung text
+        text = { Text(text = "$medicineName has been added to your schedule.") },
         confirmButton = {
             TextButton(onClick = onDismiss) {
                 Text("OK")

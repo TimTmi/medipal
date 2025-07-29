@@ -5,7 +5,7 @@ sealed class ScheduledEvent(val time: String) {
         val id: String,
         val name: String,
         val dosage: String,
-        private val medicationTime: String // Dùng tên riêng để không bị trùng
+        private val medicationTime: String
     ) : ScheduledEvent(medicationTime) // Truyền thời gian cho lớp cha
 
     data class Appointment(

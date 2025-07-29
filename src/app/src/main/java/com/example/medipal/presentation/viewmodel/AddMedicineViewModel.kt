@@ -12,10 +12,25 @@ import java.util.*
 class AddMedicineViewModel(private val addMedicationUseCase: AddMedicationUseCase) : ViewModel() {
 
     // Các trạng thái cho từng bước
-    val medicineName = MutableStateFlow("Paracetamol")
-    val frequency = MutableStateFlow("")
+    val medicineName = MutableStateFlow("")
     val time = MutableStateFlow("16:46 AM") // Giả lập thời gian được chọn
+    val frequencyOptions = listOf(
+        "Every day",
+        "Only as needed",
+        "Every X days",
+        "Specific days of the week",
+        "Every X weeks"
 
+    )
+
+    val selectedFrequency = MutableStateFlow(frequencyOptions.first())
+
+    // SỬA LỖI 2: Đảm bảo cú pháp hàm đúng
+    fun onFrequencySelected(frequency: String) {
+        selectedFrequency.value = frequency
+    }
+    private val _lastSavedMedicineName = MutableStateFlow<String?>(null)
+    val lastSavedMedicineName = _lastSavedMedicineName.asStateFlow()
     // Trạng thái cho dialog thành công
     private val _showSuccessDialog = MutableStateFlow(false)
     val showSuccessDialog = _showSuccessDialog.asStateFlow()
@@ -25,15 +40,17 @@ class AddMedicineViewModel(private val addMedicationUseCase: AddMedicationUseCas
             val newMedication = ScheduledEvent.Medication(
                 id = UUID.randomUUID().toString(),
                 name = medicineName.value,
-                dosage = "Dosage details here", // Có thể thêm màn hình chọn liều lượng
+                dosage = "Frequency: ${selectedFrequency.value}", // Có thể thêm màn hình chọn liều lượng
                 medicationTime = time.value
             )
             addMedicationUseCase(newMedication)
+            _lastSavedMedicineName.value = newMedication.name
             _showSuccessDialog.value = true // Hiển thị dialog sau khi lưu
         }
     }
 
     fun dismissSuccessDialog() {
+        _lastSavedMedicineName.value = null
         _showSuccessDialog.value = false
     }
 }
