@@ -18,6 +18,13 @@ import com.example.medipal.presentation.viewmodel.AddMedicineViewModel
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import com.example.medipal.presentation.ui.components.TimePickerDialog
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+
+
+
 // Các route cho các bước con bên trong luồng thêm thuốc
 private const val STEP_NAME = "step_name"
 private const val STEP_FREQUENCY = "step_frequency"
@@ -183,6 +190,8 @@ fun FrequencyOptionRow(
 fun SelectTimeScreen(viewModel: AddMedicineViewModel, onSave: () -> Unit, onCancel: () -> Unit) {
     val medicineName by viewModel.medicineName.collectAsState()
     val time by viewModel.time.collectAsState()
+    var showTimePicker by remember { mutableStateOf(false) }
+    
     Scaffold(
         topBar = {
             TopAppBar(
@@ -198,18 +207,74 @@ fun SelectTimeScreen(viewModel: AddMedicineViewModel, onSave: () -> Unit, onCanc
                 .padding(16.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Text("When do you need to take it?")
-            Spacer(modifier = Modifier.height(32.dp))
             Text(
-                text = time,
-                fontSize = 32.sp,
-                fontWeight = FontWeight.Bold
+                "When do you need to take it?",
+                style = MaterialTheme.typography.titleLarge,
+                modifier = Modifier.padding(bottom = 32.dp)
             )
+            
+            // Time Display Card
+            Card(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp)
+                    .clickable { showTimePicker = true },
+                colors = CardDefaults.cardColors(
+                    containerColor = MaterialTheme.colorScheme.primaryContainer
+                )
+            ) {
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(24.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    Text(
+                        text = "Selected Time",
+                        style = MaterialTheme.typography.labelMedium,
+                        color = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.7f)
+                    )
+                    Spacer(modifier = Modifier.height(8.dp))
+                    Text(
+                        text = time,
+                        fontSize = 48.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = MaterialTheme.colorScheme.onPrimaryContainer
+                    )
+                    Spacer(modifier = Modifier.height(8.dp))
+                    Text(
+                        text = "Tap to change",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.6f)
+                    )
+                }
+            }
+            
             Spacer(modifier = Modifier.weight(1f))
-            Button(onClick = onSave) {
-                Text("Save")
+            
+            Button(
+                onClick = onSave,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp)
+            ) {
+                Text("Save Medicine")
             }
         }
+    }
+    
+    // Time Picker Dialog
+    if (showTimePicker) {
+        TimePickerDialog(
+            onTimeSelected = { hour, minute ->
+                val amPm = if (hour >= 12) "PM" else "AM"
+                val displayHour = if (hour == 0) 12 else if (hour > 12) hour - 12 else hour
+                val timeString = String.format("%d:%02d %s", displayHour, minute, amPm)
+                viewModel.updateTime(timeString)
+                showTimePicker = false
+            },
+            onDismiss = { showTimePicker = false }
+        )
     }
 }
 
