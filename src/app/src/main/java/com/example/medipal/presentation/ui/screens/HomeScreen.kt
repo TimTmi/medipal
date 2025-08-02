@@ -59,6 +59,10 @@ fun HomeScreen(navController: NavController, viewModel: HomeViewModel) {
                     viewModel.hideAddSheet()
                     navController.navigate(Screen.AddMedicineFlow.route)
                 },
+                onAddHealthcareReminder = {
+                    viewModel.hideAddSheet()
+                    navController.navigate(Screen.AddHealthcareReminderFlow.route)
+                },
                 onClose = { viewModel.hideAddSheet() }
             )
         }
@@ -247,7 +251,10 @@ fun EventCard(event: ScheduledEvent) {
 
 
 @Composable
-fun AddOptionsSheet(onAddMedicine: () -> Unit, onClose: () -> Unit) {
+fun AddOptionsSheet(onAddMedicine: () -> Unit,
+                    onAddHealthcareReminder: () -> Unit,
+                    onClose: () -> Unit)
+{
     Column(Modifier.padding(16.dp)) {
         Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
             Text("What would you like to add?", fontSize = 20.sp, fontWeight = FontWeight.Bold)
@@ -262,7 +269,7 @@ fun AddOptionsSheet(onAddMedicine: () -> Unit, onClose: () -> Unit) {
         ListItem(
             headlineContent = { Text("Add healthcare reminder") },
             leadingContent = { Icon(Icons.Default.Add, null) },
-            modifier = Modifier.clickable(onClick = { /* TODO */ })
+            modifier = Modifier.clickable(onClick = {onAddHealthcareReminder()})
         )
         ListItem(
             headlineContent = { Text("Add appointment") },

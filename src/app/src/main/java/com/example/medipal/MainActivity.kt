@@ -13,10 +13,14 @@ import androidx.navigation.compose.rememberNavController
 import com.example.medipal.data.repository.FakeMedicationRepositoryImpl
 import com.example.medipal.domain.repository.MedicationRepository
 import com.example.medipal.domain.usecase.AddMedicationUseCase
+import com.example.medipal.domain.usecase.AddHealthcareReminderUseCase
 import com.example.medipal.domain.usecase.GetScheduledEventsUseCase
 import com.example.medipal.presentation.navigation.Screen
-import com.example.medipal.presentation.ui.screens.HomeScreen
+import com.example.medipal.presentation.ui.screens.AddHealthcareReminderFlow
 import com.example.medipal.presentation.ui.screens.AddMedicineFlow
+import com.example.medipal.presentation.ui.screens.HomeScreen
+import com.example.medipal.presentation.ui.theme.MediPalTheme
+import com.example.medipal.presentation.viewmodel.AddHealthcareReminderViewModel
 import com.example.medipal.presentation.viewmodel.AddMedicineViewModel
 import com.example.medipal.presentation.viewmodel.HomeViewModel
 
@@ -30,6 +34,7 @@ class MainActivity : ComponentActivity() {
     private val repository: MedicationRepository = FakeMedicationRepositoryImpl()
     private val getScheduledEventsUseCase by lazy { GetScheduledEventsUseCase(repository) }
     private val addMedicationUseCase by lazy { AddMedicationUseCase(repository) }
+    private val addReminderUseCase by lazy { AddHealthcareReminderUseCase(repository) }
     // --- Kết thúc giả lập DI ---
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -64,6 +69,15 @@ class MainActivity : ComponentActivity() {
                     factory = ViewModelFactory { AddMedicineViewModel(addMedicationUseCase) }
                 )
                 AddMedicineFlow(mainNavController = navController, viewModel = addMedicineViewModel)
+            }
+            composable(Screen.AddHealthcareReminderFlow.route) {
+                val addReminderViewModel: AddHealthcareReminderViewModel = viewModel(
+                    factory = ViewModelFactory { AddHealthcareReminderViewModel(addReminderUseCase) }
+                )
+                AddHealthcareReminderFlow(
+                    mainNavController = navController,
+                    viewModel = addReminderViewModel
+                )
             }
         }
     }

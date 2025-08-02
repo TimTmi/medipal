@@ -14,3 +14,9 @@ class AddMedicationUseCase(private val repository: MedicationRepository) {
         repository.addMedication(medication)
     }
 }
+class AddHealthcareReminderUseCase(private val repository: MedicationRepository) {
+    suspend operator fun invoke(reminder: ScheduledEvent.Reminder) {
+        repository.addHealthcareReminder(reminder)
+    }
+
+}

@@ -28,4 +28,11 @@ class FakeMedicationRepositoryImpl : MedicationRepository {
         currentList.add(0, medication) // Thêm vào đầu danh sách
         eventsFlow.value = currentList
     }
+
+    override suspend fun addHealthcareReminder(reminder: ScheduledEvent.Reminder) {
+        val currentList = eventsFlow.value.toMutableList()
+        currentList.add(0, reminder) // Thêm vào đầu danh sách
+        eventsFlow.value = currentList
+
+    }
 }

@@ -1,6 +1,7 @@
 package com.example.medipal.presentation.ui.screens
 
 import androidx.compose.foundation.layout.*
+import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -74,12 +75,15 @@ fun SelectMedicineNameScreen(viewModel: AddMedicineViewModel, onNext: () -> Unit
     val medicineName by viewModel.medicineName.collectAsState()
     Scaffold(
         topBar = {
-            TopAppBar(
+            // SỬA Ở ĐÂY: Dùng CenterAlignedTopAppBar
+            CenterAlignedTopAppBar(
                 title = { Text("Add medicine") },
                 navigationIcon = { TextButton(onClick = onCancel) { Text("Cancel") } }
+                // Không cần action Spacer nữa
             )
         }
     ) { padding ->
+        // ... nội dung không đổi ...
         Column(
             modifier = Modifier
                 .fillMaxSize()
@@ -107,21 +111,20 @@ fun SelectMedicineNameScreen(viewModel: AddMedicineViewModel, onNext: () -> Unit
 @Composable
 fun SelectFrequencyScreen(viewModel: AddMedicineViewModel, onNext: () -> Unit, onCancel: () -> Unit) {
     val medicineName by viewModel.medicineName.collectAsState()
-
-    // SỬA LỖI Ở ĐÂY: Lấy danh sách tĩnh trực tiếp, không dùng collectAsState
     val options = viewModel.frequencyOptions
-
-    // Dòng này đúng vì selectedFrequency là StateFlow
     val selectedOption by viewModel.selectedFrequency.collectAsState()
 
     Scaffold(
         topBar = {
-            TopAppBar(
+            // SỬA Ở ĐÂY: Dùng CenterAlignedTopAppBar
+            CenterAlignedTopAppBar(
                 title = { Text(medicineName) },
                 navigationIcon = { TextButton(onClick = onCancel) { Text("Cancel") } }
+                // Không cần action Spacer nữa
             )
         }
     ) { padding ->
+        // ... nội dung không đổi ...
         Column(
             modifier = Modifier
                 .fillMaxSize()
@@ -185,12 +188,15 @@ fun SelectTimeScreen(viewModel: AddMedicineViewModel, onSave: () -> Unit, onCanc
     val time by viewModel.time.collectAsState()
     Scaffold(
         topBar = {
-            TopAppBar(
+            // SỬA Ở ĐÂY: Dùng CenterAlignedTopAppBar
+            CenterAlignedTopAppBar(
                 title = { Text(medicineName) },
                 navigationIcon = { TextButton(onClick = onCancel) { Text("Cancel") } }
+                // Không cần action Spacer nữa
             )
         }
     ) { padding ->
+        // ... nội dung không đổi ...
         Column(
             modifier = Modifier
                 .fillMaxSize()
