@@ -105,7 +105,7 @@ fun HomeScreen(navController: NavController, viewModel: HomeViewModel) {
             ) {
                 item {
                     Text(
-                        "Welcome, Tom",
+                        "Welcome, bro",
                         color = Color.White,
                         fontSize = 24.sp,
                         fontWeight = FontWeight.Bold
@@ -147,7 +147,7 @@ fun DynamicCalendarView(viewModel: CalendarViewModel) {
                 onNextClick = { viewModel.goToNextWeek() }
             )
             Spacer(modifier = Modifier.height(16.dp))
-            Divider(color = Color.White.copy(alpha = 0.2f))
+            HorizontalDivider(color = Color.White.copy(alpha = 0.2f))
             Spacer(modifier = Modifier.height(16.dp))
 
             val chunkedDates = uiState.dates.chunked(7)

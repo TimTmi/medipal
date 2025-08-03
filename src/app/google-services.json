@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "793994314732",
+    "project_id": "medipal-b08ce",
+    "storage_bucket": "medipal-b08ce.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:793994314732:android:5428e69cca2ecb46fbf6c9",
+        "android_client_info": {
+          "package_name": "com.example.medipal"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDa9IaYga6n7uTGJehsIUTX_fWhWYOVk-c"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

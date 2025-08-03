@@ -7,9 +7,9 @@ import com.example.medipal.data.repository.FakeAppointmentRepositoryImpl
 import com.example.medipal.data.repository.FakeMedicationRepositoryImpl
 import com.example.medipal.data.repository.FakeReminderRepositoryImpl
 import com.example.medipal.data.repository.RoomMedicationRepositoryImpl
-import com.example.medipal.data.repository.HistoryRepositoryImpl
+//import com.example.medipal.data.repository.HistoryRepositoryImpl
 import com.example.medipal.domain.repository.AppointmentRepository
-import com.example.medipal.domain.repository.HistoryRepository
+//import com.example.medipal.domain.repository.HistoryRepository
 import com.example.medipal.domain.repository.MedicationRepository
 import com.example.medipal.domain.repository.ReminderRepository
 import com.example.medipal.domain.usecase.AddMedicationUseCase
@@ -28,7 +28,7 @@ interface AppContainer {
     val medicationRepository: MedicationRepository
     val appointmentRepository: AppointmentRepository
     val reminderRepository: ReminderRepository
-    val historyRepository: HistoryRepository
+//    val historyRepository: HistoryRepository
     val getMedicationsUseCase: GetMedicationsUseCase
     val getAppointmentsUseCase: GetAppointmentsUseCase
     val getRemindersUseCase: GetRemindersUseCase
@@ -59,9 +59,9 @@ class DefaultAppContainer(context: Context) : AppContainer {
         FakeReminderRepositoryImpl()
     }
     
-    override val historyRepository: HistoryRepository by lazy {
-        HistoryRepositoryImpl()
-    }
+//    override val historyRepository: HistoryRepository by lazy {
+//        HistoryRepositoryImpl()
+//    }
 
     // Use Cases
     override val getMedicationsUseCase: GetMedicationsUseCase by lazy {

@@ -77,9 +77,9 @@ dependencies {
     implementation(libs.material.icons.extended)
     implementation(libs.androidx.runtime)
 
-    implementation(platform(libs.firebase.bom))
-    implementation("com.google.firebase:firebase-firestore-ktx:25.1.4")
-    implementation(libs.firebase.auth.ktx)
+//    implementation(platform("com.google.firebase:firebase-bom:34.0.0"))
+//    implementation("com.google.firebase:firebase-auth-ktx")
+//    implementation("com.google.firebase:firebase-firestore-ktx")
 }
 
 kotlin {

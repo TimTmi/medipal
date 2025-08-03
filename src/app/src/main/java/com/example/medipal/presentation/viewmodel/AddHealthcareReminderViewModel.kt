@@ -3,7 +3,7 @@ package com.example.medipal.presentation.viewmodel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.medipal.domain.model.Reminder
-import com.example.medipal.domain.repository.HistoryRepository
+//import com.example.medipal.domain.repository.HistoryRepository
 import com.example.medipal.domain.usecase.AddReminderUseCase
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -14,7 +14,7 @@ import java.util.Locale
 
 class AddHealthcareReminderViewModel(
     private val addReminderUseCase: AddReminderUseCase,
-    private val historyRepository: HistoryRepository
+//    private val historyRepository: HistoryRepository
 ) : ViewModel() {
 
     // --- CÁC TRẠNG THÁI CHO LUỒNG THÊM LỜI NHẮC ---
@@ -90,7 +90,7 @@ class AddHealthcareReminderViewModel(
             addReminderUseCase(newReminder)
             
             // Auto-add to history
-            historyRepository.addReminderHistory(newReminder)
+//            historyRepository.addReminderHistory(newReminder)
 
             _lastSavedReminderTitle.value = activityToSave
             _showSuccessDialog.value = true

@@ -3,7 +3,7 @@ package com.example.medipal.presentation.viewmodel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.medipal.domain.model.Appointment
-import com.example.medipal.domain.repository.HistoryRepository
+//import com.example.medipal.domain.repository.HistoryRepository
 import com.example.medipal.domain.usecase.AddAppointmentUseCase
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -14,7 +14,7 @@ import java.util.Locale
 
 class AddAppointmentViewModel(
     private val addAppointmentUseCase: AddAppointmentUseCase,
-    private val historyRepository: HistoryRepository
+//    private val historyRepository: HistoryRepository
 ) : ViewModel() {
 
     // Các trạng thái cho form
@@ -53,7 +53,7 @@ class AddAppointmentViewModel(
             addAppointmentUseCase(newAppointment)
             
             // Auto-add to history
-            historyRepository.addAppointmentHistory(newAppointment)
+//            historyRepository.addAppointmentHistory(newAppointment)
             
             _lastSavedAppointmentTitle.value = newAppointment.title
             _showSuccessDialog.value = true // Hiển thị dialog sau khi lưu

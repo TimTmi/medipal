@@ -1,31 +1,30 @@
 package com.example.medipal.data.repository
 
+import com.example.medipal.data.local.dao.MedicationDao
 import com.example.medipal.domain.model.Medication
 import com.example.medipal.domain.repository.MedicationRepository
+import com.example.medipal.data.mapper.toDomain
+import com.example.medipal.data.mapper.toEntity
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.map
 
-class RoomMedicationRepositoryImpl : MedicationRepository {
-
-    private val medicationsFlow = MutableStateFlow<List<Medication>>(emptyList())
+class RoomMedicationRepositoryImpl(
+    private val dao: MedicationDao
+) : MedicationRepository {
 
     override fun getMedications(): Flow<List<Medication>> {
-        return medicationsFlow
+        return dao.getAll().map { list -> list.map { it.toDomain() } }
     }
 
     override suspend fun addMedication(medication: Medication) {
-        val currentList = medicationsFlow.value.toMutableList()
-        currentList.add(0, medication)
-        medicationsFlow.value = currentList
+        dao.insert(medication.toEntity())
     }
 
     override suspend fun removeMedication(id: String) {
-        medicationsFlow.value = medicationsFlow.value.filterNot { it.id == id }
+        dao.deleteById(id)
     }
 
     override suspend fun updateMedication(medication: Medication) {
-        medicationsFlow.value = medicationsFlow.value.map {
-            if (it.id == medication.id) medication else it
-        }
+        dao.update(medication.toEntity())
     }
 }
