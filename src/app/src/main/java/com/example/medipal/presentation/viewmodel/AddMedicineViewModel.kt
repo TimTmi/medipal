@@ -17,7 +17,7 @@ class AddMedicineViewModel(
 
     // Các trạng thái cho từng bước
     val medicineName = MutableStateFlow("")
-    val time = MutableStateFlow("16:46 AM") // Giả lập thời gian được chọn
+    val time = MutableStateFlow(System.currentTimeMillis()) // Thời gian được chọn dưới dạng Long
     val frequencyOptions = listOf(
         "Every day",
         "Only as needed",
@@ -51,7 +51,7 @@ class AddMedicineViewModel(
                 id = UUID.randomUUID().toString(),
                 name = medicineName.value,
                 dosage = "Frequency: ${selectedFrequency.value}", // Có thể thêm màn hình chọn liều lượng
-                medicationTime = time.value
+                medicationTime = time.value.toString()
             )
             addMedicationUseCase(newMedication)
             

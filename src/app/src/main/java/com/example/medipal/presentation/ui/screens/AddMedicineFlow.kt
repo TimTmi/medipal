@@ -2,6 +2,7 @@ package com.example.medipal.presentation.ui.screens
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -18,23 +19,24 @@ import com.example.medipal.presentation.viewmodel.AddMedicineViewModel
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-<<<<<<< HEAD
-=======
 import java.time.Instant
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
-
->>>>>>> origin/main
+import java.time.LocalDate
+import java.time.LocalDateTime
+import java.time.LocalTime
 import com.example.medipal.presentation.ui.components.TimePickerDialog
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import java.util.Locale
+
 // Các route cho các bước con bên trong luồng thêm thuốc
 private const val STEP_NAME = "step_name"
 private const val STEP_FREQUENCY = "step_frequency"
 private const val STEP_TIME = "step_time"
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AddMedicineFlow(
     mainNavController: NavController,
@@ -80,7 +82,7 @@ fun AddMedicineFlow(
     }
 }
 
-//@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SelectMedicineNameScreen(viewModel: AddMedicineViewModel, onNext: () -> Unit, onCancel: () -> Unit) {
     val medicineName by viewModel.medicineName.collectAsState()
@@ -115,7 +117,7 @@ fun SelectMedicineNameScreen(viewModel: AddMedicineViewModel, onNext: () -> Unit
     }
 }
 
-//@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SelectFrequencyScreen(viewModel: AddMedicineViewModel, onNext: () -> Unit, onCancel: () -> Unit) {
     val medicineName by viewModel.medicineName.collectAsState()
@@ -167,6 +169,7 @@ fun SelectFrequencyScreen(viewModel: AddMedicineViewModel, onNext: () -> Unit, o
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun FrequencyOptionRow(
     text: String,
@@ -189,8 +192,7 @@ fun FrequencyOptionRow(
     }
 }
 
-
-//@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SelectTimeScreen(viewModel: AddMedicineViewModel, onSave: () -> Unit, onCancel: () -> Unit) {
     val medicineName by viewModel.medicineName.collectAsState()
@@ -212,17 +214,11 @@ fun SelectTimeScreen(viewModel: AddMedicineViewModel, onSave: () -> Unit, onCanc
                 .padding(16.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-<<<<<<< HEAD
-=======
-            Text("When do you need to take it?")
-            Spacer(modifier = Modifier.height(32.dp))
-
             val formattedTime = Instant.ofEpochMilli(time)
                 .atZone(ZoneId.systemDefault())
                 .toLocalTime()
                 .format(DateTimeFormatter.ofPattern("hh:mm a"))
 
->>>>>>> origin/main
             Text(
                 "When do you need to take it?",
                 style = MaterialTheme.typography.titleLarge,
@@ -283,12 +279,6 @@ fun SelectTimeScreen(viewModel: AddMedicineViewModel, onSave: () -> Unit, onCanc
     if (showTimePicker) {
         TimePickerDialog(
             onTimeSelected = { hour, minute ->
-<<<<<<< HEAD
-                val amPm = if (hour >= 12) "PM" else "AM"
-                val displayHour = if (hour == 0) 12 else if (hour > 12) hour - 12 else hour
-                val timeString = String.format(Locale.getDefault(), "%d:%02d %s", displayHour, minute, amPm)
-                viewModel.updateTime(timeString)
-=======
                 val now = LocalDate.now()
                 val selectedTime = LocalDateTime.of(now, LocalTime.of(hour, minute))
                 val epochMillis = selectedTime
@@ -297,7 +287,6 @@ fun SelectTimeScreen(viewModel: AddMedicineViewModel, onSave: () -> Unit, onCanc
                     .toEpochMilli()
 
                 viewModel.updateTime(epochMillis)
->>>>>>> origin/main
                 showTimePicker = false
             },
             onDismiss = { showTimePicker = false }
@@ -306,6 +295,7 @@ fun SelectTimeScreen(viewModel: AddMedicineViewModel, onSave: () -> Unit, onCanc
 
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SuccessDialog(
     medicineName: String, // Thêm tham số medicineName

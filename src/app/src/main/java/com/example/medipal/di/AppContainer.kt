@@ -53,7 +53,7 @@ class DefaultAppContainer : AppContainer {
     
     // Use Cases
     override val getScheduledEventsUseCase: GetScheduledEventsUseCase by lazy {
-        GetScheduledEventsUseCase(medicationRepository, appointmentRepository, reminderRepository)
+        GetScheduledEventsUseCase(medicationRepository)
     }
     
     override val addMedicationUseCase: AddMedicationUseCase by lazy {

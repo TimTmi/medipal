@@ -1,6 +1,7 @@
 package com.example.medipal.presentation.ui.screens
 
 import androidx.compose.foundation.Image
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -34,6 +35,7 @@ import com.example.medipal.presentation.viewmodel.CalendarUiState
 import com.example.medipal.presentation.viewmodel.CalendarViewModel
 import com.example.medipal.presentation.viewmodel.HomeViewModel
 import java.time.DayOfWeek
+
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -216,7 +218,7 @@ fun DayCell(
     }
 }
 
-//@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomeScreenTopBar(
     onAddClick: () -> Unit,

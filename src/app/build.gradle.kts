@@ -2,7 +2,6 @@ plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
-
     alias(libs.plugins.kotlin.kapt)
 }
 
@@ -71,15 +70,4 @@ dependencies {
 
     implementation(libs.koin.android)
     implementation(libs.koin.androidx.compose)
-    implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.8.1")
-    implementation("androidx.navigation:navigation-compose:2.7.7")
-    implementation("androidx.compose.material:material-icons-extended")
-    implementation(libs.androidx.runtime)
-}
-
-kotlin {
-    sourceSets.all {
-        languageSettings.optIn("androidx.compose.material3.ExperimentalMaterial3Api")
-    }
-}
 }
