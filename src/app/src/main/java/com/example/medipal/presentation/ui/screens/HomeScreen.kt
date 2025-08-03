@@ -1,4 +1,3 @@
-// Trong file HomeScreen.kt
 package com.example.medipal.presentation.ui.screens
 
 import androidx.compose.foundation.Image
@@ -217,7 +216,7 @@ fun DayCell(
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
+//@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomeScreenTopBar(
     onAddClick: () -> Unit,
