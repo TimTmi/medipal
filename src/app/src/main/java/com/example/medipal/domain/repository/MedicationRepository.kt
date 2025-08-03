@@ -1,18 +1,20 @@
 package com.example.medipal.domain.repository
 
-import com.example.medipal.domain.model.ScheduledEvent
+import com.example.medipal.domain.model.Medication
+import com.example.medipal.domain.model.Appointment
+import com.example.medipal.domain.model.Reminder
 import kotlinx.coroutines.flow.Flow
 
 interface MedicationRepository {
-    // Sẽ lấy tất cả các sự kiện để hiển thị trên màn hình chính
-    fun getScheduledEvents(): Flow<List<ScheduledEvent>>
+    // Lấy tất cả medications
+    fun getMedications(): Flow<List<Medication>>
 
     // Dùng cho use case thêm thuốc
-    suspend fun addMedication(medication: ScheduledEvent.Medication)
+    suspend fun addMedication(medication: Medication)
     
-    // Dùng cho use case thêm healthcare reminder
-    suspend fun addHealthcareReminder(reminder: ScheduledEvent.Reminder)
+    // Cập nhật medication
+    suspend fun updateMedication(medication: Medication)
     
-    // Dùng cho use case thêm cuộc hẹn
-    suspend fun addAppointment(appointment: ScheduledEvent.Appointment)
+    // Xóa medication
+    suspend fun removeMedication(id: String)
 }

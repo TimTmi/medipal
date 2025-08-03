@@ -2,7 +2,7 @@ package com.example.medipal.presentation.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.medipal.domain.model.ScheduledEvent
+import com.example.medipal.domain.model.Medication
 import com.example.medipal.domain.repository.HistoryRepository
 import com.example.medipal.domain.usecase.AddMedicationUseCase
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -47,16 +47,17 @@ class AddMedicineViewModel(
 
     fun saveMedication() {
         viewModelScope.launch {
-            val newMedication = ScheduledEvent.Medication(
+            val newMedication = Medication(
                 id = UUID.randomUUID().toString(),
                 name = medicineName.value,
                 dosage = "Frequency: ${selectedFrequency.value}", // Có thể thêm màn hình chọn liều lượng
-                medicationTime = time.value.toString()
+                scheduleTime = time.value,
+                notes = null
             )
             addMedicationUseCase(newMedication)
             
             // Auto-add to history
-            historyRepository.addHistoryEntry(newMedication)
+            historyRepository.addMedicationHistory(newMedication)
             
             _lastSavedMedicineName.value = newMedication.name
             _showSuccessDialog.value = true // Hiển thị dialog sau khi lưu

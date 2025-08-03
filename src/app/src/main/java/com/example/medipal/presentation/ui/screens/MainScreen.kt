@@ -70,7 +70,10 @@ fun MainScreen() {
                 CalendarScreen(navController = navController)
             }
             composable(Screen.Medications.route) {
-                MedicationsScreen(navController = navController)
+                MedicationsScreen(
+                    navController = navController,
+                    viewModelFactory = viewModelFactory
+                )
             }
             composable(Screen.Notifications.route) {
                 NotificationsScreen(navController = navController)

@@ -2,13 +2,15 @@ package com.example.medipal.presentation.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.medipal.domain.model.ScheduledEvent
+import com.example.medipal.domain.model.Appointment
 import com.example.medipal.domain.repository.HistoryRepository
 import com.example.medipal.domain.usecase.AddAppointmentUseCase
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import java.util.*
+import java.text.SimpleDateFormat
+import java.util.Locale
 
 class AddAppointmentViewModel(
     private val addAppointmentUseCase: AddAppointmentUseCase,
@@ -31,18 +33,27 @@ class AddAppointmentViewModel(
 
     fun saveAppointment() {
         viewModelScope.launch {
-            val newAppointment = ScheduledEvent.Appointment(
+            // Convert user-selected time to timestamp
+            val timeString = time.value.ifEmpty { "09:00 AM" }
+            val scheduledTimestamp = try {
+                val format = SimpleDateFormat("hh:mm a", Locale.getDefault())
+                val parsedTime = format.parse(timeString)
+                parsedTime?.time ?: System.currentTimeMillis()
+            } catch (e: Exception) {
+                System.currentTimeMillis()
+            }
+            
+            val newAppointment = Appointment(
                 id = UUID.randomUUID().toString(),
                 title = reasonForVisit.value.ifEmpty { "Appointment" },
-                appointmentTime = time.value,
+                scheduleTime = scheduledTimestamp,
                 doctor = doctorName.value,
-                location = location.value,
-                date = date.value
+                notes = "Location: ${location.value}, Date: ${date.value}"
             )
             addAppointmentUseCase(newAppointment)
             
             // Auto-add to history
-            historyRepository.addHistoryEntry(newAppointment)
+            historyRepository.addAppointmentHistory(newAppointment)
             
             _lastSavedAppointmentTitle.value = newAppointment.title
             _showSuccessDialog.value = true // Hiển thị dialog sau khi lưu

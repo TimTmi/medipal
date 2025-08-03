@@ -29,18 +29,25 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.example.medipal.R
-import com.example.medipal.domain.model.ScheduledEvent
+import com.example.medipal.domain.model.Medication
+import com.example.medipal.domain.model.Appointment
+import com.example.medipal.domain.model.Reminder
 import com.example.medipal.presentation.navigation.Screen
 import com.example.medipal.presentation.viewmodel.CalendarUiState
 import com.example.medipal.presentation.viewmodel.CalendarViewModel
 import com.example.medipal.presentation.viewmodel.HomeViewModel
 import java.time.DayOfWeek
+import java.time.Instant
+import java.time.ZoneId
+import java.time.format.DateTimeFormatter
 
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomeScreen(navController: NavController, viewModel: HomeViewModel) {
-    val events by viewModel.events.collectAsState(initial = emptyList())
+    val medications by viewModel.medications.collectAsState(initial = emptyList())
+    val appointments by viewModel.appointments.collectAsState(initial = emptyList())
+    val reminders by viewModel.reminders.collectAsState(initial = emptyList())
     val isSheetVisible by viewModel.isAddSheetVisible.collectAsState()
     val calendarViewModel: CalendarViewModel = viewModel()
 
@@ -109,8 +116,16 @@ fun HomeScreen(navController: NavController, viewModel: HomeViewModel) {
                     )
                 }
 
-                items(events) { event ->
-                    EventCard(event = event)
+                items(medications) { medication ->
+                    MedicationCard(medication = medication)
+                }
+                
+                items(appointments) { appointment ->
+                    AppointmentCard(appointment = appointment)
+                }
+                
+                items(reminders) { reminder ->
+                    ReminderCard(reminder = reminder)
                 }
             }
         }
@@ -245,66 +260,91 @@ fun HomeScreenTopBar(
 }
 
 @Composable
-fun EventCard(event: ScheduledEvent) {
+fun MedicationCard(medication: Medication) {
+    val formattedTime = Instant.ofEpochMilli(medication.scheduleTime)
+        .atZone(ZoneId.systemDefault())
+        .toLocalTime()
+        .format(DateTimeFormatter.ofPattern("hh:mm a"))
+    
     Card(modifier = Modifier.fillMaxWidth()) {
-        when (event) {
-            is ScheduledEvent.Medication -> {
-                Column(modifier = Modifier.padding(16.dp)) {
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        Text(
-                            text = "${event.time} | Medication",
-                            style = MaterialTheme.typography.labelMedium,
-                            color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f)
-                        )
-                    }
-                    Spacer(modifier = Modifier.height(4.dp))
-                    Text(
-                        text = event.name,
-                        style = MaterialTheme.typography.titleMedium,
-                        fontWeight = FontWeight.Bold
-                    )
-                }
+        Column(modifier = Modifier.padding(16.dp)) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Text(
+                    text = "$formattedTime | Medication",
+                    style = MaterialTheme.typography.labelMedium,
+                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f)
+                )
             }
-            is ScheduledEvent.Appointment -> {
-                Column(modifier = Modifier.padding(16.dp)) {
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        Text(
-                            text = "${event.time} | Appointment",
-                            style = MaterialTheme.typography.labelMedium,
-                            color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f)
-                        )
-                    }
-                    Spacer(modifier = Modifier.height(4.dp))
-                    Text(
-                        text = event.title,
-                        style = MaterialTheme.typography.titleMedium,
-                        fontWeight = FontWeight.Bold
-                    )
-                    Spacer(modifier = Modifier.height(4.dp))
-                    Text(
-                        text = "At: ${event.location} | Date: ${event.date}",
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
-                    )
-                }
+            Spacer(modifier = Modifier.height(4.dp))
+            Text(
+                text = medication.name,
+                style = MaterialTheme.typography.titleMedium,
+                fontWeight = FontWeight.Bold
+            )
+            Spacer(modifier = Modifier.height(4.dp))
+            Text(
+                text = medication.dosage,
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
+            )
+        }
+    }
+}
+
+@Composable
+fun AppointmentCard(appointment: Appointment) {
+    val formattedTime = Instant.ofEpochMilli(appointment.scheduleTime)
+        .atZone(ZoneId.systemDefault())
+        .toLocalTime()
+        .format(DateTimeFormatter.ofPattern("hh:mm a"))
+    
+    Card(modifier = Modifier.fillMaxWidth()) {
+        Column(modifier = Modifier.padding(16.dp)) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Text(
+                    text = "$formattedTime | Appointment",
+                    style = MaterialTheme.typography.labelMedium,
+                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f)
+                )
             }
-            is ScheduledEvent.Reminder -> {
-                Column(modifier = Modifier.padding(16.dp)) {
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        Text(
-                            text = "${event.time} | Reminder",
-                            style = MaterialTheme.typography.labelMedium,
-                            color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f)
-                        )
-                    }
-                    Spacer(modifier = Modifier.height(4.dp))
-                    Text(
-                        text = event.title,
-                        style = MaterialTheme.typography.titleMedium,
-                        fontWeight = FontWeight.Bold
-                    )
-                }
+            Spacer(modifier = Modifier.height(4.dp))
+            Text(
+                text = appointment.title,
+                style = MaterialTheme.typography.titleMedium,
+                fontWeight = FontWeight.Bold
+            )
+            Spacer(modifier = Modifier.height(4.dp))
+            Text(
+                text = "Doctor: ${appointment.doctor}",
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
+            )
+        }
+    }
+}
+
+@Composable
+fun ReminderCard(reminder: Reminder) {
+    val formattedTime = Instant.ofEpochMilli(reminder.scheduleTime)
+        .atZone(ZoneId.systemDefault())
+        .toLocalTime()
+        .format(DateTimeFormatter.ofPattern("hh:mm a"))
+    
+    Card(modifier = Modifier.fillMaxWidth()) {
+        Column(modifier = Modifier.padding(16.dp)) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Text(
+                    text = "$formattedTime | Reminder",
+                    style = MaterialTheme.typography.labelMedium,
+                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f)
+                )
             }
+            Spacer(modifier = Modifier.height(4.dp))
+            Text(
+                text = reminder.title,
+                style = MaterialTheme.typography.titleMedium,
+                fontWeight = FontWeight.Bold
+            )
         }
     }
 }

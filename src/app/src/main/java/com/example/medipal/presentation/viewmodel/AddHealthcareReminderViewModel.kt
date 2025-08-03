@@ -2,16 +2,18 @@ package com.example.medipal.presentation.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.medipal.domain.model.ScheduledEvent
+import com.example.medipal.domain.model.Reminder
 import com.example.medipal.domain.repository.HistoryRepository
-import com.example.medipal.domain.usecase.AddHealthcareReminderUseCase
+import com.example.medipal.domain.usecase.AddReminderUseCase
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import java.util.*
+import java.text.SimpleDateFormat
+import java.util.Locale
 
 class AddHealthcareReminderViewModel(
-    private val addHealthcareReminderUseCase: AddHealthcareReminderUseCase,
+    private val addReminderUseCase: AddReminderUseCase,
     private val historyRepository: HistoryRepository
 ) : ViewModel() {
 
@@ -67,17 +69,28 @@ class AddHealthcareReminderViewModel(
     fun saveReminder() {
         viewModelScope.launch {
             val activityToSave = selectedActivity.value
+            
+            // Convert user-selected time to timestamp
+            val timeString = selectedTime.value.ifEmpty { "09:00 AM" }
+            val scheduledTimestamp = try {
+                val format = SimpleDateFormat("hh:mm a", Locale.getDefault())
+                val parsedTime = format.parse(timeString)
+                parsedTime?.time ?: System.currentTimeMillis()
+            } catch (e: Exception) {
+                System.currentTimeMillis()
+            }
 
-            val newReminder = ScheduledEvent.Reminder(
+            val newReminder = Reminder(
                 id = UUID.randomUUID().toString(),
                 title = activityToSave,
-                reminderTime = selectedTime.value
+                scheduleTime = scheduledTimestamp,
+                notes = "Frequency: ${selectedFrequency.value}, Sessions: ${sessionCount.value}"
             )
             // Gọi UseCase (là một suspend function) bên trong coroutine
-            addHealthcareReminderUseCase(newReminder)
+            addReminderUseCase(newReminder)
             
             // Auto-add to history
-            historyRepository.addHistoryEntry(newReminder)
+            historyRepository.addReminderHistory(newReminder)
 
             _lastSavedReminderTitle.value = activityToSave
             _showSuccessDialog.value = true

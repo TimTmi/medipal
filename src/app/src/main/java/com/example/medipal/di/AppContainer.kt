@@ -9,9 +9,13 @@ import com.example.medipal.domain.repository.HistoryRepository
 import com.example.medipal.domain.repository.MedicationRepository
 import com.example.medipal.domain.repository.ReminderRepository
 import com.example.medipal.domain.usecase.AddMedicationUseCase
-import com.example.medipal.domain.usecase.AddHealthcareReminderUseCase
+import com.example.medipal.domain.usecase.AddReminderUseCase
 import com.example.medipal.domain.usecase.AddAppointmentUseCase
-import com.example.medipal.domain.usecase.GetScheduledEventsUseCase
+import com.example.medipal.domain.usecase.GetMedicationsUseCase
+import com.example.medipal.domain.usecase.GetAppointmentsUseCase
+import com.example.medipal.domain.usecase.GetRemindersUseCase
+import com.example.medipal.domain.usecase.UpdateMedicationUseCase
+import com.example.medipal.domain.usecase.RemoveMedicationUseCase
 
 /**
  * Dependency injection container at the application level.
@@ -21,10 +25,14 @@ interface AppContainer {
     val appointmentRepository: AppointmentRepository
     val reminderRepository: ReminderRepository
     val historyRepository: HistoryRepository
-    val getScheduledEventsUseCase: GetScheduledEventsUseCase
+    val getMedicationsUseCase: GetMedicationsUseCase
+    val getAppointmentsUseCase: GetAppointmentsUseCase
+    val getRemindersUseCase: GetRemindersUseCase
     val addMedicationUseCase: AddMedicationUseCase
-    val addHealthcareReminderUseCase: AddHealthcareReminderUseCase
+    val addReminderUseCase: AddReminderUseCase
     val addAppointmentUseCase: AddAppointmentUseCase
+    val updateMedicationUseCase: UpdateMedicationUseCase
+    val removeMedicationUseCase: RemoveMedicationUseCase
 }
 
 /**
@@ -52,19 +60,35 @@ class DefaultAppContainer : AppContainer {
     }
     
     // Use Cases
-    override val getScheduledEventsUseCase: GetScheduledEventsUseCase by lazy {
-        GetScheduledEventsUseCase(medicationRepository)
+    override val getMedicationsUseCase: GetMedicationsUseCase by lazy {
+        GetMedicationsUseCase(medicationRepository)
+    }
+    
+    override val getAppointmentsUseCase: GetAppointmentsUseCase by lazy {
+        GetAppointmentsUseCase(appointmentRepository)
+    }
+    
+    override val getRemindersUseCase: GetRemindersUseCase by lazy {
+        GetRemindersUseCase(reminderRepository)
     }
     
     override val addMedicationUseCase: AddMedicationUseCase by lazy {
         AddMedicationUseCase(medicationRepository)
     }
     
-    override val addHealthcareReminderUseCase: AddHealthcareReminderUseCase by lazy {
-        AddHealthcareReminderUseCase(medicationRepository)
+    override val addReminderUseCase: AddReminderUseCase by lazy {
+        AddReminderUseCase(reminderRepository)
     }
     
     override val addAppointmentUseCase: AddAppointmentUseCase by lazy {
-        AddAppointmentUseCase(medicationRepository)
+        AddAppointmentUseCase(appointmentRepository)
+    }
+    
+    override val updateMedicationUseCase: UpdateMedicationUseCase by lazy {
+        UpdateMedicationUseCase(medicationRepository)
+    }
+    
+    override val removeMedicationUseCase: RemoveMedicationUseCase by lazy {
+        RemoveMedicationUseCase(medicationRepository)
     }
 }
