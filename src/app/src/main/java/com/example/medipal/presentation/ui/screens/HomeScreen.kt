@@ -28,7 +28,6 @@
     import androidx.lifecycle.viewmodel.compose.viewModel
     import androidx.navigation.NavController
     import com.example.medipal.R
-    import com.example.medipal.domain.model.ScheduledEvent
     import com.example.medipal.presentation.navigation.Screen
     import com.example.medipal.presentation.viewmodel.CalendarUiState
     import com.example.medipal.presentation.viewmodel.CalendarViewModel
@@ -41,8 +40,15 @@ import androidx.compose.ui.draw.clip
 import java.time.DayOfWeek
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.ColorMatrix
+    import com.example.medipal.domain.model.Appointment
+    import com.example.medipal.domain.model.Medication
+    import com.example.medipal.domain.model.Reminder
+    import com.example.medipal.domain.model.ScheduledItem
+    import java.time.Instant
+    import java.time.ZoneId
+    import java.time.format.DateTimeFormatter
 
-@OptIn(ExperimentalMaterial3Api::class)
+    @OptIn(ExperimentalMaterial3Api::class)
 
 
 @Composable
@@ -108,6 +114,7 @@ fun HomeScreen(navController: NavController, viewModel: HomeViewModel) {
         }
     }
 }
+
 @Composable
 fun DynamicCalendarView(viewModel: CalendarViewModel) {
     val uiState by viewModel.uiState.collectAsState()
@@ -125,7 +132,7 @@ fun DynamicCalendarView(viewModel: CalendarViewModel) {
                 onNextClick = { viewModel.goToNextWeek() }
             )
             Spacer(modifier = Modifier.height(16.dp))
-            Divider(color = Color.White.copy(alpha = 0.2f))
+            HorizontalDivider(color = Color.White.copy(alpha = 0.2f))
             Spacer(modifier = Modifier.height(16.dp))
 
             // Logic chunked(7) vẫn hoạt động hoàn hảo cho 14 ngày -> 2 tuần
@@ -232,15 +239,24 @@ fun HomeScreenTopBar(onAddClick: () -> Unit) {
 }
 
 @Composable
-fun EventCard(event: ScheduledEvent) {
+fun EventCard(event: ScheduledItem) {
     Card(modifier = Modifier.fillMaxWidth()) {
-        Row(modifier = Modifier.padding(16.dp), verticalAlignment = Alignment.CenterVertically) {
+        Row(
+            modifier = Modifier.padding(16.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
             val (title, type) = when (event) {
-                is ScheduledEvent.Medication -> Pair(event.name, "Medication")
-                is ScheduledEvent.Appointment -> Pair(event.title, "Appointment")
-                is ScheduledEvent.Reminder -> Pair(event.title, "Reminder")
+                is ScheduledItem.MedicationItem -> Pair(event.data.name, "Medication")
+                is ScheduledItem.AppointmentItem -> Pair(event.data.title, "Appointment")
+                is ScheduledItem.ReminderItem -> Pair(event.data.title, "Reminder")
             }
-            Text("${event.time} | $type\n$title", modifier = Modifier.weight(1f))
+
+            val timeFormatted = Instant.ofEpochMilli(event.scheduleTime)
+                .atZone(ZoneId.systemDefault())
+                .toLocalTime()
+                .format(DateTimeFormatter.ofPattern("hh:mm a"))
+
+            Text("$timeFormatted | $type\n$title", modifier = Modifier.weight(1f))
         }
     }
 }

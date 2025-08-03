@@ -2,7 +2,7 @@ package com.example.medipal.presentation.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.medipal.domain.model.ScheduledEvent
+import com.example.medipal.domain.model.Medication
 import com.example.medipal.domain.usecase.AddMedicationUseCase
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -11,9 +11,8 @@ import java.util.*
 
 class AddMedicineViewModel(private val addMedicationUseCase: AddMedicationUseCase) : ViewModel() {
 
-    // Các trạng thái cho từng bước
     val medicineName = MutableStateFlow("")
-    val time = MutableStateFlow("16:46 AM") // Giả lập thời gian được chọn
+    val time = MutableStateFlow(System.currentTimeMillis())
     val frequencyOptions = listOf(
         "Every day",
         "Only as needed",
@@ -37,11 +36,12 @@ class AddMedicineViewModel(private val addMedicationUseCase: AddMedicationUseCas
 
     fun saveMedication() {
         viewModelScope.launch {
-            val newMedication = ScheduledEvent.Medication(
+            val newMedication = Medication(
                 id = UUID.randomUUID().toString(),
                 name = medicineName.value,
                 dosage = "Frequency: ${selectedFrequency.value}", // Có thể thêm màn hình chọn liều lượng
-                medicationTime = time.value
+                scheduleTime = time.value,
+                notes = ""
             )
             addMedicationUseCase(newMedication)
             _lastSavedMedicineName.value = newMedication.name

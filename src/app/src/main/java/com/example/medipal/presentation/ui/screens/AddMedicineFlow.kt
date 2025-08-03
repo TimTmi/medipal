@@ -18,6 +18,10 @@ import com.example.medipal.presentation.viewmodel.AddMedicineViewModel
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import java.time.Instant
+import java.time.ZoneId
+import java.time.format.DateTimeFormatter
+
 // Các route cho các bước con bên trong luồng thêm thuốc
 private const val STEP_NAME = "step_name"
 private const val STEP_FREQUENCY = "step_frequency"
@@ -200,8 +204,14 @@ fun SelectTimeScreen(viewModel: AddMedicineViewModel, onSave: () -> Unit, onCanc
         ) {
             Text("When do you need to take it?")
             Spacer(modifier = Modifier.height(32.dp))
+
+            val formattedTime = Instant.ofEpochMilli(time)
+                .atZone(ZoneId.systemDefault())
+                .toLocalTime()
+                .format(DateTimeFormatter.ofPattern("hh:mm a"))
+
             Text(
-                text = time,
+                text = formattedTime,
                 fontSize = 32.sp,
                 fontWeight = FontWeight.Bold
             )

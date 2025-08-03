@@ -1,31 +1,41 @@
 package com.example.medipal.data.repository
 
-
-import com.example.medipal.domain.model.ScheduledEvent
+import com.example.medipal.domain.model.Medication
 import com.example.medipal.domain.repository.MedicationRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
-import java.util.*
 
-// Triển khai "fake" repository để giả lập dữ liệu
 class FakeMedicationRepositoryImpl : MedicationRepository {
 
-    // Dùng MutableStateFlow để có thể thêm và cập nhật dữ liệu một cách linh hoạt
-    private val eventsFlow = MutableStateFlow<List<ScheduledEvent>>(
+    private val medicationsFlow = MutableStateFlow<List<Medication>>(
         listOf(
-            ScheduledEvent.Medication("med1", "Paracetamol (500 mg)", "500mg, take 1 tablet(s)", "7:00 AM"),
-            ScheduledEvent.Appointment("apt1", "Health Check-up", "7:00 AM", "At: Bach Mai Quan 1"),
-            ScheduledEvent.Reminder("rem1", "Go out for a walk", "7:00 AM")
+            Medication(
+                id = "med1",
+                name = "Paracetamol",
+                dosage = "500mg, take 1 tablet(s)",
+                scheduleTime = System.currentTimeMillis(), // or any fixed test value
+                notes = "Before breakfast"
+            )
         )
     )
 
-    override fun getScheduledEvents(): Flow<List<ScheduledEvent>> {
-        return eventsFlow
+    override fun getMedications(): Flow<List<Medication>> {
+        return medicationsFlow
     }
 
-    override suspend fun addMedication(medication: ScheduledEvent.Medication) {
-        val currentList = eventsFlow.value.toMutableList()
-        currentList.add(0, medication) // Thêm vào đầu danh sách
-        eventsFlow.value = currentList
+    override suspend fun addMedication(medication: Medication) {
+        val currentList = medicationsFlow.value.toMutableList()
+        currentList.add(0, medication)
+        medicationsFlow.value = currentList
+    }
+
+    override suspend fun removeMedication(id: String) {
+        medicationsFlow.value = medicationsFlow.value.filterNot { it.id == id }
+    }
+
+    override suspend fun updateMedication(medication: Medication) {
+        medicationsFlow.value = medicationsFlow.value.map {
+            if (it.id == medication.id) medication else it
+        }
     }
 }

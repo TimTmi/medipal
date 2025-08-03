@@ -10,8 +10,12 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.example.medipal.data.repository.FakeAppointmentRepositoryImpl
 import com.example.medipal.data.repository.FakeMedicationRepositoryImpl
+import com.example.medipal.data.repository.FakeReminderRepositoryImpl
+import com.example.medipal.domain.repository.AppointmentRepository
 import com.example.medipal.domain.repository.MedicationRepository
+import com.example.medipal.domain.repository.ReminderRepository
 import com.example.medipal.domain.usecase.AddMedicationUseCase
 import com.example.medipal.domain.usecase.GetScheduledEventsUseCase
 import com.example.medipal.presentation.navigation.Screen
@@ -27,9 +31,11 @@ class MainActivity : ComponentActivity() {
 
     // --- Giả lập Dependency Injection ---
     // Trong dự án thực tế, bạn sẽ dùng Hilt hoặc Koin để cung cấp các đối tượng này
-    private val repository: MedicationRepository = FakeMedicationRepositoryImpl()
-    private val getScheduledEventsUseCase by lazy { GetScheduledEventsUseCase(repository) }
-    private val addMedicationUseCase by lazy { AddMedicationUseCase(repository) }
+    private val medicationRepository: MedicationRepository = FakeMedicationRepositoryImpl()
+    private val appointmentRepository: AppointmentRepository = FakeAppointmentRepositoryImpl()
+    private val reminderRepository: ReminderRepository = FakeReminderRepositoryImpl()
+    private val getScheduledEventsUseCase by lazy { GetScheduledEventsUseCase(medicationRepository, appointmentRepository, reminderRepository) }
+    private val addMedicationUseCase by lazy { AddMedicationUseCase(medicationRepository) }
     // --- Kết thúc giả lập DI ---
 
     override fun onCreate(savedInstanceState: Bundle?) {
