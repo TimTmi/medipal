@@ -37,6 +37,39 @@
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.*
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ColorFilter
+import androidx.compose.ui.graphics.ColorMatrix
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavController
+import com.example.medipal.R
+import com.example.medipal.domain.model.ScheduledEvent
+import com.example.medipal.presentation.navigation.Screen
+import com.example.medipal.presentation.viewmodel.CalendarUiState
+import com.example.medipal.presentation.viewmodel.CalendarViewModel
+import com.example.medipal.presentation.viewmodel.HomeViewModel
 import java.time.DayOfWeek
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.ColorMatrix
@@ -51,13 +84,13 @@ import androidx.compose.ui.graphics.ColorMatrix
     @OptIn(ExperimentalMaterial3Api::class)
 
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomeScreen(navController: NavController, viewModel: HomeViewModel) {
     val events by viewModel.events.collectAsState(initial = emptyList())
     val isSheetVisible by viewModel.isAddSheetVisible.collectAsState()
     val calendarViewModel: CalendarViewModel = viewModel()
 
-    // Bottom Sheet để chọn loại cần thêm
     if (isSheetVisible) {
         ModalBottomSheet(onDismissRequest = { viewModel.hideAddSheet() }) {
             AddOptionsSheet(
@@ -74,20 +107,23 @@ fun HomeScreen(navController: NavController, viewModel: HomeViewModel) {
         setToScale(brightness, brightness, brightness, 1f)
     }
     Box(modifier = Modifier.fillMaxSize()) {
-
-
         Image(
             painter = painterResource(id = R.drawable.forest_background),
             contentDescription = "background",
             contentScale = ContentScale.Crop,
-            modifier = Modifier.fillMaxSize()
+            modifier = Modifier
+                .fillMaxSize()
                 .alpha(0.90f),
             colorFilter = ColorFilter.colorMatrix(colorMatrix)
         )
 
+        // THAY ĐỔI QUAN TRỌNG: Lớp phủ (scrim) đã được XÓA BỎ
+        // Vì giờ chúng ta đã có icon tối màu nên không cần làm tối nền nữa.
+
         Scaffold(
             topBar = { HomeScreenTopBar(onAddClick = { viewModel.showAddSheet() }) },
-            containerColor = Color.Transparent
+            containerColor = Color.Transparent,
+            modifier = Modifier.fillMaxSize()
         ) { padding ->
             LazyColumn(
                 modifier = Modifier.padding(padding),
@@ -125,7 +161,6 @@ fun DynamicCalendarView(viewModel: CalendarViewModel) {
         colors = CardDefaults.cardColors(containerColor = darkGreenBackground)
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
-            // Header giờ sẽ chuyển tuần thay vì tháng
             CalendarHeader(
                 monthTitle = uiState.monthTitle,
                 onPreviousClick = { viewModel.goToPreviousWeek() },
@@ -135,7 +170,6 @@ fun DynamicCalendarView(viewModel: CalendarViewModel) {
             HorizontalDivider(color = Color.White.copy(alpha = 0.2f))
             Spacer(modifier = Modifier.height(16.dp))
 
-            // Logic chunked(7) vẫn hoạt động hoàn hảo cho 14 ngày -> 2 tuần
             val chunkedDates = uiState.dates.chunked(7)
             Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
                 WeekDaysHeader()
@@ -145,7 +179,6 @@ fun DynamicCalendarView(viewModel: CalendarViewModel) {
                             DayCell(
                                 date = date,
                                 modifier = Modifier.weight(1f),
-                                // Thêm sự kiện onClick
                                 onClick = { viewModel.onDateSelected(date.date) }
                             )
                         }
@@ -201,22 +234,18 @@ fun DayCell(
     onClick: () -> Unit
 ) {
     val highlightColor = Color(0xFFA7BEB5)
-    // Giờ sẽ làm mờ ngày của tháng khác, chứ không chỉ là ngày không thuộc tháng hiện tại
     val textColor = if (date.date.monthValue == date.date.with(DayOfWeek.MONDAY).monthValue || date.isCurrentMonth) Color.White else Color.White.copy(alpha = 0.5f)
 
     Box(
         modifier = modifier
             .aspectRatio(1f)
             .clip(CircleShape)
-            // Thêm sự kiện clickable
             .clickable(onClick = onClick)
-            // Highlight ngày được chọn, không phải ngày hôm nay
             .background(if (date.isSelected) highlightColor else Color.Transparent),
         contentAlignment = Alignment.Center
     ) {
         Text(
             text = date.date.dayOfMonth.toString(),
-            // Chữ màu đen trên nền highlight
             color = if(date.isSelected) Color.Black else textColor,
             fontSize = 14.sp,
             fontWeight = FontWeight.Bold
@@ -229,6 +258,7 @@ fun DayCell(
 fun HomeScreenTopBar(onAddClick: () -> Unit) {
     TopAppBar(
         title = { },
+        windowInsets = WindowInsets.statusBars,
         actions = {
             IconButton(onClick = onAddClick) {
                 Icon(Icons.Default.Add, contentDescription = "Add", tint = Color.White, modifier = Modifier.size(32.dp))

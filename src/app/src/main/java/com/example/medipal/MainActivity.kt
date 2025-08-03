@@ -1,3 +1,5 @@
+// Trong file MainActivity.kt
+
 package com.example.medipal
 
 import android.os.Bundle
@@ -25,7 +27,9 @@ import com.example.medipal.presentation.viewmodel.AddMedicineViewModel
 import com.example.medipal.presentation.viewmodel.HomeViewModel
 
 import  com.example.medipal.presentation.ui.theme.MediPalTheme
-
+import androidx.core.view.WindowCompat
+import com.example.medipal.presentation.ui.screens.MainScreen
+import com.example.medipal.presentation.ui.theme.MediPalTheme
 
 class MainActivity : ComponentActivity() {
 
@@ -40,48 +44,15 @@ class MainActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        // Kích hoạt chế độ edge-to-edge để giao diện vẽ ra sau các thanh hệ thống
+        WindowCompat.setDecorFitsSystemWindows(window, false)
+
         setContent {
-            // Tên Theme có thể khác nhau tùy theo bạn đặt tên project
-            // Ví dụ: YourAppNameTheme
             MediPalTheme {
-                AppNavigation()
+                // MainScreen sẽ quản lý tất cả Scaffold và Navigation.
+                MainScreen()
             }
         }
-    }
-
-    @Composable
-    fun AppNavigation() {
-        val navController = rememberNavController()
-        NavHost(navController = navController, startDestination = Screen.Home.route) {
-
-            // Route cho màn hình chính (Home)
-            composable(Screen.Home.route) {
-                // Cung cấp ViewModel cho HomeScreen
-                val homeViewModel: HomeViewModel = viewModel(
-                    factory = ViewModelFactory { HomeViewModel(getScheduledEventsUseCase) }
-                )
-                HomeScreen(navController = navController, viewModel = homeViewModel)
-            }
-
-            // Route cho toàn bộ luồng thêm thuốc
-            composable(Screen.AddMedicineFlow.route) {
-                // Cung cấp ViewModel cho luồng thêm thuốc
-                val addMedicineViewModel: AddMedicineViewModel = viewModel(
-                    factory = ViewModelFactory { AddMedicineViewModel(addMedicationUseCase) }
-                )
-                AddMedicineFlow(mainNavController = navController, viewModel = addMedicineViewModel)
-            }
-        }
-    }
-}
-
-/**
- * Một ViewModelFactory đơn giản để "tiêm" UseCase vào ViewModel.
- * Giúp chúng ta không cần dùng thư viện DI phức tạp trong ví dụ này.
- */
-@Suppress("UNCHECKED_CAST")
-class ViewModelFactory<T : ViewModel>(private val creator: () -> T) : ViewModelProvider.Factory {
-    override fun <T : ViewModel> create(modelClass: Class<T>): T {
-        return creator() as T
     }
 }

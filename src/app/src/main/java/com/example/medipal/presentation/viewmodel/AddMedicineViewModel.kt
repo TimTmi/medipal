@@ -28,6 +28,11 @@ class AddMedicineViewModel(private val addMedicationUseCase: AddMedicationUseCas
     fun onFrequencySelected(frequency: String) {
         selectedFrequency.value = frequency
     }
+    
+    // Method to update selected time
+    fun updateTime(newTime: String) {
+        time.value = newTime
+    }
     private val _lastSavedMedicineName = MutableStateFlow<String?>(null)
     val lastSavedMedicineName = _lastSavedMedicineName.asStateFlow()
     // Trạng thái cho dialog thành công
