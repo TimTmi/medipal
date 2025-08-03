@@ -1,0 +1,19 @@
+===================================================================
+CHANGELOG - Software Architecture Document
+===================================================================
+
+This document details the comprehensive revisions made to the Software Architecture document, addressing feedback from the Teaching Assistant (TA) and improving overall quality and clarity. The new version demonstrates a significant enhancement over the original draft.
+
+
+SUMMARY OF CHANGES
+
+
+1. Deployment 
+- Added information to the "Deployment" section of the Architecture document, namely:
+	+ A deployment diagram to illustrate the structure of the application via physical external nodes.
+	+ Elaborative explanations for each node presented within the diagram including: device, database, and other external services.
+
+2. Implementation View
+- Added information to the "Implementation View" section of the Architecture document, namely:
+	+ A Folder Structure tree graph to help visualize how resources within the application are organized.
+	+ A Folder Overview to elaborate on the specific contents of the folders and files, as well as explain their roles and purposes within the application and how the data is linked to each other.
