@@ -1,9 +1,12 @@
 package com.example.medipal
 
 import android.app.Application
+import com.example.medipal.di.databaseModule
+import com.example.medipal.di.repositoryModule
+import com.example.medipal.di.useCaseModule
+import com.example.medipal.di.viewModelModule
 import org.koin.android.ext.koin.androidContext
 import org.koin.core.context.startKoin
-import com.example.medipal.di.repositoryModule
 
 class MediPalApp : Application() {
     override fun onCreate() {
@@ -11,7 +14,13 @@ class MediPalApp : Application() {
 
         startKoin {
             androidContext(this@MediPalApp)
-            modules(repositoryModule) // <- your Koin modules go here
+            modules(
+                databaseModule,
+                repositoryModule,
+                useCaseModule,
+                viewModelModule
+                // Add others if needed
+            )
         }
     }
 }

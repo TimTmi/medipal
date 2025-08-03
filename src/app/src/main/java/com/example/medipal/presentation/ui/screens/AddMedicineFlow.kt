@@ -14,7 +14,7 @@ import androidx.navigation.NavController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import com.example.medipal.presentation.viewmodel.AddMedicineViewModel
+import com.example.medipal.presentation.viewmodel.AddMedicationViewModel
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -39,7 +39,7 @@ private const val STEP_TIME = "step_time"
 @Composable
 fun AddMedicineFlow(
     mainNavController: NavController,
-    viewModel: AddMedicineViewModel
+    viewModel: AddMedicationViewModel
 ) {
     val flowNavController = rememberNavController()
     val showSuccessDialog by viewModel.showSuccessDialog.collectAsState()
@@ -83,7 +83,7 @@ fun AddMedicineFlow(
 
 //@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun SelectMedicineNameScreen(viewModel: AddMedicineViewModel, onNext: () -> Unit, onCancel: () -> Unit) {
+fun SelectMedicineNameScreen(viewModel: AddMedicationViewModel, onNext: () -> Unit, onCancel: () -> Unit) {
     val medicineName by viewModel.medicineName.collectAsState()
     Scaffold(
         topBar = {
@@ -118,7 +118,7 @@ fun SelectMedicineNameScreen(viewModel: AddMedicineViewModel, onNext: () -> Unit
 
 //@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun SelectFrequencyScreen(viewModel: AddMedicineViewModel, onNext: () -> Unit, onCancel: () -> Unit) {
+fun SelectFrequencyScreen(viewModel: AddMedicationViewModel, onNext: () -> Unit, onCancel: () -> Unit) {
     val medicineName by viewModel.medicineName.collectAsState()
 
     // SỬA LỖI Ở ĐÂY: Lấy danh sách tĩnh trực tiếp, không dùng collectAsState
@@ -193,7 +193,7 @@ fun FrequencyOptionRow(
 
 //@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun SelectTimeScreen(viewModel: AddMedicineViewModel, onSave: () -> Unit, onCancel: () -> Unit) {
+fun SelectTimeScreen(viewModel: AddMedicationViewModel, onSave: () -> Unit, onCancel: () -> Unit) {
     val medicineName by viewModel.medicineName.collectAsState()
     val time by viewModel.time.collectAsState()
     var showTimePicker by remember { mutableStateOf(false) }

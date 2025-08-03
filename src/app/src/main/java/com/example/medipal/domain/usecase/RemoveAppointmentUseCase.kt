@@ -1,0 +1,10 @@
+package com.example.medipal.domain.usecase
+
+import com.example.medipal.domain.model.Appointment
+import com.example.medipal.domain.repository.AppointmentRepository
+
+class RemoveAppointmentUseCase(private val repository: AppointmentRepository) {
+    suspend operator fun invoke(id: String) {
+        repository.removeAppointment(id)
+    }
+}

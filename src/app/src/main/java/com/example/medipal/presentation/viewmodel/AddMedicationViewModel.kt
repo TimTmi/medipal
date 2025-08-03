@@ -9,7 +9,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import java.util.*
 
-class AddMedicineViewModel(private val addMedicationUseCase: AddMedicationUseCase) : ViewModel() {
+class AddMedicationViewModel(private val addMedicationUseCase: AddMedicationUseCase) : ViewModel() {
 
     val medicineName = MutableStateFlow("")
     val time = MutableStateFlow(System.currentTimeMillis())
