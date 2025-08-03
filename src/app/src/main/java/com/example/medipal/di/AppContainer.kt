@@ -1,8 +1,12 @@
 package com.example.medipal.di
 
+import android.content.Context
+import androidx.room.Room
+import com.example.medipal.data.local.database.MediPalDatabase
 import com.example.medipal.data.repository.FakeAppointmentRepositoryImpl
 import com.example.medipal.data.repository.FakeMedicationRepositoryImpl
 import com.example.medipal.data.repository.FakeReminderRepositoryImpl
+import com.example.medipal.data.repository.RoomMedicationRepositoryImpl
 import com.example.medipal.domain.repository.AppointmentRepository
 import com.example.medipal.domain.repository.MedicationRepository
 import com.example.medipal.domain.repository.ReminderRepository
@@ -20,16 +24,16 @@ interface AppContainer {
     val addMedicationUseCase: AddMedicationUseCase
 }
 
-/**
- * Implementation for the Dependency Injection container at the application level.
- *
- * Variables are initialized lazily and the same instance is shared across the whole app.
- */
-class DefaultAppContainer : AppContainer {
-    
+class DefaultAppContainer(context: Context) : AppContainer {
+
+    private val database: MediPalDatabase = Room.databaseBuilder(
+        context.applicationContext,
+        MediPalDatabase::class.java,
+        "medipal.db"
+    ).build()
     // Repository
     override val medicationRepository: MedicationRepository by lazy {
-        FakeMedicationRepositoryImpl()
+        RoomMedicationRepositoryImpl(database.medicationDao())
     }
 
     override val appointmentRepository: AppointmentRepository by lazy {

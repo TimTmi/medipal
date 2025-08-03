@@ -4,6 +4,8 @@ plugins {
     alias(libs.plugins.kotlin.compose)
 
     alias(libs.plugins.kotlin.kapt)
+
+    alias(libs.plugins.firebase)
 }
 
 android {
@@ -71,10 +73,14 @@ dependencies {
 
     implementation(libs.koin.android)
     implementation(libs.koin.androidx.compose)
-    implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.8.1")
-    implementation("androidx.navigation:navigation-compose:2.7.7")
-    implementation("androidx.compose.material:material-icons-extended")
+    implementation(libs.androidx.lifecycle.viewmodel.compose)
+    implementation(libs.androidx.navigation.compose.v277)
+    implementation(libs.material.icons.extended)
     implementation(libs.androidx.runtime)
+
+    implementation(platform(libs.firebase.bom))
+    implementation("com.google.firebase:firebase-firestore-ktx:25.1.4")
+    implementation(libs.firebase.auth.ktx)
 }
 
 kotlin {
