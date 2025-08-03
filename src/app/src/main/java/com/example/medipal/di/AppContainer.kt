@@ -1,7 +1,11 @@
 package com.example.medipal.di
 
+import com.example.medipal.data.repository.FakeAppointmentRepositoryImpl
 import com.example.medipal.data.repository.FakeMedicationRepositoryImpl
+import com.example.medipal.data.repository.FakeReminderRepositoryImpl
+import com.example.medipal.domain.repository.AppointmentRepository
 import com.example.medipal.domain.repository.MedicationRepository
+import com.example.medipal.domain.repository.ReminderRepository
 import com.example.medipal.domain.usecase.AddMedicationUseCase
 import com.example.medipal.domain.usecase.GetScheduledEventsUseCase
 
@@ -10,6 +14,8 @@ import com.example.medipal.domain.usecase.GetScheduledEventsUseCase
  */
 interface AppContainer {
     val medicationRepository: MedicationRepository
+    val appointmentRepository: AppointmentRepository
+    val reminderRepository: ReminderRepository
     val getScheduledEventsUseCase: GetScheduledEventsUseCase
     val addMedicationUseCase: AddMedicationUseCase
 }
@@ -25,10 +31,18 @@ class DefaultAppContainer : AppContainer {
     override val medicationRepository: MedicationRepository by lazy {
         FakeMedicationRepositoryImpl()
     }
+
+    override val appointmentRepository: AppointmentRepository by lazy {
+        FakeAppointmentRepositoryImpl()
+    }
+
+    override val reminderRepository: ReminderRepository by lazy {
+        FakeReminderRepositoryImpl()
+    }
     
     // Use Cases
     override val getScheduledEventsUseCase: GetScheduledEventsUseCase by lazy {
-        GetScheduledEventsUseCase(medicationRepository)
+        GetScheduledEventsUseCase(medicationRepository, appointmentRepository, reminderRepository)
     }
     
     override val addMedicationUseCase: AddMedicationUseCase by lazy {

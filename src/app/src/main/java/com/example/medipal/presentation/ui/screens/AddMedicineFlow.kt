@@ -26,7 +26,9 @@ import com.example.medipal.presentation.ui.components.TimePickerDialog
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-
+import java.time.LocalDate
+import java.time.LocalDateTime
+import java.time.LocalTime
 
 
 // Các route cho các bước con bên trong luồng thêm thuốc
@@ -79,7 +81,7 @@ fun AddMedicineFlow(
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
+//@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SelectMedicineNameScreen(viewModel: AddMedicineViewModel, onNext: () -> Unit, onCancel: () -> Unit) {
     val medicineName by viewModel.medicineName.collectAsState()
@@ -114,7 +116,7 @@ fun SelectMedicineNameScreen(viewModel: AddMedicineViewModel, onNext: () -> Unit
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
+//@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SelectFrequencyScreen(viewModel: AddMedicineViewModel, onNext: () -> Unit, onCancel: () -> Unit) {
     val medicineName by viewModel.medicineName.collectAsState()
@@ -189,7 +191,7 @@ fun FrequencyOptionRow(
 }
 
 
-@OptIn(ExperimentalMaterial3Api::class)
+//@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SelectTimeScreen(viewModel: AddMedicineViewModel, onSave: () -> Unit, onCancel: () -> Unit) {
     val medicineName by viewModel.medicineName.collectAsState()
@@ -279,15 +281,20 @@ fun SelectTimeScreen(viewModel: AddMedicineViewModel, onSave: () -> Unit, onCanc
     if (showTimePicker) {
         TimePickerDialog(
             onTimeSelected = { hour, minute ->
-                val amPm = if (hour >= 12) "PM" else "AM"
-                val displayHour = if (hour == 0) 12 else if (hour > 12) hour - 12 else hour
-                val timeString = String.format("%d:%02d %s", displayHour, minute, amPm)
-                viewModel.updateTime(timeString)
+                val now = LocalDate.now()
+                val selectedTime = LocalDateTime.of(now, LocalTime.of(hour, minute))
+                val epochMillis = selectedTime
+                    .atZone(ZoneId.systemDefault())
+                    .toInstant()
+                    .toEpochMilli()
+
+                viewModel.updateTime(epochMillis)
                 showTimePicker = false
             },
             onDismiss = { showTimePicker = false }
         )
     }
+
 }
 
 @Composable

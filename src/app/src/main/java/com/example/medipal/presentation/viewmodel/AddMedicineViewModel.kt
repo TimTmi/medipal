@@ -30,7 +30,7 @@ class AddMedicineViewModel(private val addMedicationUseCase: AddMedicationUseCas
     }
     
     // Method to update selected time
-    fun updateTime(newTime: String) {
+    fun updateTime(newTime: Long) {
         time.value = newTime
     }
     private val _lastSavedMedicineName = MutableStateFlow<String?>(null)

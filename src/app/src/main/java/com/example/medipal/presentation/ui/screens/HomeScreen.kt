@@ -17,8 +17,11 @@
     import androidx.compose.runtime.*
     import androidx.compose.ui.Alignment
     import androidx.compose.ui.Modifier
+    import androidx.compose.ui.draw.alpha
     import androidx.compose.ui.draw.clip
     import androidx.compose.ui.graphics.Color
+    import androidx.compose.ui.graphics.ColorFilter
+    import androidx.compose.ui.graphics.ColorMatrix
     import androidx.compose.ui.layout.ContentScale
     import androidx.compose.ui.res.painterResource
     import androidx.compose.ui.text.font.FontWeight
@@ -28,63 +31,24 @@
     import androidx.lifecycle.viewmodel.compose.viewModel
     import androidx.navigation.NavController
     import com.example.medipal.R
-    import com.example.medipal.presentation.navigation.Screen
-    import com.example.medipal.presentation.viewmodel.CalendarUiState
-    import com.example.medipal.presentation.viewmodel.CalendarViewModel
-    import com.example.medipal.presentation.viewmodel.HomeViewModel
-    import androidx.compose.foundation.background
-    import androidx.compose.foundation.clickable
-import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.ui.draw.alpha
-import androidx.compose.ui.draw.clip
-import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.*
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
-import androidx.compose.ui.Alignment
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.alpha
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.ColorFilter
-import androidx.compose.ui.graphics.ColorMatrix
-import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
-import androidx.lifecycle.viewmodel.compose.viewModel
-import androidx.navigation.NavController
-import com.example.medipal.R
-import com.example.medipal.domain.model.ScheduledEvent
-import com.example.medipal.presentation.navigation.Screen
-import com.example.medipal.presentation.viewmodel.CalendarUiState
-import com.example.medipal.presentation.viewmodel.CalendarViewModel
-import com.example.medipal.presentation.viewmodel.HomeViewModel
-import java.time.DayOfWeek
-import androidx.compose.ui.graphics.ColorFilter
-import androidx.compose.ui.graphics.ColorMatrix
     import com.example.medipal.domain.model.Appointment
     import com.example.medipal.domain.model.Medication
     import com.example.medipal.domain.model.Reminder
     import com.example.medipal.domain.model.ScheduledItem
+    import com.example.medipal.presentation.navigation.Screen
+    import com.example.medipal.presentation.viewmodel.CalendarUiState
+    import com.example.medipal.presentation.viewmodel.CalendarViewModel
+    import com.example.medipal.presentation.viewmodel.HomeViewModel
+    import java.time.DayOfWeek
     import java.time.Instant
     import java.time.ZoneId
     import java.time.format.DateTimeFormatter
 
-    @OptIn(ExperimentalMaterial3Api::class)
+
+    //    @OptIn(ExperimentalMaterial3Api::class)
 
 
-@OptIn(ExperimentalMaterial3Api::class)
+//@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomeScreen(navController: NavController, viewModel: HomeViewModel) {
     val events by viewModel.events.collectAsState(initial = emptyList())
@@ -253,7 +217,7 @@ fun DayCell(
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
+//@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomeScreenTopBar(onAddClick: () -> Unit) {
     TopAppBar(
