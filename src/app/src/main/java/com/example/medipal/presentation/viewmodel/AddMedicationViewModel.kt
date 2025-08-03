@@ -3,16 +3,21 @@ package com.example.medipal.presentation.viewmodel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.medipal.domain.model.Medication
+import com.example.medipal.domain.repository.HistoryRepository
 import com.example.medipal.domain.usecase.AddMedicationUseCase
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import java.util.*
 
+class AddMedicineViewModel(
+    private val addMedicationUseCase: AddMedicationUseCase,
+    private val historyRepository: HistoryRepository
+) : ViewModel() {
 class AddMedicationViewModel(private val addMedicationUseCase: AddMedicationUseCase) : ViewModel() {
 
     val medicineName = MutableStateFlow("")
-    val time = MutableStateFlow(System.currentTimeMillis())
+    val time = MutableStateFlow(System.currentTimeMillis()) // Thời gian được chọn dưới dạng Long
     val frequencyOptions = listOf(
         "Every day",
         "Only as needed",
@@ -33,6 +38,7 @@ class AddMedicationViewModel(private val addMedicationUseCase: AddMedicationUseC
     fun updateTime(newTime: Long) {
         time.value = newTime
     }
+
     private val _lastSavedMedicineName = MutableStateFlow<String?>(null)
     val lastSavedMedicineName = _lastSavedMedicineName.asStateFlow()
     // Trạng thái cho dialog thành công
@@ -46,9 +52,13 @@ class AddMedicationViewModel(private val addMedicationUseCase: AddMedicationUseC
                 name = medicineName.value,
                 dosage = "Frequency: ${selectedFrequency.value}", // Có thể thêm màn hình chọn liều lượng
                 scheduleTime = time.value,
-                notes = ""
+                notes = null
             )
             addMedicationUseCase(newMedication)
+
+            // Auto-add to history
+            historyRepository.addMedicationHistory(newMedication)
+
             _lastSavedMedicineName.value = newMedication.name
             _showSuccessDialog.value = true // Hiển thị dialog sau khi lưu
         }

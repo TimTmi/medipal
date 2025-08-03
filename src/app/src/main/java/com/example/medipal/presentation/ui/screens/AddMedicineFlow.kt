@@ -2,6 +2,7 @@ package com.example.medipal.presentation.ui.screens
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -21,21 +22,21 @@ import androidx.compose.foundation.lazy.items
 import java.time.Instant
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
-
+import java.time.LocalDate
+import java.time.LocalDateTime
+import java.time.LocalTime
 import com.example.medipal.presentation.ui.components.TimePickerDialog
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import java.time.LocalDate
-import java.time.LocalDateTime
-import java.time.LocalTime
-
+import java.util.Locale
 
 // Các route cho các bước con bên trong luồng thêm thuốc
 private const val STEP_NAME = "step_name"
 private const val STEP_FREQUENCY = "step_frequency"
 private const val STEP_TIME = "step_time"
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AddMedicineFlow(
     mainNavController: NavController,
@@ -81,7 +82,7 @@ fun AddMedicineFlow(
     }
 }
 
-//@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SelectMedicineNameScreen(viewModel: AddMedicationViewModel, onNext: () -> Unit, onCancel: () -> Unit) {
     val medicineName by viewModel.medicineName.collectAsState()
@@ -116,7 +117,7 @@ fun SelectMedicineNameScreen(viewModel: AddMedicationViewModel, onNext: () -> Un
     }
 }
 
-//@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SelectFrequencyScreen(viewModel: AddMedicationViewModel, onNext: () -> Unit, onCancel: () -> Unit) {
     val medicineName by viewModel.medicineName.collectAsState()
@@ -168,6 +169,7 @@ fun SelectFrequencyScreen(viewModel: AddMedicationViewModel, onNext: () -> Unit,
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun FrequencyOptionRow(
     text: String,
@@ -190,8 +192,7 @@ fun FrequencyOptionRow(
     }
 }
 
-
-//@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SelectTimeScreen(viewModel: AddMedicationViewModel, onSave: () -> Unit, onCancel: () -> Unit) {
     val medicineName by viewModel.medicineName.collectAsState()
@@ -213,9 +214,6 @@ fun SelectTimeScreen(viewModel: AddMedicationViewModel, onSave: () -> Unit, onCa
                 .padding(16.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Text("When do you need to take it?")
-            Spacer(modifier = Modifier.height(32.dp))
-
             val formattedTime = Instant.ofEpochMilli(time)
                 .atZone(ZoneId.systemDefault())
                 .toLocalTime()
@@ -297,6 +295,7 @@ fun SelectTimeScreen(viewModel: AddMedicationViewModel, onSave: () -> Unit, onCa
 
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SuccessDialog(
     medicineName: String, // Thêm tham số medicineName

@@ -13,7 +13,7 @@ class FakeMedicationRepositoryImpl : MedicationRepository {
                 id = "med1",
                 name = "Paracetamol",
                 dosage = "500mg, take 1 tablet(s)",
-                scheduleTime = System.currentTimeMillis(), // or any fixed test value
+                scheduleTime = System.currentTimeMillis(),
                 notes = "Before breakfast"
             )
         )

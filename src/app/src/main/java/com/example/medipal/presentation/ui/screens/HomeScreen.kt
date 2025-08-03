@@ -1,57 +1,53 @@
-    package com.example.medipal.presentation.ui.screens
+package com.example.medipal.presentation.ui.screens
 
-    import androidx.compose.foundation.Image
-    import androidx.compose.foundation.background
-    import androidx.compose.foundation.clickable
-    import androidx.compose.foundation.layout.*
-    import androidx.compose.foundation.lazy.LazyColumn
-    import androidx.compose.foundation.lazy.items
-    import androidx.compose.foundation.shape.CircleShape
-    import androidx.compose.foundation.shape.RoundedCornerShape
-    import androidx.compose.material.icons.Icons
-    import androidx.compose.material.icons.filled.*
-    import androidx.compose.material.icons.outlined.AccountCircle
-    import androidx.compose.material.icons.outlined.Home
-    import androidx.compose.material.icons.outlined.Medication
-    import androidx.compose.material3.*
-    import androidx.compose.runtime.*
-    import androidx.compose.ui.Alignment
-    import androidx.compose.ui.Modifier
-    import androidx.compose.ui.draw.alpha
-    import androidx.compose.ui.draw.clip
-    import androidx.compose.ui.graphics.Color
-    import androidx.compose.ui.graphics.ColorFilter
-    import androidx.compose.ui.graphics.ColorMatrix
-    import androidx.compose.ui.layout.ContentScale
-    import androidx.compose.ui.res.painterResource
-    import androidx.compose.ui.text.font.FontWeight
-    import androidx.compose.ui.text.style.TextAlign
-    import androidx.compose.ui.unit.dp
-    import androidx.compose.ui.unit.sp
-    import androidx.lifecycle.viewmodel.compose.viewModel
-    import androidx.navigation.NavController
-    import com.example.medipal.R
-    import com.example.medipal.domain.model.Appointment
-    import com.example.medipal.domain.model.Medication
-    import com.example.medipal.domain.model.Reminder
-    import com.example.medipal.domain.model.ScheduledItem
-    import com.example.medipal.presentation.navigation.Screen
-    import com.example.medipal.presentation.viewmodel.CalendarUiState
-    import com.example.medipal.presentation.viewmodel.CalendarViewModel
-    import com.example.medipal.presentation.viewmodel.HomeViewModel
-    import java.time.DayOfWeek
-    import java.time.Instant
-    import java.time.ZoneId
-    import java.time.format.DateTimeFormatter
+import androidx.compose.foundation.Image
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.*
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ColorFilter
+import androidx.compose.ui.graphics.ColorMatrix
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavController
+import com.example.medipal.R
+import com.example.medipal.domain.model.Medication
+import com.example.medipal.domain.model.Appointment
+import com.example.medipal.domain.model.Reminder
+import com.example.medipal.presentation.navigation.Screen
+import com.example.medipal.presentation.viewmodel.CalendarUiState
+import com.example.medipal.presentation.viewmodel.CalendarViewModel
+import com.example.medipal.presentation.viewmodel.HomeViewModel
+import java.time.DayOfWeek
+import java.time.Instant
+import java.time.ZoneId
+import java.time.format.DateTimeFormatter
 
 
-    //    @OptIn(ExperimentalMaterial3Api::class)
-
-
-//@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomeScreen(navController: NavController, viewModel: HomeViewModel) {
-    val events by viewModel.events.collectAsState(initial = emptyList())
+    val medications by viewModel.medications.collectAsState(initial = emptyList())
+    val appointments by viewModel.appointments.collectAsState(initial = emptyList())
+    val reminders by viewModel.reminders.collectAsState(initial = emptyList())
     val isSheetVisible by viewModel.isAddSheetVisible.collectAsState()
     val calendarViewModel: CalendarViewModel = viewModel()
 
@@ -61,6 +57,14 @@ fun HomeScreen(navController: NavController, viewModel: HomeViewModel) {
                 onAddMedicine = {
                     viewModel.hideAddSheet()
                     navController.navigate(Screen.AddMedicineFlow.route)
+                },
+                onAddHealthcareReminder = {
+                    viewModel.hideAddSheet()
+                    navController.navigate(Screen.AddHealthcareReminderFlow.route)
+                },
+                onAddAppointment = {
+                    viewModel.hideAddSheet()
+                    navController.navigate(Screen.AddAppointmentFlow.route)
                 },
                 onClose = { viewModel.hideAddSheet() }
             )
@@ -85,7 +89,12 @@ fun HomeScreen(navController: NavController, viewModel: HomeViewModel) {
         // Vì giờ chúng ta đã có icon tối màu nên không cần làm tối nền nữa.
 
         Scaffold(
-            topBar = { HomeScreenTopBar(onAddClick = { viewModel.showAddSheet() }) },
+            topBar = { 
+                HomeScreenTopBar(
+                    onAddClick = { viewModel.showAddSheet() },
+                    onHistoryClick = { navController.navigate(Screen.HistoryLog.route) }
+                ) 
+            },
             containerColor = Color.Transparent,
             modifier = Modifier.fillMaxSize()
         ) { padding ->
@@ -107,14 +116,21 @@ fun HomeScreen(navController: NavController, viewModel: HomeViewModel) {
                     )
                 }
 
-                items(events) { event ->
-                    EventCard(event = event)
+                items(medications) { medication ->
+                    MedicationCard(medication = medication)
+                }
+                
+                items(appointments) { appointment ->
+                    AppointmentCard(appointment = appointment)
+                }
+                
+                items(reminders) { reminder ->
+                    ReminderCard(reminder = reminder)
                 }
             }
         }
     }
 }
-
 @Composable
 fun DynamicCalendarView(viewModel: CalendarViewModel) {
     val uiState by viewModel.uiState.collectAsState()
@@ -131,7 +147,7 @@ fun DynamicCalendarView(viewModel: CalendarViewModel) {
                 onNextClick = { viewModel.goToNextWeek() }
             )
             Spacer(modifier = Modifier.height(16.dp))
-            HorizontalDivider(color = Color.White.copy(alpha = 0.2f))
+            Divider(color = Color.White.copy(alpha = 0.2f))
             Spacer(modifier = Modifier.height(16.dp))
 
             val chunkedDates = uiState.dates.chunked(7)
@@ -217,13 +233,24 @@ fun DayCell(
     }
 }
 
-//@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun HomeScreenTopBar(onAddClick: () -> Unit) {
+fun HomeScreenTopBar(
+    onAddClick: () -> Unit,
+    onHistoryClick: () -> Unit
+) {
     TopAppBar(
         title = { },
         windowInsets = WindowInsets.statusBars,
         actions = {
+            IconButton(onClick = onHistoryClick) {
+                Icon(
+                    Icons.Default.History, 
+                    contentDescription = "History", 
+                    tint = Color.White, 
+                    modifier = Modifier.size(32.dp)
+                )
+            }
             IconButton(onClick = onAddClick) {
                 Icon(Icons.Default.Add, contentDescription = "Add", tint = Color.White, modifier = Modifier.size(32.dp))
             }
@@ -233,31 +260,103 @@ fun HomeScreenTopBar(onAddClick: () -> Unit) {
 }
 
 @Composable
-fun EventCard(event: ScheduledItem) {
+fun MedicationCard(medication: Medication) {
+    val formattedTime = Instant.ofEpochMilli(medication.scheduleTime)
+        .atZone(ZoneId.systemDefault())
+        .toLocalTime()
+        .format(DateTimeFormatter.ofPattern("hh:mm a"))
+    
     Card(modifier = Modifier.fillMaxWidth()) {
-        Row(
-            modifier = Modifier.padding(16.dp),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            val (title, type) = when (event) {
-                is ScheduledItem.MedicationItem -> Pair(event.data.name, "Medication")
-                is ScheduledItem.AppointmentItem -> Pair(event.data.title, "Appointment")
-                is ScheduledItem.ReminderItem -> Pair(event.data.title, "Reminder")
+        Column(modifier = Modifier.padding(16.dp)) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Text(
+                    text = "$formattedTime | Medication",
+                    style = MaterialTheme.typography.labelMedium,
+                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f)
+                )
             }
+            Spacer(modifier = Modifier.height(4.dp))
+            Text(
+                text = medication.name,
+                style = MaterialTheme.typography.titleMedium,
+                fontWeight = FontWeight.Bold
+            )
+            Spacer(modifier = Modifier.height(4.dp))
+            Text(
+                text = medication.dosage,
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
+            )
+        }
+    }
+}
 
-            val timeFormatted = Instant.ofEpochMilli(event.scheduleTime)
-                .atZone(ZoneId.systemDefault())
-                .toLocalTime()
-                .format(DateTimeFormatter.ofPattern("hh:mm a"))
+@Composable
+fun AppointmentCard(appointment: Appointment) {
+    val formattedTime = Instant.ofEpochMilli(appointment.scheduleTime)
+        .atZone(ZoneId.systemDefault())
+        .toLocalTime()
+        .format(DateTimeFormatter.ofPattern("hh:mm a"))
+    
+    Card(modifier = Modifier.fillMaxWidth()) {
+        Column(modifier = Modifier.padding(16.dp)) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Text(
+                    text = "$formattedTime | Appointment",
+                    style = MaterialTheme.typography.labelMedium,
+                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f)
+                )
+            }
+            Spacer(modifier = Modifier.height(4.dp))
+            Text(
+                text = appointment.title,
+                style = MaterialTheme.typography.titleMedium,
+                fontWeight = FontWeight.Bold
+            )
+            Spacer(modifier = Modifier.height(4.dp))
+            Text(
+                text = "Doctor: ${appointment.doctor}",
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
+            )
+        }
+    }
+}
 
-            Text("$timeFormatted | $type\n$title", modifier = Modifier.weight(1f))
+@Composable
+fun ReminderCard(reminder: Reminder) {
+    val formattedTime = Instant.ofEpochMilli(reminder.scheduleTime)
+        .atZone(ZoneId.systemDefault())
+        .toLocalTime()
+        .format(DateTimeFormatter.ofPattern("hh:mm a"))
+    
+    Card(modifier = Modifier.fillMaxWidth()) {
+        Column(modifier = Modifier.padding(16.dp)) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Text(
+                    text = "$formattedTime | Reminder",
+                    style = MaterialTheme.typography.labelMedium,
+                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f)
+                )
+            }
+            Spacer(modifier = Modifier.height(4.dp))
+            Text(
+                text = reminder.title,
+                style = MaterialTheme.typography.titleMedium,
+                fontWeight = FontWeight.Bold
+            )
         }
     }
 }
 
 
 @Composable
-fun AddOptionsSheet(onAddMedicine: () -> Unit, onClose: () -> Unit) {
+fun AddOptionsSheet(
+    onAddMedicine: () -> Unit, 
+    onAddHealthcareReminder: () -> Unit,
+    onAddAppointment: () -> Unit,
+    onClose: () -> Unit
+) {
     Column(Modifier.padding(16.dp)) {
         Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
             Text("What would you like to add?", fontSize = 20.sp, fontWeight = FontWeight.Bold)
@@ -272,12 +371,12 @@ fun AddOptionsSheet(onAddMedicine: () -> Unit, onClose: () -> Unit) {
         ListItem(
             headlineContent = { Text("Add healthcare reminder") },
             leadingContent = { Icon(Icons.Default.Add, null) },
-            modifier = Modifier.clickable(onClick = { /* TODO */ })
+            modifier = Modifier.clickable(onClick = onAddHealthcareReminder)
         )
         ListItem(
             headlineContent = { Text("Add appointment") },
             leadingContent = { Icon(Icons.Default.Add, null) },
-            modifier = Modifier.clickable(onClick = { /* TODO */ })
+            modifier = Modifier.clickable(onClick = onAddAppointment)
         )
     }
 }

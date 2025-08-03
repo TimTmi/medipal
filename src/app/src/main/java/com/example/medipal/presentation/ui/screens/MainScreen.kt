@@ -18,6 +18,9 @@ import com.example.medipal.MediPalApplication
 import com.example.medipal.presentation.navigation.Screen
 import com.example.medipal.presentation.ui.components.BottomTabBar
 import com.example.medipal.presentation.viewmodel.AddMedicationViewModel
+import com.example.medipal.presentation.viewmodel.AddMedicineViewModel
+import com.example.medipal.presentation.viewmodel.AddHealthcareReminderViewModel
+import com.example.medipal.presentation.viewmodel.AddAppointmentViewModel
 import com.example.medipal.presentation.viewmodel.HomeViewModel
 import com.example.medipal.presentation.viewmodel.ViewModelFactory
 
@@ -31,6 +34,9 @@ fun MainScreen() {
     val viewModelFactory = ViewModelFactory(application.container)
 
     val homeViewModel: HomeViewModel = viewModel(factory = viewModelFactory)
+    val addMedicineViewModel: AddMedicineViewModel = viewModel(factory = viewModelFactory)
+    val addHealthcareReminderViewModel: AddHealthcareReminderViewModel = viewModel(factory = viewModelFactory)
+    val addAppointmentViewModel: AddAppointmentViewModel = viewModel(factory = viewModelFactory)
     val addMedicineViewModel: AddMedicationViewModel = viewModel(factory = viewModelFactory)
 
     // THAY ĐỔI QUAN TRỌNG: Thêm mã để điều khiển màu sắc icon trên status bar
@@ -66,7 +72,10 @@ fun MainScreen() {
                 CalendarScreen(navController = navController)
             }
             composable(Screen.Medications.route) {
-                MedicationsScreen(navController = navController)
+                MedicationsScreen(
+                    navController = navController,
+                    viewModelFactory = viewModelFactory
+                )
             }
             composable(Screen.Notifications.route) {
                 NotificationsScreen(navController = navController)
@@ -79,6 +88,21 @@ fun MainScreen() {
                     mainNavController = navController,
                     viewModel = addMedicineViewModel
                 )
+            }
+            composable(Screen.AddHealthcareReminderFlow.route) {
+                AddHealthcareReminderFlow(
+                    mainNavController = navController,
+                    viewModel = addHealthcareReminderViewModel
+                )
+            }
+            composable(Screen.AddAppointmentFlow.route) {
+                AddAppointmentFlow(
+                    mainNavController = navController,
+                    viewModel = addAppointmentViewModel
+                )
+            }
+            composable(Screen.HistoryLog.route) {
+                HistoryLogScreen(navController = navController)
             }
         }
     }

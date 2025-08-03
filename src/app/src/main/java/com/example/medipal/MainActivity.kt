@@ -1,5 +1,3 @@
-// Trong file MainActivity.kt
-
 package com.example.medipal
 
 import android.os.Bundle
@@ -19,16 +17,6 @@ import androidx.core.view.WindowCompat
 import com.example.medipal.presentation.ui.screens.MainScreen
 
 class MainActivity : ComponentActivity() {
-
-    // --- Giả lập Dependency Injection ---
-    // Trong dự án thực tế, bạn sẽ dùng Hilt hoặc Koin để cung cấp các đối tượng này
-    private val medicationRepository: MedicationRepository = FakeMedicationRepositoryImpl()
-    private val appointmentRepository: AppointmentRepository = FakeAppointmentRepositoryImpl()
-    private val reminderRepository: ReminderRepository = FakeReminderRepositoryImpl()
-    private val getScheduledEventsUseCase by lazy { GetScheduledEventsUseCase(medicationRepository, appointmentRepository, reminderRepository) }
-    private val addMedicationUseCase by lazy { AddMedicationUseCase(medicationRepository) }
-    // --- Kết thúc giả lập DI ---
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
