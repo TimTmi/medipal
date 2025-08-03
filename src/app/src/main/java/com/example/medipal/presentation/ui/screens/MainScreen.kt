@@ -18,7 +18,6 @@ import com.example.medipal.MediPalApplication
 import com.example.medipal.presentation.navigation.Screen
 import com.example.medipal.presentation.ui.components.BottomTabBar
 import com.example.medipal.presentation.viewmodel.AddMedicationViewModel
-import com.example.medipal.presentation.viewmodel.AddMedicineViewModel
 import com.example.medipal.presentation.viewmodel.AddHealthcareReminderViewModel
 import com.example.medipal.presentation.viewmodel.AddAppointmentViewModel
 import com.example.medipal.presentation.viewmodel.HomeViewModel
@@ -34,10 +33,9 @@ fun MainScreen() {
     val viewModelFactory = ViewModelFactory(application.container)
 
     val homeViewModel: HomeViewModel = viewModel(factory = viewModelFactory)
-    val addMedicineViewModel: AddMedicineViewModel = viewModel(factory = viewModelFactory)
+    val addMedicationViewModel: AddMedicationViewModel = viewModel(factory = viewModelFactory)
     val addHealthcareReminderViewModel: AddHealthcareReminderViewModel = viewModel(factory = viewModelFactory)
     val addAppointmentViewModel: AddAppointmentViewModel = viewModel(factory = viewModelFactory)
-    val addMedicineViewModel: AddMedicationViewModel = viewModel(factory = viewModelFactory)
 
     // THAY ĐỔI QUAN TRỌNG: Thêm mã để điều khiển màu sắc icon trên status bar
     val view = LocalView.current
@@ -86,7 +84,7 @@ fun MainScreen() {
             composable(Screen.AddMedicineFlow.route) {
                 AddMedicineFlow(
                     mainNavController = navController,
-                    viewModel = addMedicineViewModel
+                    viewModel = addMedicationViewModel
                 )
             }
             composable(Screen.AddHealthcareReminderFlow.route) {

@@ -22,20 +22,25 @@ class ViewModelFactory(private val container: AppContainer) : ViewModelProvider.
             }
             AddMedicationViewModel::class.java -> {
                 AddMedicationViewModel(container.addMedicationUseCase) as T
-            AddMedicineViewModel::class.java -> {
-                AddMedicineViewModel(container.addMedicationUseCase, container.historyRepository) as T
             }
             AddHealthcareReminderViewModel::class.java -> {
-                AddHealthcareReminderViewModel(container.addReminderUseCase, container.historyRepository) as T
+                AddHealthcareReminderViewModel(container.addReminderUseCase) as T
             }
             AddAppointmentViewModel::class.java -> {
-                AddAppointmentViewModel(container.addAppointmentUseCase, container.historyRepository) as T
+                AddAppointmentViewModel(container.addAppointmentUseCase) as T
             }
             MedicationListViewModel::class.java -> {
                 MedicationListViewModel(
                     container.getMedicationsUseCase,
                     container.updateMedicationUseCase,
                     container.removeMedicationUseCase
+                ) as T
+            }
+            HistoryViewModel::class.java -> {
+                HistoryViewModel(
+                    container.getMedicationsUseCase,
+                    container.getAppointmentsUseCase,
+                    container.getRemindersUseCase
                 ) as T
             }
             else -> throw IllegalArgumentException("Unknown ViewModel class: ${modelClass.name}")

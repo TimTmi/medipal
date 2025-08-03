@@ -22,6 +22,10 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.example.medipal.R
 import com.example.medipal.MediPalApplication
+import com.example.medipal.presentation.viewmodel.HistoryViewModel
+import com.example.medipal.presentation.viewmodel.HistoryItem
+import com.example.medipal.presentation.viewmodel.ViewModelFactory
+import androidx.lifecycle.viewmodel.compose.viewModel
 
 
 
@@ -33,10 +37,11 @@ fun HistoryLogScreen(navController: NavController) {
         setToScale(brightness, brightness, brightness, 1f)
     }
     
-    // Get history data from repository
+    // Get history data from ViewModel
     val application = LocalContext.current.applicationContext as MediPalApplication
-    val historyRepository = application.container.historyRepository
-    val historyEntries by historyRepository.getHistoryEntries().collectAsState(initial = emptyList())
+    val viewModelFactory = ViewModelFactory(application.container)
+    val historyViewModel: HistoryViewModel = viewModel(factory = viewModelFactory)
+    val historyItems by historyViewModel.historyItems.collectAsState(initial = emptyList())
     
     Box(modifier = Modifier.fillMaxSize()) {
         Image(
@@ -86,12 +91,12 @@ fun HistoryLogScreen(navController: NavController) {
                 }
                 
                 // Table Rows
-                items(historyEntries) { entry ->
-                    HistoryTableRow(entry = entry)
+                items(historyItems) { item ->
+                    HistoryTableRow(item = item)
                 }
                 
                 // Show message if no history
-                if (historyEntries.isEmpty()) {
+                if (historyItems.isEmpty()) {
                     item {
                         Card(
                             modifier = Modifier.fillMaxWidth(),
@@ -156,7 +161,7 @@ fun HistoryTableHeader() {
 }
 
 @Composable
-fun HistoryTableRow(entry: com.example.medipal.domain.repository.HistoryEntry) {
+fun HistoryTableRow(item: HistoryItem) {
     Card(
         modifier = Modifier.fillMaxWidth(),
         colors = CardDefaults.cardColors(containerColor = Color.White)
@@ -169,25 +174,25 @@ fun HistoryTableRow(entry: com.example.medipal.domain.repository.HistoryEntry) {
             verticalAlignment = Alignment.CenterVertically
         ) {
             Text(
-                text = entry.day,
+                text = item.day,
                 style = MaterialTheme.typography.bodySmall,
                 modifier = Modifier.weight(1.2f),
                 maxLines = 1
             )
             Text(
-                text = entry.time,
+                text = item.time,
                 style = MaterialTheme.typography.bodySmall,
                 modifier = Modifier.weight(1f),
                 maxLines = 1
             )
             Text(
-                text = entry.type,
+                text = item.type,
                 style = MaterialTheme.typography.bodySmall,
                 modifier = Modifier.weight(1.5f),
                 maxLines = 1
             )
             Text(
-                text = entry.information,
+                text = item.information,
                 style = MaterialTheme.typography.bodySmall,
                 modifier = Modifier.weight(2.5f),
                 maxLines = 2

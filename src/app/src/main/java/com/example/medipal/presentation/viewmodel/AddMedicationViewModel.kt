@@ -3,18 +3,16 @@ package com.example.medipal.presentation.viewmodel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.medipal.domain.model.Medication
-import com.example.medipal.domain.repository.HistoryRepository
+
 import com.example.medipal.domain.usecase.AddMedicationUseCase
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import java.util.*
 
-class AddMedicineViewModel(
-    private val addMedicationUseCase: AddMedicationUseCase,
-    private val historyRepository: HistoryRepository
+class AddMedicationViewModel(
+    private val addMedicationUseCase: AddMedicationUseCase
 ) : ViewModel() {
-class AddMedicationViewModel(private val addMedicationUseCase: AddMedicationUseCase) : ViewModel() {
 
     val medicineName = MutableStateFlow("")
     val time = MutableStateFlow(System.currentTimeMillis()) // Thời gian được chọn dưới dạng Long
@@ -55,9 +53,6 @@ class AddMedicationViewModel(private val addMedicationUseCase: AddMedicationUseC
                 notes = null
             )
             addMedicationUseCase(newMedication)
-
-            // Auto-add to history
-            historyRepository.addMedicationHistory(newMedication)
 
             _lastSavedMedicineName.value = newMedication.name
             _showSuccessDialog.value = true // Hiển thị dialog sau khi lưu
