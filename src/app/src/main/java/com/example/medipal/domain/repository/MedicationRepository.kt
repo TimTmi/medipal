@@ -9,4 +9,10 @@ interface MedicationRepository {
 
     // Dùng cho use case thêm thuốc
     suspend fun addMedication(medication: ScheduledEvent.Medication)
+    
+    // Dùng cho use case thêm healthcare reminder
+    suspend fun addHealthcareReminder(reminder: ScheduledEvent.Reminder)
+    
+    // Dùng cho use case thêm cuộc hẹn
+    suspend fun addAppointment(appointment: ScheduledEvent.Appointment)
 }

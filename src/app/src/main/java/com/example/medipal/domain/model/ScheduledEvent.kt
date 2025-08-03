@@ -12,7 +12,9 @@ sealed class ScheduledEvent(val time: String) {
         val id: String,
         val title: String,
         private val appointmentTime: String,
-        val doctor: String
+        val doctor: String,
+        val location: String,
+        val date: String
     ) : ScheduledEvent(appointmentTime)
 
     data class Reminder(

@@ -14,7 +14,7 @@ class FakeMedicationRepositoryImpl : MedicationRepository {
     private val eventsFlow = MutableStateFlow<List<ScheduledEvent>>(
         listOf(
             ScheduledEvent.Medication("med1", "Paracetamol (500 mg)", "500mg, take 1 tablet(s)", "7:00 AM"),
-            ScheduledEvent.Appointment("apt1", "Health Check-up", "7:00 AM", "At: Bach Mai Quan 1"),
+            ScheduledEvent.Appointment("apt1", "Health Check-up", "7:00 AM", "Dr. Smith", "Benh vien Quan 1", "Feb 15, 2025"),
             ScheduledEvent.Reminder("rem1", "Go out for a walk", "7:00 AM")
         )
     )
@@ -26,6 +26,18 @@ class FakeMedicationRepositoryImpl : MedicationRepository {
     override suspend fun addMedication(medication: ScheduledEvent.Medication) {
         val currentList = eventsFlow.value.toMutableList()
         currentList.add(0, medication) // Thêm vào đầu danh sách
+        eventsFlow.value = currentList
+    }
+    
+    override suspend fun addHealthcareReminder(reminder: ScheduledEvent.Reminder) {
+        val currentList = eventsFlow.value.toMutableList()
+        currentList.add(0, reminder) // Thêm vào đầu danh sách
+        eventsFlow.value = currentList
+    }
+    
+    override suspend fun addAppointment(appointment: ScheduledEvent.Appointment) {
+        val currentList = eventsFlow.value.toMutableList()
+        currentList.add(0, appointment) // Thêm vào đầu danh sách
         eventsFlow.value = currentList
     }
 }

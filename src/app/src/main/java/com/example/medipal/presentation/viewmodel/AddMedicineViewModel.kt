@@ -3,13 +3,17 @@ package com.example.medipal.presentation.viewmodel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.medipal.domain.model.ScheduledEvent
+import com.example.medipal.domain.repository.HistoryRepository
 import com.example.medipal.domain.usecase.AddMedicationUseCase
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import java.util.*
 
-class AddMedicineViewModel(private val addMedicationUseCase: AddMedicationUseCase) : ViewModel() {
+class AddMedicineViewModel(
+    private val addMedicationUseCase: AddMedicationUseCase,
+    private val historyRepository: HistoryRepository
+) : ViewModel() {
 
     // Các trạng thái cho từng bước
     val medicineName = MutableStateFlow("")
@@ -34,6 +38,7 @@ class AddMedicineViewModel(private val addMedicationUseCase: AddMedicationUseCas
     fun updateTime(newTime: String) {
         time.value = newTime
     }
+    
     private val _lastSavedMedicineName = MutableStateFlow<String?>(null)
     val lastSavedMedicineName = _lastSavedMedicineName.asStateFlow()
     // Trạng thái cho dialog thành công
@@ -49,6 +54,10 @@ class AddMedicineViewModel(private val addMedicationUseCase: AddMedicationUseCas
                 medicationTime = time.value
             )
             addMedicationUseCase(newMedication)
+            
+            // Auto-add to history
+            historyRepository.addHistoryEntry(newMedication)
+            
             _lastSavedMedicineName.value = newMedication.name
             _showSuccessDialog.value = true // Hiển thị dialog sau khi lưu
         }

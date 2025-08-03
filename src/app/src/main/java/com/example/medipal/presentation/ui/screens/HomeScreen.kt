@@ -50,6 +50,14 @@ fun HomeScreen(navController: NavController, viewModel: HomeViewModel) {
                     viewModel.hideAddSheet()
                     navController.navigate(Screen.AddMedicineFlow.route)
                 },
+                onAddHealthcareReminder = {
+                    viewModel.hideAddSheet()
+                    navController.navigate(Screen.AddHealthcareReminderFlow.route)
+                },
+                onAddAppointment = {
+                    viewModel.hideAddSheet()
+                    navController.navigate(Screen.AddAppointmentFlow.route)
+                },
                 onClose = { viewModel.hideAddSheet() }
             )
         }
@@ -73,7 +81,12 @@ fun HomeScreen(navController: NavController, viewModel: HomeViewModel) {
         // Vì giờ chúng ta đã có icon tối màu nên không cần làm tối nền nữa.
 
         Scaffold(
-            topBar = { HomeScreenTopBar(onAddClick = { viewModel.showAddSheet() }) },
+            topBar = { 
+                HomeScreenTopBar(
+                    onAddClick = { viewModel.showAddSheet() },
+                    onHistoryClick = { navController.navigate(Screen.HistoryLog.route) }
+                ) 
+            },
             containerColor = Color.Transparent,
             modifier = Modifier.fillMaxSize()
         ) { padding ->
@@ -206,11 +219,22 @@ fun DayCell(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun HomeScreenTopBar(onAddClick: () -> Unit) {
+fun HomeScreenTopBar(
+    onAddClick: () -> Unit,
+    onHistoryClick: () -> Unit
+) {
     TopAppBar(
         title = { },
         windowInsets = WindowInsets.statusBars,
         actions = {
+            IconButton(onClick = onHistoryClick) {
+                Icon(
+                    Icons.Default.History, 
+                    contentDescription = "History", 
+                    tint = Color.White, 
+                    modifier = Modifier.size(32.dp)
+                )
+            }
             IconButton(onClick = onAddClick) {
                 Icon(Icons.Default.Add, contentDescription = "Add", tint = Color.White, modifier = Modifier.size(32.dp))
             }
@@ -222,20 +246,76 @@ fun HomeScreenTopBar(onAddClick: () -> Unit) {
 @Composable
 fun EventCard(event: ScheduledEvent) {
     Card(modifier = Modifier.fillMaxWidth()) {
-        Row(modifier = Modifier.padding(16.dp), verticalAlignment = Alignment.CenterVertically) {
-            val (title, type) = when (event) {
-                is ScheduledEvent.Medication -> Pair(event.name, "Medication")
-                is ScheduledEvent.Appointment -> Pair(event.title, "Appointment")
-                is ScheduledEvent.Reminder -> Pair(event.title, "Reminder")
+        when (event) {
+            is ScheduledEvent.Medication -> {
+                Column(modifier = Modifier.padding(16.dp)) {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Text(
+                            text = "${event.time} | Medication",
+                            style = MaterialTheme.typography.labelMedium,
+                            color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f)
+                        )
+                    }
+                    Spacer(modifier = Modifier.height(4.dp))
+                    Text(
+                        text = event.name,
+                        style = MaterialTheme.typography.titleMedium,
+                        fontWeight = FontWeight.Bold
+                    )
+                }
             }
-            Text("${event.time} | $type\n$title", modifier = Modifier.weight(1f))
+            is ScheduledEvent.Appointment -> {
+                Column(modifier = Modifier.padding(16.dp)) {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Text(
+                            text = "${event.time} | Appointment",
+                            style = MaterialTheme.typography.labelMedium,
+                            color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f)
+                        )
+                    }
+                    Spacer(modifier = Modifier.height(4.dp))
+                    Text(
+                        text = event.title,
+                        style = MaterialTheme.typography.titleMedium,
+                        fontWeight = FontWeight.Bold
+                    )
+                    Spacer(modifier = Modifier.height(4.dp))
+                    Text(
+                        text = "At: ${event.location} | Date: ${event.date}",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
+                    )
+                }
+            }
+            is ScheduledEvent.Reminder -> {
+                Column(modifier = Modifier.padding(16.dp)) {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Text(
+                            text = "${event.time} | Reminder",
+                            style = MaterialTheme.typography.labelMedium,
+                            color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f)
+                        )
+                    }
+                    Spacer(modifier = Modifier.height(4.dp))
+                    Text(
+                        text = event.title,
+                        style = MaterialTheme.typography.titleMedium,
+                        fontWeight = FontWeight.Bold
+                    )
+                }
+            }
         }
     }
 }
 
 
 @Composable
-fun AddOptionsSheet(onAddMedicine: () -> Unit, onClose: () -> Unit) {
+fun AddOptionsSheet(
+    onAddMedicine: () -> Unit, 
+    onAddHealthcareReminder: () -> Unit,
+    onAddAppointment: () -> Unit,
+    onClose: () -> Unit
+) {
     Column(Modifier.padding(16.dp)) {
         Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
             Text("What would you like to add?", fontSize = 20.sp, fontWeight = FontWeight.Bold)
@@ -250,12 +330,12 @@ fun AddOptionsSheet(onAddMedicine: () -> Unit, onClose: () -> Unit) {
         ListItem(
             headlineContent = { Text("Add healthcare reminder") },
             leadingContent = { Icon(Icons.Default.Add, null) },
-            modifier = Modifier.clickable(onClick = { /* TODO */ })
+            modifier = Modifier.clickable(onClick = onAddHealthcareReminder)
         )
         ListItem(
             headlineContent = { Text("Add appointment") },
             leadingContent = { Icon(Icons.Default.Add, null) },
-            modifier = Modifier.clickable(onClick = { /* TODO */ })
+            modifier = Modifier.clickable(onClick = onAddAppointment)
         )
     }
 }

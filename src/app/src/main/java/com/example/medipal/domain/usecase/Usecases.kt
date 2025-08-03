@@ -14,3 +14,17 @@ class AddMedicationUseCase(private val repository: MedicationRepository) {
         repository.addMedication(medication)
     }
 }
+
+// Use case để thêm một healthcare reminder mới
+class AddHealthcareReminderUseCase(private val repository: MedicationRepository) {
+    suspend operator fun invoke(reminder: ScheduledEvent.Reminder) {
+        repository.addHealthcareReminder(reminder)
+    }
+}
+
+// Use case để thêm một cuộc hẹn mới
+class AddAppointmentUseCase(private val repository: MedicationRepository) {
+    suspend operator fun invoke(appointment: ScheduledEvent.Appointment) {
+        repository.addAppointment(appointment)
+    }
+}

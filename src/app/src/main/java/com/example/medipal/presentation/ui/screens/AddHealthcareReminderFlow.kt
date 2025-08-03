@@ -5,6 +5,9 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
@@ -14,36 +17,27 @@ import androidx.navigation.NavController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import com.example.medipal.presentation.viewmodel.AddMedicineViewModel
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
+import com.example.medipal.presentation.viewmodel.AddHealthcareReminderViewModel
 import com.example.medipal.presentation.ui.components.TimePickerDialog
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
+import androidx.compose.foundation.clickable
 import java.util.Locale
 
-
-
-// Các route cho các bước con bên trong luồng thêm thuốc
-private const val STEP_NAME = "step_name"
-private const val STEP_FREQUENCY = "step_frequency"
+// Các route cho các bước con bên trong luồng thêm healthcare reminder
+private const val STEP_TITLE = "step_title"
 private const val STEP_TIME = "step_time"
 
 @Composable
-fun AddMedicineFlow(
+fun AddHealthcareReminderFlow(
     mainNavController: NavController,
-    viewModel: AddMedicineViewModel
+    viewModel: AddHealthcareReminderViewModel
 ) {
     val flowNavController = rememberNavController()
     val showSuccessDialog by viewModel.showSuccessDialog.collectAsState()
-    val lastSavedMedicine by viewModel.lastSavedMedicineName.collectAsState()
+    val lastSavedReminder by viewModel.lastSavedReminderTitle.collectAsState()
 
-    // 2. Chỉ hiển thị dialog khi cần thiết và có tên thuốc để hiển thị
-    if (showSuccessDialog && lastSavedMedicine != null) {
-        SuccessDialog(
-            medicineName = lastSavedMedicine!!, // Truyền tên thuốc vào
+    if (showSuccessDialog && lastSavedReminder != null) {
+        ReminderSuccessDialog(
+            reminderTitle = lastSavedReminder!!,
             onDismiss = {
                 viewModel.dismissSuccessDialog()
                 mainNavController.popBackStack()
@@ -51,25 +45,18 @@ fun AddMedicineFlow(
         )
     }
 
-    NavHost(navController = flowNavController, startDestination = STEP_NAME) {
-        composable(STEP_NAME) {
-            SelectMedicineNameScreen(
-                viewModel = viewModel,
-                onNext = { flowNavController.navigate(STEP_FREQUENCY) },
-                onCancel = { mainNavController.popBackStack() }
-            )
-        }
-        composable(STEP_FREQUENCY) {
-            SelectFrequencyScreen(
+    NavHost(navController = flowNavController, startDestination = STEP_TITLE) {
+        composable(STEP_TITLE) {
+            SelectReminderTitleScreen(
                 viewModel = viewModel,
                 onNext = { flowNavController.navigate(STEP_TIME) },
                 onCancel = { mainNavController.popBackStack() }
             )
         }
         composable(STEP_TIME) {
-            SelectTimeScreen(
+            SelectReminderTimeScreen(
                 viewModel = viewModel,
-                onSave = { viewModel.saveMedication() }, // Lưu và hiển thị dialog
+                onSave = { viewModel.saveHealthcareReminder() },
                 onCancel = { mainNavController.popBackStack() }
             )
         }
@@ -78,12 +65,17 @@ fun AddMedicineFlow(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun SelectMedicineNameScreen(viewModel: AddMedicineViewModel, onNext: () -> Unit, onCancel: () -> Unit) {
-    val medicineName by viewModel.medicineName.collectAsState()
+fun SelectReminderTitleScreen(
+    viewModel: AddHealthcareReminderViewModel, 
+    onNext: () -> Unit, 
+    onCancel: () -> Unit
+) {
+    val reminderTitle by viewModel.reminderTitle.collectAsState()
+    
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Add medicine") },
+                title = { Text("Add healthcare reminder") },
                 navigationIcon = { TextButton(onClick = onCancel) { Text("Cancel") } }
             )
         }
@@ -95,13 +87,14 @@ fun SelectMedicineNameScreen(viewModel: AddMedicineViewModel, onNext: () -> Unit
                 .padding(16.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Text("What medicine would you like to add?")
+            Text("What healthcare reminder would you like to add?")
             Spacer(modifier = Modifier.height(16.dp))
             OutlinedTextField(
-                value = medicineName,
-                onValueChange = { viewModel.medicineName.value = it },
-                label = { Text("Medicine Name") },
-                modifier = Modifier.fillMaxWidth()
+                value = reminderTitle,
+                onValueChange = { viewModel.reminderTitle.value = it },
+                label = { Text("Reminder Title") },
+                modifier = Modifier.fillMaxWidth(),
+                placeholder = { Text("e.g., Drink water, Take a walk, Check blood pressure") }
             )
             Spacer(modifier = Modifier.weight(1f))
             Button(onClick = onNext) {
@@ -113,90 +106,19 @@ fun SelectMedicineNameScreen(viewModel: AddMedicineViewModel, onNext: () -> Unit
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun SelectFrequencyScreen(viewModel: AddMedicineViewModel, onNext: () -> Unit, onCancel: () -> Unit) {
-    val medicineName by viewModel.medicineName.collectAsState()
-
-    // SỬA LỖI Ở ĐÂY: Lấy danh sách tĩnh trực tiếp, không dùng collectAsState
-    val options = viewModel.frequencyOptions
-
-    // Dòng này đúng vì selectedFrequency là StateFlow
-    val selectedOption by viewModel.selectedFrequency.collectAsState()
-
-    Scaffold(
-        topBar = {
-            TopAppBar(
-                title = { Text(medicineName) },
-                navigationIcon = { TextButton(onClick = onCancel) { Text("Cancel") } }
-            )
-        }
-    ) { padding ->
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(padding)
-                .padding(16.dp)
-        ) {
-            Text(
-                "How often do you take it?",
-                style = MaterialTheme.typography.titleLarge,
-                modifier = Modifier.align(Alignment.CenterHorizontally)
-            )
-            Spacer(modifier = Modifier.height(16.dp))
-
-            LazyColumn(modifier = Modifier.weight(1f)) {
-                items(options) { option ->
-                    FrequencyOptionRow(
-                        text = option,
-                        selected = (option == selectedOption),
-                        onClick = { viewModel.onFrequencySelected(option) }
-                    )
-                }
-            }
-
-            Button(
-                onClick = onNext,
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                Text("Next")
-            }
-        }
-    }
-}
-
-@Composable
-fun FrequencyOptionRow(
-    text: String,
-    selected: Boolean,
-    onClick: () -> Unit
+fun SelectReminderTimeScreen(
+    viewModel: AddHealthcareReminderViewModel, 
+    onSave: () -> Unit, 
+    onCancel: () -> Unit
 ) {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .clickable(onClick = onClick)
-            .padding(vertical = 12.dp),
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        RadioButton(
-            selected = selected,
-            onClick = onClick
-        )
-        Spacer(modifier = Modifier.width(16.dp))
-        Text(text = text, style = MaterialTheme.typography.bodyLarge)
-    }
-}
-
-
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-fun SelectTimeScreen(viewModel: AddMedicineViewModel, onSave: () -> Unit, onCancel: () -> Unit) {
-    val medicineName by viewModel.medicineName.collectAsState()
+    val reminderTitle by viewModel.reminderTitle.collectAsState()
     val time by viewModel.time.collectAsState()
     var showTimePicker by remember { mutableStateOf(false) }
     
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text(medicineName) },
+                title = { Text(reminderTitle) },
                 navigationIcon = { TextButton(onClick = onCancel) { Text("Cancel") } }
             )
         }
@@ -209,7 +131,7 @@ fun SelectTimeScreen(viewModel: AddMedicineViewModel, onSave: () -> Unit, onCanc
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Text(
-                "When do you need to take it?",
+                "When do you want to be reminded?",
                 style = MaterialTheme.typography.titleLarge,
                 modifier = Modifier.padding(bottom = 32.dp)
             )
@@ -259,7 +181,7 @@ fun SelectTimeScreen(viewModel: AddMedicineViewModel, onSave: () -> Unit, onCanc
                     .fillMaxWidth()
                     .padding(horizontal = 16.dp)
             ) {
-                Text("Save Medicine")
+                Text("Save Reminder")
             }
         }
     }
@@ -280,19 +202,18 @@ fun SelectTimeScreen(viewModel: AddMedicineViewModel, onSave: () -> Unit, onCanc
 }
 
 @Composable
-fun SuccessDialog(
-    medicineName: String, // Thêm tham số medicineName
+fun ReminderSuccessDialog(
+    reminderTitle: String,
     onDismiss: () -> Unit
 ) {
     AlertDialog(
         onDismissRequest = onDismiss,
         title = { Text(text = "Successfully Added") },
-        // Sử dụng medicineName trong nội dung text
-        text = { Text(text = "$medicineName has been added to your schedule.") },
+        text = { Text(text = "$reminderTitle has been added to your reminders.") },
         confirmButton = {
             TextButton(onClick = onDismiss) {
                 Text("OK")
             }
         }
     )
-}
+} 
