@@ -1,0 +1,13 @@
+package com.example.medipal.data.local.entity
+
+import androidx.room.Entity
+import androidx.room.PrimaryKey
+
+@Entity(tableName = "appointment")
+data class AppointmentEntity(
+    @PrimaryKey val id: String,
+    val title: String,
+    val scheduleTime: Long,
+    val doctor: String,
+    val notes: String?
+)

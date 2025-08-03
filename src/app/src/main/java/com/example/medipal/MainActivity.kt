@@ -1,5 +1,3 @@
-// Trong file MainActivity.kt
-
 package com.example.medipal
 
 import android.os.Bundle
