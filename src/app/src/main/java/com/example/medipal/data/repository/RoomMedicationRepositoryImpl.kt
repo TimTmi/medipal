@@ -1,29 +1,33 @@
 package com.example.medipal.data.repository
 
-import com.example.medipal.data.local.dao.MedicationDao
-import com.example.medipal.data.mapper.*
-import com.example.medipal.domain.model.Medication
+import com.example.medipal.domain.model.ScheduledEvent
 import com.example.medipal.domain.repository.MedicationRepository
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.MutableStateFlow
 
-class RoomMedicationRepositoryImpl(
-    private val dao: MedicationDao
-) : MedicationRepository {
+class RoomMedicationRepositoryImpl : MedicationRepository {
 
-    override fun getMedications(): Flow<List<Medication>> {
-        return dao.getAll().map { list -> list.map { it.toDomain() } }
+    private val eventsFlow = MutableStateFlow<List<ScheduledEvent>>(emptyList())
+
+    override fun getScheduledEvents(): Flow<List<ScheduledEvent>> {
+        return eventsFlow
     }
 
-    override suspend fun addMedication(medication: Medication) {
-        dao.insert(medication.toEntity())
+    override suspend fun addMedication(medication: ScheduledEvent.Medication) {
+        val currentList = eventsFlow.value.toMutableList()
+        currentList.add(0, medication)
+        eventsFlow.value = currentList
     }
 
-    override suspend fun removeMedication(id: String) {
-        dao.deleteById(id)
+    override suspend fun addHealthcareReminder(reminder: ScheduledEvent.Reminder) {
+        val currentList = eventsFlow.value.toMutableList()
+        currentList.add(0, reminder)
+        eventsFlow.value = currentList
     }
 
-    override suspend fun updateMedication(medication: Medication) {
-        dao.update(medication.toEntity())
+    override suspend fun addAppointment(appointment: ScheduledEvent.Appointment) {
+        val currentList = eventsFlow.value.toMutableList()
+        currentList.add(0, appointment)
+        eventsFlow.value = currentList
     }
 }

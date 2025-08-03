@@ -1,13 +1,15 @@
 package com.example.medipal.presentation.ui.screens
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Edit
+import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.material3.*
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
@@ -17,14 +19,16 @@ import androidx.navigation.NavController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import androidx.compose.material3.CenterAlignedTopAppBar
 import com.example.medipal.presentation.viewmodel.AddHealthcareReminderViewModel
 import com.example.medipal.presentation.ui.components.TimePickerDialog
-import androidx.compose.foundation.clickable
 import java.util.Locale
 
-// Các route cho các bước con bên trong luồng thêm healthcare reminder
-private const val STEP_TITLE = "step_title"
-private const val STEP_TIME = "step_time"
+// Các route cho các bước con
+private const val STEP_CATEGORY = "reminder_category"
+private const val STEP_ACTIVITY = "reminder_activity"
+private const val STEP_FREQUENCY_REMINDER = "reminder_frequency"
+private const val STEP_TIME = "reminder_time"
 
 @Composable
 fun AddHealthcareReminderFlow(
@@ -33,11 +37,12 @@ fun AddHealthcareReminderFlow(
 ) {
     val flowNavController = rememberNavController()
     val showSuccessDialog by viewModel.showSuccessDialog.collectAsState()
-    val lastSavedReminder by viewModel.lastSavedReminderTitle.collectAsState()
+    val lastSavedReminderTitle by viewModel.lastSavedReminderTitle.collectAsState()
 
-    if (showSuccessDialog && lastSavedReminder != null) {
-        ReminderSuccessDialog(
-            reminderTitle = lastSavedReminder!!,
+    if (showSuccessDialog && lastSavedReminderTitle != null) {
+        SuccessDialog(
+            title = "Successfully Added",
+            message = "$lastSavedReminderTitle Reminder",
             onDismiss = {
                 viewModel.dismissSuccessDialog()
                 mainNavController.popBackStack()
@@ -45,18 +50,36 @@ fun AddHealthcareReminderFlow(
         )
     }
 
-    NavHost(navController = flowNavController, startDestination = STEP_TITLE) {
-        composable(STEP_TITLE) {
-            SelectReminderTitleScreen(
+    NavHost(navController = flowNavController, startDestination = STEP_CATEGORY) {
+        composable(STEP_CATEGORY) {
+            ReminderCategoryScreen(
+                categories = viewModel.reminderCategories.keys.toList(),
+                onCategoryClick = { category ->
+                    viewModel.onCategorySelected(category)
+                    flowNavController.navigate(STEP_ACTIVITY)
+                },
+                onCancel = { mainNavController.popBackStack() }
+            )
+        }
+        composable(STEP_ACTIVITY) {
+            ReminderActivityScreen(
+                viewModel = viewModel,
+                onNext = { flowNavController.navigate(STEP_FREQUENCY_REMINDER) },
+                onCancel = { mainNavController.popBackStack() }
+            )
+        }
+        composable(STEP_FREQUENCY_REMINDER) {
+            ReminderFrequencyScreen(
                 viewModel = viewModel,
                 onNext = { flowNavController.navigate(STEP_TIME) },
                 onCancel = { mainNavController.popBackStack() }
             )
         }
         composable(STEP_TIME) {
-            SelectReminderTimeScreen(
+            val selectedActivity by viewModel.selectedActivity.collectAsState()
+            ReminderTimeScreen(
                 viewModel = viewModel,
-                onSave = { viewModel.saveHealthcareReminder() },
+                onSave = { viewModel.saveReminder() },
                 onCancel = { mainNavController.popBackStack() }
             )
         }
@@ -65,39 +88,90 @@ fun AddHealthcareReminderFlow(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun SelectReminderTitleScreen(
-    viewModel: AddHealthcareReminderViewModel, 
-    onNext: () -> Unit, 
+fun ReminderCategoryScreen(
+    categories: List<String>,
+    onCategoryClick: (String) -> Unit,
     onCancel: () -> Unit
 ) {
-    val reminderTitle by viewModel.reminderTitle.collectAsState()
-    
     Scaffold(
         topBar = {
-            TopAppBar(
+            CenterAlignedTopAppBar(
                 title = { Text("Add healthcare reminder") },
                 navigationIcon = { TextButton(onClick = onCancel) { Text("Cancel") } }
             )
         }
     ) { padding ->
+        LazyColumn(contentPadding = padding, modifier = Modifier.padding(16.dp)) {
+            items(categories) { category ->
+                ListItem(
+                    headlineContent = { Text(category) },
+                    modifier = Modifier.clickable { onCategoryClick(category) }
+                )
+            }
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun ReminderActivityScreen(
+    viewModel: AddHealthcareReminderViewModel,
+    onNext: () -> Unit,
+    onCancel: () -> Unit
+) {
+    val selectedCategory by viewModel.selectedCategory.collectAsState()
+    val selectedActivity by viewModel.selectedActivity.collectAsState()
+    val activities = viewModel.reminderCategories[selectedCategory] ?: emptyList()
+    var expanded by remember { mutableStateOf(false) }
+
+    Scaffold(
+        topBar = {
+            CenterAlignedTopAppBar(
+                title = { Text("Setup $selectedCategory Reminder") },
+                navigationIcon = { TextButton(onClick = onCancel) { Text("Cancel") } }
+            )
+        }
+    ) { padding ->
         Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(padding)
-                .padding(16.dp),
+            modifier = Modifier.fillMaxSize().padding(padding).padding(16.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Text("What healthcare reminder would you like to add?")
-            Spacer(modifier = Modifier.height(16.dp))
-            OutlinedTextField(
-                value = reminderTitle,
-                onValueChange = { viewModel.reminderTitle.value = it },
-                label = { Text("Reminder Title") },
-                modifier = Modifier.fillMaxWidth(),
-                placeholder = { Text("e.g., Drink water, Take a walk, Check blood pressure") }
+            Text(
+                "Select an activity",
+                style = MaterialTheme.typography.titleLarge,
+                modifier = Modifier.align(Alignment.CenterHorizontally)
             )
+            Spacer(modifier = Modifier.height(16.dp))
+            
+            ExposedDropdownMenuBox(
+                expanded = expanded,
+                onExpandedChange = { expanded = !expanded }
+            ) {
+                OutlinedTextField(
+                    value = selectedActivity,
+                    onValueChange = {},
+                    readOnly = true,
+                    label = { Text("Select activity") },
+                    trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
+                    modifier = Modifier.menuAnchor().fillMaxWidth()
+                )
+                ExposedDropdownMenu(
+                    expanded = expanded,
+                    onDismissRequest = { expanded = false }
+                ) {
+                    activities.forEach { activity ->
+                        DropdownMenuItem(
+                            text = { Text(activity) },
+                            onClick = {
+                                viewModel.onActivitySelected(activity)
+                                expanded = false
+                            }
+                        )
+                    }
+                }
+            }
             Spacer(modifier = Modifier.weight(1f))
-            Button(onClick = onNext) {
+            Button(onClick = onNext, modifier = Modifier.fillMaxWidth()) {
                 Text("Next")
             }
         }
@@ -106,19 +180,115 @@ fun SelectReminderTitleScreen(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun SelectReminderTimeScreen(
-    viewModel: AddHealthcareReminderViewModel, 
-    onSave: () -> Unit, 
+fun ReminderFrequencyScreen(
+    viewModel: AddHealthcareReminderViewModel,
+    onNext: () -> Unit,
     onCancel: () -> Unit
 ) {
-    val reminderTitle by viewModel.reminderTitle.collectAsState()
-    val time by viewModel.time.collectAsState()
-    var showTimePicker by remember { mutableStateOf(false) }
-    
+    val selectedActivity by viewModel.selectedActivity.collectAsState()
+    val options = viewModel.frequencyOptions
+    val selectedOption by viewModel.selectedFrequency.collectAsState()
+
     Scaffold(
         topBar = {
-            TopAppBar(
-                title = { Text(reminderTitle) },
+            CenterAlignedTopAppBar(
+                title = { Text(selectedActivity) },
+                navigationIcon = { TextButton(onClick = onCancel) { Text("Cancel") } }
+            )
+        }
+    ) { padding ->
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(padding)
+                .padding(16.dp)
+        ) {
+            Text(
+                "How often do you do it?",
+                style = MaterialTheme.typography.titleLarge,
+                modifier = Modifier.align(Alignment.CenterHorizontally)
+            )
+            Spacer(modifier = Modifier.height(16.dp))
+
+            LazyColumn(modifier = Modifier.weight(1f)) {
+                items(options) { option ->
+                    ReminderFrequencyOptionRow(
+                        text = option,
+                        selected = (option == selectedOption),
+                        onClick = { viewModel.onFrequencySelected(option) }
+                    )
+                }
+            }
+
+            Button(
+                onClick = onNext,
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Text("Next")
+            }
+        }
+    }
+}
+
+@Composable
+fun ReminderFrequencyOptionRow(
+    text: String,
+    selected: Boolean,
+    onClick: () -> Unit
+) {
+    ListItem(
+        headlineContent = { Text(text) },
+        leadingContent = {
+            RadioButton(
+                selected = selected,
+                onClick = onClick
+            )
+        },
+        modifier = Modifier.clickable { onClick() }
+    )
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun ReminderTimeScreen(
+    viewModel: AddHealthcareReminderViewModel,
+    onSave: () -> Unit,
+    onCancel: () -> Unit
+) {
+    val selectedActivity by viewModel.selectedActivity.collectAsState()
+    val selectedTime by viewModel.selectedTime.collectAsState()
+    val sessionCount by viewModel.sessionCount.collectAsState()
+    var showSessionDialog by remember { mutableStateOf(false) }
+    var showTimePicker by remember { mutableStateOf(false) }
+
+    if (showSessionDialog) {
+        EditSessionDialog(
+            currentCount = sessionCount,
+            onDismiss = { showSessionDialog = false },
+            onConfirm = { newCount ->
+                viewModel.onSessionCountChanged(newCount)
+                showSessionDialog = false
+            }
+        )
+    }
+
+    if (showTimePicker) {
+        TimePickerDialog(
+            onTimeSelected = { hour, minute ->
+                val amPm = if (hour >= 12) "PM" else "AM"
+                val displayHour = if (hour == 0) 12 else if (hour > 12) hour - 12 else hour
+                val timeString = String.format(Locale.getDefault(), "%d:%02d %s", displayHour, minute, amPm)
+                viewModel.onTimeSelected(timeString)
+                showTimePicker = false
+            },
+            onDismiss = { showTimePicker = false }
+        )
+    }
+
+    Scaffold(
+        topBar = {
+            CenterAlignedTopAppBar(
+                title = { Text(selectedActivity) },
                 navigationIcon = { TextButton(onClick = onCancel) { Text("Cancel") } }
             )
         }
@@ -131,12 +301,33 @@ fun SelectReminderTimeScreen(
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Text(
-                "When do you want to be reminded?",
+                "What time should you do it?",
                 style = MaterialTheme.typography.titleLarge,
-                modifier = Modifier.padding(bottom = 32.dp)
+                modifier = Modifier.align(Alignment.CenterHorizontally)
             )
-            
-            // Time Display Card
+            Spacer(modifier = Modifier.height(16.dp))
+
+            // Session Count Card
+            Card(
+                modifier = Modifier.fillMaxWidth(),
+                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)
+            ) {
+                Row(
+                    modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 8.dp),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text("Do")
+                    Text("$sessionCount session(s)")
+                    IconButton(onClick = { showSessionDialog = true }) {
+                        Icon(Icons.Default.Edit, contentDescription = "Edit session count")
+                    }
+                }
+            }
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            // Time Display Card (copy style from AddMedicine)
             Card(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -159,7 +350,7 @@ fun SelectReminderTimeScreen(
                     )
                     Spacer(modifier = Modifier.height(8.dp))
                     Text(
-                        text = time,
+                        text = selectedTime,
                         fontSize = 48.sp,
                         fontWeight = FontWeight.Bold,
                         color = MaterialTheme.colorScheme.onPrimaryContainer
@@ -172,48 +363,58 @@ fun SelectReminderTimeScreen(
                     )
                 }
             }
-            
+
             Spacer(modifier = Modifier.weight(1f))
-            
-            Button(
-                onClick = onSave,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 16.dp)
-            ) {
-                Text("Save Reminder")
+            Button(onClick = onSave, modifier = Modifier.fillMaxWidth()) {
+                Text("Save")
             }
         }
-    }
-    
-    // Time Picker Dialog
-    if (showTimePicker) {
-        TimePickerDialog(
-            onTimeSelected = { hour, minute ->
-                val amPm = if (hour >= 12) "PM" else "AM"
-                val displayHour = if (hour == 0) 12 else if (hour > 12) hour - 12 else hour
-                val timeString = String.format(Locale.getDefault(), "%d:%02d %s", displayHour, minute, amPm)
-                viewModel.updateTime(timeString)
-                showTimePicker = false
-            },
-            onDismiss = { showTimePicker = false }
-        )
     }
 }
 
 @Composable
-fun ReminderSuccessDialog(
-    reminderTitle: String,
-    onDismiss: () -> Unit
+fun EditSessionDialog(
+    currentCount: Int,
+    onDismiss: () -> Unit,
+    onConfirm: (Int) -> Unit
 ) {
+    var textValue by remember { mutableStateOf(currentCount.toString()) }
+
     AlertDialog(
         onDismissRequest = onDismiss,
-        title = { Text(text = "Successfully Added") },
-        text = { Text(text = "$reminderTitle has been added to your reminders.") },
+        title = { Text("Edit Session Count") },
+        text = {
+            OutlinedTextField(
+                value = textValue,
+                onValueChange = { textValue = it.filter { char -> char.isDigit() } },
+                label = { Text("Number of sessions") },
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
+            )
+        },
         confirmButton = {
-            TextButton(onClick = onDismiss) {
+            TextButton(
+                onClick = {
+                    val newCount = textValue.toIntOrNull() ?: 1
+                    onConfirm(newCount)
+                }
+            ) {
                 Text("OK")
             }
+        },
+        dismissButton = {
+            TextButton(onClick = onDismiss) {
+                Text("Cancel")
+            }
         }
+    )
+}
+
+@Composable
+fun SuccessDialog(title: String, message: String, onDismiss: () -> Unit) {
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text(title) },
+        text = { Text(message) },
+        confirmButton = { TextButton(onClick = onDismiss) { Text("OK") } }
     )
 } 
