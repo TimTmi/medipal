@@ -4,7 +4,7 @@ plugins {
     alias(libs.plugins.kotlin.compose)
     alias(libs.plugins.kotlin.kapt)
 
-    alias(libs.plugins.firebase)
+    alias(libs.plugins.google.services)
 }
 
 android {
@@ -77,7 +77,9 @@ dependencies {
     implementation(libs.material.icons.extended)
     implementation(libs.androidx.runtime)
 
-//    implementation(platform("com.google.firebase:firebase-bom:34.0.0"))
+    implementation(platform(libs.firebase.bom))
+    implementation(libs.firebase.auth)
+    implementation(libs.firebase.firestore)
 //    implementation("com.google.firebase:firebase-auth-ktx")
 //    implementation("com.google.firebase:firebase-firestore-ktx")
 }
