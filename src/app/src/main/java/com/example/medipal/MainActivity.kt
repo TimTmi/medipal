@@ -3,12 +3,6 @@ package com.example.medipal
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import com.example.medipal.data.repository.FakeAppointmentRepositoryImpl
-import com.example.medipal.data.repository.FakeMedicationRepositoryImpl
-import com.example.medipal.data.repository.FakeReminderRepositoryImpl
-import com.example.medipal.domain.repository.AppointmentRepository
-import com.example.medipal.domain.repository.MedicationRepository
-import com.example.medipal.domain.repository.ReminderRepository
 import com.example.medipal.domain.usecase.AddMedicationUseCase
 import com.example.medipal.domain.usecase.GetScheduledEventsUseCase
 

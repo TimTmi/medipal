@@ -15,7 +15,7 @@ import com.example.medipal.data.local.entity.ReminderEntity
         AppointmentEntity::class,
         ReminderEntity::class
     ],
-    version = 1,
+    version = 2,
     exportSchema = false
 )
 abstract class MediPalDatabase : RoomDatabase() {

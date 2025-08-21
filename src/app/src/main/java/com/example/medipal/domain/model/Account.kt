@@ -6,7 +6,7 @@ enum class AccountType {
 }
 
 data class Account (
-    val id: String,
-    val accountType: AccountType,
-    val profileId: String
+    val id: String = "",
+    val accountType: AccountType = AccountType.CUSTOMER,
+    val profileId: String = ""
 )

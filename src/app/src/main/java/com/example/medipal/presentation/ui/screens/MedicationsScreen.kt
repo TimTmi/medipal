@@ -388,7 +388,7 @@ fun EditMedicationDialog(
                             val updatedMedication = medication.copy(
                                 name = name,
                                 dosage = dosage,
-                                notes = notes.takeIf { it.isNotBlank() }
+                                notes = notes
                             )
                             onSave(updatedMedication)
                         },

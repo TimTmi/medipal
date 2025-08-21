@@ -6,8 +6,8 @@ enum class Sender {
 }
 
 data class ChatMessage(
-    val id: String,
-    val sender: Sender,
-    val content: String,
-    val timestamp: Long
+    val id: String = "",
+    val sender: Sender = Sender.USER,
+    val content: String = "",
+    val timestamp: Long = 0
 )

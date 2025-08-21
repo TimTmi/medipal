@@ -3,15 +3,13 @@ package com.example.medipal.di
 import android.content.Context
 import androidx.room.Room
 import com.example.medipal.data.local.database.MediPalDatabase
-import com.example.medipal.data.repository.FakeAppointmentRepositoryImpl
-import com.example.medipal.data.repository.FakeMedicationRepositoryImpl
-import com.example.medipal.data.repository.FakeReminderRepositoryImpl
+import com.example.medipal.data.repository.RoomAppointmentRepositoryImpl
 import com.example.medipal.data.repository.RoomMedicationRepositoryImpl
-//import com.example.medipal.data.repository.HistoryRepositoryImpl
-import com.example.medipal.domain.repository.AppointmentRepository
-//import com.example.medipal.domain.repository.HistoryRepository
-import com.example.medipal.domain.repository.MedicationRepository
-import com.example.medipal.domain.repository.ReminderRepository
+import com.example.medipal.data.repository.RoomReminderRepositoryImpl
+import com.example.medipal.domain.model.Appointment
+import com.example.medipal.domain.model.Medication
+import com.example.medipal.domain.model.Reminder
+import com.example.medipal.domain.repository.Repository
 import com.example.medipal.domain.usecase.AddMedicationUseCase
 import com.example.medipal.domain.usecase.AddReminderUseCase
 import com.example.medipal.domain.usecase.AddAppointmentUseCase
@@ -25,9 +23,9 @@ import com.example.medipal.domain.usecase.RemoveMedicationUseCase
  * Dependency injection container at the application level.
  */
 interface AppContainer {
-    val medicationRepository: MedicationRepository
-    val appointmentRepository: AppointmentRepository
-    val reminderRepository: ReminderRepository
+    val medicationRepository: Repository<Medication>
+    val appointmentRepository: Repository<Appointment>
+    val reminderRepository: Repository<Reminder>
 //    val historyRepository: HistoryRepository
     val getMedicationsUseCase: GetMedicationsUseCase
     val getAppointmentsUseCase: GetAppointmentsUseCase
@@ -45,18 +43,18 @@ class DefaultAppContainer(context: Context) : AppContainer {
         context.applicationContext,
         MediPalDatabase::class.java,
         "medipal.db"
-    ).build()
+    ).fallbackToDestructiveMigration(false).build()
     // Repository
-    override val medicationRepository: MedicationRepository by lazy {
+    override val medicationRepository: Repository<Medication> by lazy {
         RoomMedicationRepositoryImpl(database.medicationDao())
     }
 
-    override val appointmentRepository: AppointmentRepository by lazy {
-        FakeAppointmentRepositoryImpl()
+    override val appointmentRepository: Repository<Appointment> by lazy {
+        RoomAppointmentRepositoryImpl(database.appointmentDao())
     }
 
-    override val reminderRepository: ReminderRepository by lazy {
-        FakeReminderRepositoryImpl()
+    override val reminderRepository: Repository<Reminder> by lazy {
+        RoomReminderRepositoryImpl(database.reminderDao())
     }
     
 //    override val historyRepository: HistoryRepository by lazy {
