@@ -40,6 +40,12 @@ android {
     buildFeatures {
         compose = true
     }
+
+    packaging {
+        resources {
+            excludes += "/META-INF/INDEX.LIST"
+        }
+    }
 }
 
 dependencies {
@@ -82,6 +88,14 @@ dependencies {
     implementation(libs.firebase.firestore)
 //    implementation("com.google.firebase:firebase-auth-ktx")
 //    implementation("com.google.firebase:firebase-firestore-ktx")
+
+    implementation("com.google.android.gms:play-services-auth:21.4.0")
+
+    implementation("com.google.api-client:google-api-client-android:2.8.1")
+    implementation("com.google.apis:google-api-services-calendar:v3-rev20250404-2.0.0")
+
+    implementation("com.squareup.retrofit2:retrofit:3.0.0")
+    implementation("com.squareup.retrofit2:converter-gson:3.0.0")
 }
 
 kotlin {
