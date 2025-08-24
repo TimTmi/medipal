@@ -1,0 +1,12 @@
+<component name="libraryTable">
+  <library name="Gradle: io.insert-koin:koin-core-viewmodel-android:4.1.0@aar" external-system-id="GRADLE">
+    <CLASSES>
+      <root url="file://$USER_HOME$/.gradle/caches/8.13/transforms/2435477336576b940eaa082484167de9/transformed/koin-core-viewmodel-release/AndroidManifest.xml" />
+      <root url="jar://$USER_HOME$/.gradle/caches/8.13/transforms/2435477336576b940eaa082484167de9/transformed/koin-core-viewmodel-release/jars/classes.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES>
+      <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/io.insert-koin/koin-core-viewmodel-android/4.1.0/9a1541d355631ccc75592348fe73e8b180c66a2f/koin-core-viewmodel-android-4.1.0-sources.jar!/" />
+    </SOURCES>
+  </library>
+</component>

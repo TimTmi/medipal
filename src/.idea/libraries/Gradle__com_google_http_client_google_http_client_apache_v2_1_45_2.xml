@@ -1,0 +1,14 @@
+<component name="libraryTable">
+  <library name="Gradle: com.google.http-client:google-http-client-apache-v2:1.45.2" type="java-imported" external-system-id="GRADLE">
+    <properties groupId="com.google.http-client" artifactId="google-http-client-apache-v2" version="1.45.2" baseVersion="1.45.2" />
+    <CLASSES>
+      <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/com.google.http-client/google-http-client-apache-v2/1.45.2/709e720ca21bf6e201dd244137d38281548172e/google-http-client-apache-v2-1.45.2.jar!/" />
+    </CLASSES>
+    <JAVADOC>
+      <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/com.google.http-client/google-http-client-apache-v2/1.45.2/d9840aa1d9c37e97ebc59433bb7b28b8db2ede77/google-http-client-apache-v2-1.45.2-javadoc.jar!/" />
+    </JAVADOC>
+    <SOURCES>
+      <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/com.google.http-client/google-http-client-apache-v2/1.45.2/cb42b32d4ca9001ebd8703e2710657e760b029bf/google-http-client-apache-v2-1.45.2-sources.jar!/" />
+    </SOURCES>
+  </library>
+</component>
