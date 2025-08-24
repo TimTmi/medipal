@@ -9,13 +9,11 @@ import kotlinx.coroutines.CoroutineScope
 class HybridAppointmentRepositoryImpl(
     localRepo: LocalRepository<Appointment>,
     remoteRepo: RemoteRepository<Appointment>,
-    networkChecker: () -> Boolean,
-    appScope: CoroutineScope
+    networkChecker: () -> Boolean
 ) : HybridRepositoryImpl<Appointment>(
     localRepo = localRepo,
     remoteRepo = remoteRepo,
     networkChecker = networkChecker,
-    appScope = appScope,
     getId = { it.id },
     getUpdatedAt = { it.updatedAt },
     getDeletedAt = { it.deletedAt },

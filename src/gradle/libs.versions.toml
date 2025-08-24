@@ -4,6 +4,9 @@ converterGson = "3.0.0"
 firebaseBomVersion = "34.1.0"
 googleApiClientAndroid = "2.8.1"
 googleApiServicesCalendar = "v3-rev20250404-2.0.0"
+grpcOkhttp = "1.74.0"
+grpcProtobufLite = "1.74.0"
+grpcStub = "1.74.0"
 koinAndroid = "4.1.0"
 koinAndroidxCompose = "4.1.0"
 kotlin = "2.2.10"
@@ -41,6 +44,9 @@ firebase-auth = { module = "com.google.firebase:firebase-auth" }
 firebase-firestore = { module = "com.google.firebase:firebase-firestore" }
 google-api-client-android = { module = "com.google.api-client:google-api-client-android", version.ref = "googleApiClientAndroid" }
 google-api-services-calendar = { module = "com.google.apis:google-api-services-calendar", version.ref = "googleApiServicesCalendar" }
+grpc-protobuf-lite = { module = "io.grpc:grpc-protobuf-lite", version.ref = "grpcProtobufLite" }
+grpc-okhttp = { module = "io.grpc:grpc-okhttp", version.ref = "grpcOkhttp" }
+grpc-stub = { module = "io.grpc:grpc-stub", version.ref = "grpcStub" }
 junit = { group = "junit", name = "junit", version.ref = "junit" }
 androidx-junit = { group = "androidx.test.ext", name = "junit", version.ref = "junitVersion" }
 androidx-espresso-core = { group = "androidx.test.espresso", name = "espresso-core", version.ref = "espressoCore" }

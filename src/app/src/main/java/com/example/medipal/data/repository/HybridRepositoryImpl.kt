@@ -1,26 +1,17 @@
 package com.example.medipal.data.repository
 
-import android.util.Log
 import com.example.medipal.domain.repository.LocalRepository
 import com.example.medipal.domain.repository.RemoteRepository
 import com.example.medipal.domain.repository.Repository
-import com.example.medipal.util.NetworkObserver
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.sync.Mutex
-import kotlinx.coroutines.sync.withLock
 
 open class HybridRepositoryImpl<T>(
     private val localRepo: LocalRepository<T>,
     private val remoteRepo: RemoteRepository<T>,
     private val networkChecker: () -> Boolean,
-    private val appScope: CoroutineScope,
     private val getId: (T) -> String,
     private val getUpdatedAt: (T) -> Long,
     private val getDeletedAt: (T) -> Long?,

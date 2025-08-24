@@ -20,12 +20,17 @@ object SyncManager {
     // Repos that need syncing
     private val hybridRepositories = mutableListOf<HybridRepositoryImpl<*>>()
 
-    // Register repositories that should sync
+    /** Register repositories that should sync */
     fun register(vararg repos: HybridRepositoryImpl<*>) {
-        hybridRepositories.addAll(repos)
+        repos.filterNotNull().forEach { repo ->
+            hybridRepositories.add(repo)
+
+            // Start remote listener if Firestore-backed
+            repo.startRemoteListener(scope)
+        }
     }
 
-    // Start monitoring network
+    /** Start monitoring network changes */
     fun startMonitoring(context: Context) {
         if (isMonitoring) return
         isMonitoring = true
@@ -35,17 +40,20 @@ object SyncManager {
 
         val callback = object : ConnectivityManager.NetworkCallback() {
             override fun onAvailable(network: Network) {
-                // Trigger sync for all registered repos
-                hybridRepositories.forEach { repo ->
-                    scope.launch {
-                        delay(500)
-                        repo.syncAll()
-                    }
+                // Small delay to avoid rapid calls on flaky connections
+                scope.launch {
+                    delay(500)
+                    hybridRepositories.forEach { it.syncAll() }
                 }
             }
         }
 
         val request = NetworkRequest.Builder().build()
         connectivityManager.registerNetworkCallback(request, callback)
+    }
+
+    /** Manually trigger a full sync for all registered repos */
+    suspend fun syncAllNow() {
+        hybridRepositories.forEach { it.syncAll() }
     }
 }
