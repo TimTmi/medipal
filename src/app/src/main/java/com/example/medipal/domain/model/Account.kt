@@ -9,7 +9,10 @@ enum class AccountType {
 }
 
 data class Account(
-    val id: String,
-    val email: String,
-    val profileId: String
-)
+    val id: String = "",
+    val email: String = "",
+    val profileId: String = ""
+) {
+    // No-argument constructor for Firestore
+    constructor() : this("", "", "")
+}

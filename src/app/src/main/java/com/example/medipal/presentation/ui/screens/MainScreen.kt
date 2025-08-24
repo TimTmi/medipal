@@ -21,7 +21,10 @@ import com.example.medipal.presentation.viewmodel.AddMedicationViewModel
 import com.example.medipal.presentation.viewmodel.AddHealthcareReminderViewModel
 import com.example.medipal.presentation.viewmodel.AddAppointmentViewModel
 import com.example.medipal.presentation.viewmodel.HomeViewModel
+import com.example.medipal.presentation.viewmodel.AuthViewModel
+import com.example.medipal.presentation.viewmodel.AuthState
 import org.koin.androidx.compose.koinViewModel
+import org.koin.core.context.GlobalContext
 
 @Composable
 fun MainScreen() {
@@ -29,16 +32,18 @@ fun MainScreen() {
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = navBackStackEntry?.destination?.route
 
-//    val application = LocalContext.current.applicationContext as MediPalApplication
-//    val viewModelFactory = ViewModelFactory(application.container)
-
+    val authViewModel: AuthViewModel = GlobalContext.get().get<AuthViewModel>()
     val homeViewModel: HomeViewModel = koinViewModel()
     val addMedicationViewModel: AddMedicationViewModel = koinViewModel()
     val addHealthcareReminderViewModel: AddHealthcareReminderViewModel = koinViewModel()
     val addAppointmentViewModel: AddAppointmentViewModel = koinViewModel()
 
+    // Check authentication state
+    LaunchedEffect(Unit) {
+        authViewModel.checkAuthState()
+    }
 
-
+    val authState by authViewModel.authState.collectAsState()
 
     // THAY ĐỔI QUAN TRỌNG: Thêm mã để điều khiển màu sắc icon trên status bar
     val view = LocalView.current
@@ -51,21 +56,27 @@ fun MainScreen() {
         }
     }
 
-    Scaffold(
-        bottomBar = {
-            if (currentRoute != Screen.AddMedicineFlow.route) {
-                BottomTabBar(
-                    navController = navController,
-                    currentRoute = currentRoute
-                )
+    // Show loading screen while checking auth state
+    if (authState is AuthState.Initial) {
+        LoadingScreen()
+    } else if (authState is AuthState.Unauthenticated) {
+        AuthScreen(navController = navController, viewModel = authViewModel)
+    } else {
+        Scaffold(
+            bottomBar = {
+                if (currentRoute != Screen.AddMedicineFlow.route) {
+                    BottomTabBar(
+                        navController = navController,
+                        currentRoute = currentRoute
+                    )
+                }
             }
-        }
-    ) { paddingValues ->
-        NavHost(
-            navController = navController,
-            startDestination = Screen.Home.route,
-            modifier = Modifier.padding(paddingValues)
-        ) {
+        ) { paddingValues ->
+            NavHost(
+                navController = navController,
+                startDestination = Screen.Home.route,
+                modifier = Modifier.padding(paddingValues)
+            ) {
             composable(Screen.Home.route) {
                 HomeScreen(navController = navController, viewModel = homeViewModel)
             }
@@ -123,4 +134,5 @@ fun MainScreen() {
             }
         }
     }
+}
 }
