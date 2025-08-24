@@ -1,6 +1,7 @@
 package com.example.medipal.presentation.navigation
 
 sealed class Screen(val route: String) {
+    object Auth : Screen("auth_screen")
     object Home : Screen("home_screen")
     object Calendar : Screen("calendar_screen")
     object Medications : Screen("medications_screen")

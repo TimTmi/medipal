@@ -12,6 +12,7 @@ import androidx.compose.material.icons.filled.ExitToApp
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.SupervisorAccount
 import androidx.compose.material3.*
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -22,6 +23,7 @@ import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.ColorMatrix
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import android.widget.Toast
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -30,14 +32,30 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.example.medipal.R
 import com.example.medipal.presentation.viewmodel.ProfileViewModel
+import com.example.medipal.presentation.viewmodel.AuthViewModel
+import com.example.medipal.presentation.viewmodel.AuthState
 import org.koin.androidx.compose.koinViewModel
+import org.koin.core.context.GlobalContext
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ProfileScreen(navController: NavController) {
     val viewModel: ProfileViewModel = koinViewModel()
+    val authViewModel: AuthViewModel = GlobalContext.get().get<AuthViewModel>()
+    val context = LocalContext.current
     
     val uiState by viewModel.uiState.collectAsState()
+    var showLogoutDialog by remember { mutableStateOf(false) }
+    
+    val authState by authViewModel.authState.collectAsState()
+    
+    // Listen for auth state changes
+    LaunchedEffect(authState) {
+        if (authState is AuthState.Unauthenticated) {
+            viewModel.resetProfile()
+            Toast.makeText(context, "Successfully logged out", Toast.LENGTH_SHORT).show()
+        }
+    }
     
     val brightness = 0.5f
     val colorMatrix = ColorMatrix().apply {
@@ -91,12 +109,19 @@ fun ProfileScreen(navController: NavController) {
                 Spacer(modifier = Modifier.height(24.dp))
                 
                 // User Name
-                Text(
-                    text = uiState.userName,
-                    color = Color.White,
-                    fontSize = 28.sp,
-                    fontWeight = FontWeight.Bold
-                )
+                if (uiState.isLoading) {
+                    CircularProgressIndicator(
+                        color = Color.White,
+                        modifier = Modifier.size(24.dp)
+                    )
+                } else {
+                    Text(
+                        text = uiState.userName,
+                        color = Color.White,
+                        fontSize = 28.sp,
+                        fontWeight = FontWeight.Bold
+                    )
+                }
                 
                 Spacer(modifier = Modifier.height(60.dp))
                 
@@ -125,13 +150,58 @@ fun ProfileScreen(navController: NavController) {
                     icon = Icons.Default.ExitToApp,
                     text = "Log out",
                     onClick = { 
-                        viewModel.logout()
-                        // TODO: Navigate to login screen or clear user session
+                        showLogoutDialog = true
                     }
                 )
                 
                 Spacer(modifier = Modifier.weight(1f))
             }
+        }
+        
+        // Logout confirmation dialog
+        if (showLogoutDialog) {
+            AlertDialog(
+                onDismissRequest = { showLogoutDialog = false },
+                title = {
+                    Text(
+                        text = "Logout",
+                        color = Color.Black,
+                        fontWeight = FontWeight.Bold
+                    )
+                },
+                text = {
+                    Text(
+                        text = "Are you sure you want to logout?",
+                        color = Color.Black
+                    )
+                },
+                confirmButton = {
+                    TextButton(
+                        onClick = {
+                            authViewModel.signOut()
+                            showLogoutDialog = false
+                        }
+                    ) {
+                        Text(
+                            text = "Logout",
+                            color = Color(0xFF1C5F55),
+                            fontWeight = FontWeight.Bold
+                        )
+                    }
+                },
+                dismissButton = {
+                    TextButton(
+                        onClick = { showLogoutDialog = false }
+                    ) {
+                        Text(
+                            text = "Cancel",
+                            color = Color.Gray
+                        )
+                    }
+                },
+                containerColor = Color.White,
+                shape = RoundedCornerShape(12.dp)
+            )
         }
     }
 }

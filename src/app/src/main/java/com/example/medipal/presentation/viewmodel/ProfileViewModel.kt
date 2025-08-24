@@ -2,13 +2,14 @@ package com.example.medipal.presentation.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.medipal.domain.service.AccountService
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 
 data class ProfileUiState(
-    val userName: String = "Tom Conor",
+    val userName: String = "",
     val userEmail: String = "",
     val dateOfBirth: String = "August 20, 1987",
     val healthInformation: String = "",
@@ -17,7 +18,9 @@ data class ProfileUiState(
     val errorMessage: String? = null
 )
 
-class ProfileViewModel : ViewModel() {
+class ProfileViewModel(
+    private val accountService: AccountService
+) : ViewModel() {
     private val _uiState = MutableStateFlow(ProfileUiState())
     val uiState: StateFlow<ProfileUiState> = _uiState.asStateFlow()
 
@@ -30,19 +33,35 @@ class ProfileViewModel : ViewModel() {
             _uiState.value = _uiState.value.copy(isLoading = true)
             
             try {
-                // TODO: Load user profile from Firestore
-                // val userProfile = firestoreRepository.getCurrentUserProfile()
-                // _uiState.value = _uiState.value.copy(
-                //     userName = userProfile.name,
-                //     userEmail = userProfile.email,
-                //     dateOfBirth = userProfile.dateOfBirth,
-                //     healthInformation = userProfile.healthInformation,
-                //     avatarUrl = userProfile.avatarUrl,
-                //     isLoading = false
-                // )
-                
-                // For now, use default values
-                _uiState.value = _uiState.value.copy(isLoading = false)
+                // Get current user from AccountService
+                val currentUser = accountService.getCurrentAccount()
+                if (currentUser != null) {
+                    // Get user profile from Firestore
+                    val userProfile = accountService.getProfile(currentUser.profileId)
+                    if (userProfile != null) {
+                        _uiState.value = _uiState.value.copy(
+                            userName = if (userProfile.fullName.isNotEmpty()) userProfile.fullName else "User",
+                            userEmail = currentUser.email,
+                            dateOfBirth = if (userProfile.birthday > 0) "Birthday set" else "Not set",
+                            healthInformation = if (userProfile.conditions.isNotEmpty()) userProfile.conditions else "No health conditions recorded",
+                            avatarUrl = "",
+                            isLoading = false
+                        )
+                    } else {
+                        // If no profile exists, use basic user info
+                        _uiState.value = _uiState.value.copy(
+                            userName = currentUser.email.split("@").firstOrNull()?.replaceFirstChar { it.uppercase() } ?: "User",
+                            userEmail = currentUser.email,
+                            isLoading = false
+                        )
+                    }
+                } else {
+                    _uiState.value = _uiState.value.copy(
+                        userName = "Guest",
+                        userEmail = "",
+                        isLoading = false
+                    )
+                }
             } catch (e: Exception) {
                 _uiState.value = _uiState.value.copy(
                     isLoading = false,
@@ -125,5 +144,17 @@ class ProfileViewModel : ViewModel() {
 
     fun clearError() {
         _uiState.value = _uiState.value.copy(errorMessage = null)
+    }
+    
+    fun resetProfile() {
+        _uiState.value = ProfileUiState(
+            userName = "User",
+            userEmail = "",
+            dateOfBirth = "Not set",
+            healthInformation = "",
+            avatarUrl = "",
+            isLoading = false,
+            errorMessage = null
+        )
     }
 }

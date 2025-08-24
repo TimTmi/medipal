@@ -11,4 +11,16 @@ data class Profile (
     val conditions: String = "",
     val updatedAt: Long = System.currentTimeMillis(),
     val deletedAt: Long? = null
-)
+) {
+    // No-argument constructor for Firestore
+    constructor() : this(
+        id = UUID.randomUUID().toString(),
+        fullName = "",
+        birthday = 0,
+        height = 0f,
+        weight = 0f,
+        conditions = "",
+        updatedAt = System.currentTimeMillis(),
+        deletedAt = null
+    )
+}

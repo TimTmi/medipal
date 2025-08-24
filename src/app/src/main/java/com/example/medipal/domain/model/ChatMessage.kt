@@ -13,4 +13,12 @@ data class ChatMessage(
     val sender: Sender = Sender.USER,
     val content: String = "",
     val timestamp: Long = 0
-)
+) {
+    // No-argument constructor for Firestore
+    constructor() : this(
+        id = UUID.randomUUID().toString(),
+        sender = Sender.USER,
+        content = "",
+        timestamp = 0
+    )
+}

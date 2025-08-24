@@ -10,4 +10,15 @@ data class Medication(
     val notes: String = "",
     val updatedAt: Long = System.currentTimeMillis(),
     val deletedAt: Long? = null
-)
+) {
+    // No-argument constructor for Firestore
+    constructor() : this(
+        id = UUID.randomUUID().toString(),
+        name = "",
+        dosage = "",
+        scheduleTime = 0,
+        notes = "",
+        updatedAt = System.currentTimeMillis(),
+        deletedAt = null
+    )
+}
