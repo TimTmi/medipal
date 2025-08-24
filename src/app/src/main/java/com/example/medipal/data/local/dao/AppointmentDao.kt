@@ -10,15 +10,18 @@ interface AppointmentDao {
     @Query("SELECT * FROM appointment")
     fun getAll(): Flow<List<AppointmentEntity>>
 
+    @Query("SELECT * FROM appointment")
+    suspend fun getAllOnce(): List<AppointmentEntity>
+
+    @Query("SELECT * FROM appointment WHERE id = :id LIMIT 1")
+    suspend fun getById(id: String): AppointmentEntity?
+
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insert(appointment: AppointmentEntity)
-
-    @Update
-    suspend fun update(appointment: AppointmentEntity)
-
-    @Delete
-    suspend fun delete(appointment: AppointmentEntity)
+    suspend fun insert(entity: AppointmentEntity)
 
     @Query("DELETE FROM appointment WHERE id = :id")
     suspend fun deleteById(id: String)
+
+    @Update
+    suspend fun update(entity: AppointmentEntity)
 }

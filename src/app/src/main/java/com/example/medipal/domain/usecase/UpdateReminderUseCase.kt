@@ -5,6 +5,6 @@ import com.example.medipal.domain.repository.ReminderRepository
 
 class UpdateReminderUseCase(private val repository: ReminderRepository) {
     suspend operator fun invoke(reminder: Reminder) {
-        repository.updateReminder(reminder)
+        repository.update(reminder)
     }
 }

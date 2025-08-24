@@ -6,7 +6,7 @@ import kotlinx.coroutines.flow.Flow
 
 class GetMedicationsUseCase(private val repository: MedicationRepository) {
     operator fun invoke(): Flow<List<Medication>> {
-        return repository.getMedications()
+        return repository.getAll()
     }
 }
 class GetMedicationByIdUseCase(private val repository: MedicationRepository) {

@@ -6,6 +6,6 @@ import kotlinx.coroutines.flow.Flow
 
 class GetRemindersUseCase(private val repository: ReminderRepository) {
     operator fun invoke(): Flow<List<Reminder>> {
-        return repository.getReminders()
+        return repository.getAll()
     }
 }

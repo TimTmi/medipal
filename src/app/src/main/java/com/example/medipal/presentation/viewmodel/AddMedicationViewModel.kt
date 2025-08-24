@@ -73,7 +73,7 @@ class AddMedicationViewModel(
                 name = medicineName.value,
                 dosage = "Frequency: ${selectedFrequencyObject.value}", // Có thể thêm màn hình chọn liều lượng
                 scheduleTime = time.value,
-                notes = null,
+                notes = "",
                 frequency = selectedFrequencyObject.value
             )
             addMedicationUseCase(newMedication)

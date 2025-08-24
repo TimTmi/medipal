@@ -1,5 +1,8 @@
 package com.example.medipal.domain.usecase
 
+import com.example.medipal.domain.model.Appointment
+import com.example.medipal.domain.model.Medication
+import com.example.medipal.domain.model.Reminder
 import com.example.medipal.domain.model.ScheduledItem
 import com.example.medipal.domain.repository.AppointmentRepository
 import com.example.medipal.domain.repository.MedicationRepository
@@ -14,9 +17,9 @@ class GetScheduledEventsUseCase(
 ) {
     operator fun invoke(): Flow<List<ScheduledItem>> {
         return combine(
-            medicationRepo.getMedications(),
-            appointmentRepo.getAppointments(),
-            reminderRepo.getReminders()
+            medicationRepo.getAll(),
+            appointmentRepo.getAll(),
+            reminderRepo.getAll()
         ) { medications, appointments, reminders ->
             val medItems = medications.map { ScheduledItem.MedicationItem(it) }
             val aptItems = appointments.map { ScheduledItem.AppointmentItem(it) }

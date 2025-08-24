@@ -6,6 +6,6 @@ import com.example.medipal.domain.repository.MedicationRepository
 
 class AddMedicationUseCase(private val repository: MedicationRepository) {
     suspend operator fun invoke(medication: Medication) {
-        repository.addMedication(medication)
+        repository.add(medication)
     }
 }

@@ -32,11 +32,12 @@ import androidx.navigation.NavController
 import com.example.medipal.R
 import com.example.medipal.domain.model.Medication
 import com.example.medipal.presentation.viewmodel.MedicationListViewModel
-import com.example.medipal.presentation.viewmodel.ViewModelFactory
+import org.koin.androidx.compose.koinViewModel
 import java.text.SimpleDateFormat
 import com.example.medipal.presentation.navigation.Screen
 import java.util.*
 
+@Suppress("unused")
 enum class MedicationStatus {
     TAKEN,
     SKIPPED,
@@ -46,10 +47,9 @@ enum class MedicationStatus {
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MedicationsScreen(
-    navController: NavController,
-    viewModelFactory: ViewModelFactory
+    navController: NavController
 ) {
-    val viewModel: MedicationListViewModel = viewModel(factory = viewModelFactory)
+    val viewModel: MedicationListViewModel = koinViewModel()
     val brightness = 0.5f
     val colorMatrix = ColorMatrix().apply {
         setToScale(brightness, brightness, brightness, 1f)
@@ -58,7 +58,8 @@ fun MedicationsScreen(
     val filteredMedications by viewModel.filteredMedications.collectAsState(initial = emptyList())
     val searchQuery by viewModel.searchQuery.collectAsState()
     val isSearchVisible by viewModel.isSearchVisible.collectAsState()
-
+    val isEditDialogVisible by viewModel.isEditDialogVisible.collectAsState()
+    val selectedMedication by viewModel.selectedMedication.collectAsState()
 
     Box(modifier = Modifier.fillMaxSize()) {
         // Background
@@ -297,7 +298,7 @@ fun MedicationCard(
                 color = Color.Black
             )
             
-            if (!medication.notes.isNullOrBlank()) {
+            if (medication.notes != "") {
                 Spacer(modifier = Modifier.height(4.dp))
                 Text(
                     text = "Notes: ${medication.notes}",

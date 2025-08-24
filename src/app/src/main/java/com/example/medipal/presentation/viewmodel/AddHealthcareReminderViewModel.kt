@@ -91,12 +91,24 @@ class AddHealthcareReminderViewModel(
         viewModelScope.launch {
             val activityToSave = selectedActivity.value
             
-            // Convert user-selected time to timestamp
+            // Convert user-selected time to timestamp with current date
             val timeString = selectedTime.value.ifEmpty { "09:00 AM" }
             val scheduledTimestamp = try {
                 val format = SimpleDateFormat("hh:mm a", Locale.getDefault())
                 val parsedTime = format.parse(timeString)
-                parsedTime?.time ?: System.currentTimeMillis()
+                
+                // Get current date and combine with selected time
+                val calendar = Calendar.getInstance()
+                val timeCalendar = Calendar.getInstance()
+                timeCalendar.time = parsedTime ?: Date()
+                
+                // Set the time on current date
+                calendar.set(Calendar.HOUR_OF_DAY, timeCalendar.get(Calendar.HOUR_OF_DAY))
+                calendar.set(Calendar.MINUTE, timeCalendar.get(Calendar.MINUTE))
+                calendar.set(Calendar.SECOND, 0)
+                calendar.set(Calendar.MILLISECOND, 0)
+                
+                calendar.timeInMillis
             } catch (e: Exception) {
                 System.currentTimeMillis()
             }

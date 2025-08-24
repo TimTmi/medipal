@@ -1,35 +1,23 @@
 package com.example.medipal.data.repository
 
 import com.example.medipal.data.local.dao.MedicationDao
+import com.example.medipal.data.local.entity.MedicationEntity
 import com.example.medipal.domain.model.Medication
-import com.example.medipal.domain.repository.MedicationRepository
 import com.example.medipal.data.mapper.toDomain
 import com.example.medipal.data.mapper.toEntity
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.map
+import com.example.medipal.domain.repository.LocalRepository
+import com.example.medipal.domain.repository.MedicationRepository
 
 class RoomMedicationRepositoryImpl(
-    private val dao: MedicationDao
-) : MedicationRepository {
-
-    override fun getMedications(): Flow<List<Medication>> {
-        return dao.getAll().map { list -> list.map { it.toDomain() } }
-    }
-
-    override suspend fun addMedication(medication: Medication) {
-        dao.insert(medication.toEntity())
-    }
-
-    override suspend fun removeMedication(id: String) {
-        dao.deleteById(id)
-    }
-
-    override suspend fun updateMedication(medication: Medication) {
-        dao.update(medication.toEntity())
-    }
-
-    override fun getMedicationsById(id: String): Flow<Medication?> {
-        return dao.getMedicationById(id).map { it?.toDomain() }
-    }
-
-}
+    dao: MedicationDao
+) : RoomRepositoryImpl<Medication, MedicationEntity>(
+    { dao.getAll() },
+    { dao.getAllOnce() },
+    { dao.getById(it) },
+    { dao.insert(it) },
+    { dao.update(it) },
+    { dao.deleteById(it) },
+    { it.toDomain() },
+    { it.toEntity() },
+    { it.id }
+), MedicationRepository
