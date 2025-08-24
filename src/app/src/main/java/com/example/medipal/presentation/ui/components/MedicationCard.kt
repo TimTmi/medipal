@@ -61,6 +61,13 @@ fun MedicationCard(
                 color = Color.Black
             )
             
+            Spacer(modifier = Modifier.height(4.dp))
+            Text(
+                text = "Frequency: ${medication.frequency.displayText}",
+                fontSize = 14.sp,
+                color = Color.Black.copy(alpha = 0.7f)
+            )
+            
             if (medication.notes != "") {
                 Spacer(modifier = Modifier.height(4.dp))
                 Text(

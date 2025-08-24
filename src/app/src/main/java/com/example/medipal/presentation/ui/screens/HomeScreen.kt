@@ -283,7 +283,7 @@ fun MedicationCard(medication: Medication) {
             )
             Spacer(modifier = Modifier.height(4.dp))
             Text(
-                text = medication.dosage,
+                text = "Frequency: ${medication.frequency.displayText}",
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
             )
