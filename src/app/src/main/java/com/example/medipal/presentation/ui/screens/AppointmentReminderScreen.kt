@@ -305,7 +305,7 @@ fun AppointmentReminderAppointmentCard(
     appointment: Appointment,
     onClick: () -> Unit
 ) {
-    val formattedTime = Instant.ofEpochMilli(appointment.scheduleTime)
+    val formattedTime = Instant.ofEpochMilli(appointment.dateTime)
         .atZone(ZoneId.systemDefault())
         .toLocalTime()
         .format(DateTimeFormatter.ofPattern("hh:mm a"))
@@ -340,7 +340,7 @@ fun AppointmentReminderAppointmentCard(
                     color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f)
                 )
                 Text(
-                    text = "Doctor: ${appointment.doctor}",
+                    text = "Doctor: ${appointment.doctorName}",
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
                 )
@@ -359,7 +359,7 @@ fun AppointmentReminderReminderCard(
     reminder: Reminder,
     onClick: () -> Unit
 ) {
-    val formattedTime = Instant.ofEpochMilli(reminder.scheduleTime)
+    val formattedTime = Instant.ofEpochMilli(reminder.dateTime)
         .atZone(ZoneId.systemDefault())
         .toLocalTime()
         .format(DateTimeFormatter.ofPattern("hh:mm a"))
@@ -393,9 +393,9 @@ fun AppointmentReminderReminderCard(
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f)
                 )
-                if (reminder.notes.isNotBlank()) {
+                if (reminder.description.isNotBlank()) {
                     Text(
-                        text = reminder.notes,
+                        text = reminder.description,
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f),
                         maxLines = 1
@@ -452,7 +452,7 @@ fun AppointmentReminderAppointmentDetailDialog(
     onDismiss: () -> Unit,
     onDelete: () -> Unit
 ) {
-    val formattedTime = Instant.ofEpochMilli(appointment.scheduleTime)
+    val formattedTime = Instant.ofEpochMilli(appointment.dateTime)
         .atZone(ZoneId.systemDefault())
         .toLocalTime()
         .format(DateTimeFormatter.ofPattern("hh:mm a"))
@@ -514,12 +514,12 @@ fun AppointmentReminderAppointmentDetailDialog(
                     )
                     Spacer(modifier = Modifier.width(8.dp))
                     Text(
-                        text = "Doctor: ${appointment.doctor}",
+                        text = "Doctor: ${appointment.doctorName}",
                         style = MaterialTheme.typography.bodyLarge
                     )
                 }
 
-                if (appointment.notes.isNotBlank()) {
+                if (appointment.description.isNotBlank()) {
                     Spacer(modifier = Modifier.height(12.dp))
                     Row(
                         verticalAlignment = Alignment.Top,
@@ -532,7 +532,7 @@ fun AppointmentReminderAppointmentDetailDialog(
                         )
                         Spacer(modifier = Modifier.width(8.dp))
                         Text(
-                            text = appointment.notes,
+                            text = appointment.description,
                             style = MaterialTheme.typography.bodyMedium,
                             modifier = Modifier.weight(1f)
                         )
@@ -560,7 +560,7 @@ fun AppointmentReminderReminderDetailDialog(
     onDismiss: () -> Unit,
     onDelete: () -> Unit
 ) {
-    val formattedTime = Instant.ofEpochMilli(reminder.scheduleTime)
+    val formattedTime = Instant.ofEpochMilli(reminder.dateTime)
         .atZone(ZoneId.systemDefault())
         .toLocalTime()
         .format(DateTimeFormatter.ofPattern("hh:mm a"))
@@ -612,7 +612,7 @@ fun AppointmentReminderReminderDetailDialog(
                     )
                 }
 
-                if (reminder.notes.isNotBlank()) {
+                if (reminder.description.isNotBlank()) {
                     Spacer(modifier = Modifier.height(12.dp))
                     Row(
                         verticalAlignment = Alignment.Top,
@@ -625,7 +625,7 @@ fun AppointmentReminderReminderDetailDialog(
                         )
                         Spacer(modifier = Modifier.width(8.dp))
                         Text(
-                            text = reminder.notes,
+                            text = reminder.description,
                             style = MaterialTheme.typography.bodyMedium,
                             modifier = Modifier.weight(1f)
                         )

@@ -6,6 +6,7 @@ import com.example.medipal.domain.model.*
 import com.example.medipal.domain.usecase.GetMedicationsUseCase
 import com.example.medipal.domain.usecase.GetAppointmentsUseCase
 import com.example.medipal.domain.usecase.GetRemindersUseCase
+import com.example.medipal.util.ProfileRepositoryManager
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import java.time.Instant
@@ -24,7 +25,8 @@ data class NotificationUiState(
 class NotificationViewModel(
     private val getMedicationsUseCase: GetMedicationsUseCase,
     private val getAppointmentsUseCase: GetAppointmentsUseCase,
-    private val getRemindersUseCase: GetRemindersUseCase
+    private val getRemindersUseCase: GetRemindersUseCase,
+    private val profileRepositoryManager: ProfileRepositoryManager
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(NotificationUiState())
@@ -49,11 +51,13 @@ class NotificationViewModel(
     fun loadNotifications() {
         viewModelScope.launch {
             _uiState.value = _uiState.value.copy(isLoading = true)
+
+            val profileId = profileRepositoryManager.getCurrentProfileId()
             
             combine(
-                getMedicationsUseCase(),
-                getAppointmentsUseCase(),
-                getRemindersUseCase()
+                getMedicationsUseCase(profileId),
+                getAppointmentsUseCase(profileId),
+                getRemindersUseCase(profileId)
             ) { medications, appointments, reminders ->
                 val allNotifications = mutableListOf<NotificationItem>()
                 val currentTime = System.currentTimeMillis()
@@ -89,13 +93,13 @@ class NotificationViewModel(
                 
                 // Convert appointments to notifications
                 appointments.forEach { appointment ->
-                    val status = determineStatus(appointment.scheduleTime, currentTime)
-                    val time = Instant.ofEpochMilli(appointment.scheduleTime)
+                    val status = determineStatus(appointment.dateTime, currentTime)
+                    val time = Instant.ofEpochMilli(appointment.dateTime)
                         .atZone(ZoneId.systemDefault())
                         .toLocalTime()
                         .format(timeFormatter)
                     
-                    println("DEBUG: Appointment - ${appointment.title}, scheduleTime: ${appointment.scheduleTime}, status: $status")
+                    println("DEBUG: Appointment - ${appointment.title}, scheduleTime: ${appointment.dateTime}, status: $status")
                     
                     allNotifications.add(
                         NotificationItem(
@@ -103,10 +107,10 @@ class NotificationViewModel(
                             title = appointment.title,
                             subtitle = "Health Check Up",
                             time = time,
-                            scheduleTime = appointment.scheduleTime,
+                            scheduleTime = appointment.dateTime,
                             status = status,
                             type = NotificationType.APPOINTMENT,
-                            doctor = appointment.doctor,
+                            doctorName = appointment.doctorName,
                             originalItem = appointment
                         )
                     )
@@ -114,13 +118,13 @@ class NotificationViewModel(
                 
                 // Convert reminders to notifications
                 reminders.forEach { reminder ->
-                    val status = determineStatus(reminder.scheduleTime, currentTime)
-                    val time = Instant.ofEpochMilli(reminder.scheduleTime)
+                    val status = determineStatus(reminder.dateTime, currentTime)
+                    val time = Instant.ofEpochMilli(reminder.dateTime)
                         .atZone(ZoneId.systemDefault())
                         .toLocalTime()
                         .format(timeFormatter)
                     
-                    println("DEBUG: Reminder - ${reminder.title}, scheduleTime: ${reminder.scheduleTime}, status: $status")
+                    println("DEBUG: Reminder - ${reminder.title}, scheduleTime: ${reminder.dateTime}, status: $status")
                     
                     allNotifications.add(
                         NotificationItem(
@@ -128,7 +132,7 @@ class NotificationViewModel(
                             title = reminder.title,
                             subtitle = "Reminder",
                             time = time,
-                            scheduleTime = reminder.scheduleTime,
+                            scheduleTime = reminder.dateTime,
                             status = status,
                             type = NotificationType.REMINDER,
                             originalItem = reminder

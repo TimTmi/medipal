@@ -121,7 +121,7 @@ fun ReminderListCard(
     reminder: Reminder,
     onClick: () -> Unit
 ) {
-    val formattedTime = Instant.ofEpochMilli(reminder.scheduleTime)
+    val formattedTime = Instant.ofEpochMilli(reminder.dateTime)
         .atZone(ZoneId.systemDefault())
         .toLocalTime()
         .format(DateTimeFormatter.ofPattern("hh:mm a"))
@@ -155,9 +155,9 @@ fun ReminderListCard(
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f)
                 )
-                if (reminder.notes.isNotBlank()) {
+                if (reminder.description.isNotBlank()) {
                     Text(
-                        text = reminder.notes,
+                        text = reminder.description,
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f),
                         maxLines = 1
@@ -179,7 +179,7 @@ fun ReminderDetailDialog(
     onDismiss: () -> Unit,
     onDelete: () -> Unit
 ) {
-    val formattedTime = Instant.ofEpochMilli(reminder.scheduleTime)
+    val formattedTime = Instant.ofEpochMilli(reminder.dateTime)
         .atZone(ZoneId.systemDefault())
         .toLocalTime()
         .format(DateTimeFormatter.ofPattern("hh:mm a"))
@@ -231,7 +231,7 @@ fun ReminderDetailDialog(
                     )
                 }
 
-                if (reminder.notes.isNotBlank()) {
+                if (reminder.description.isNotBlank()) {
                     Spacer(modifier = Modifier.height(12.dp))
                     Row(
                         verticalAlignment = Alignment.Top,
@@ -244,7 +244,7 @@ fun ReminderDetailDialog(
                         )
                         Spacer(modifier = Modifier.width(8.dp))
                         Text(
-                            text = reminder.notes,
+                            text = reminder.description,
                             style = MaterialTheme.typography.bodyMedium,
                             modifier = Modifier.weight(1f)
                         )

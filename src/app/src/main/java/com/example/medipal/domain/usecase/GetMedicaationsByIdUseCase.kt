@@ -5,5 +5,8 @@ import com.example.medipal.domain.repository.MedicationRepository
 import kotlinx.coroutines.flow.Flow
 
 class GetMedicationByIdUseCase(private val repository: MedicationRepository) {
-    suspend operator fun invoke(id: String): Medication? = repository.getById(id)
+    suspend operator fun invoke(id: String, profileId: String): Medication? {
+        val medication = repository.getById(id)
+        return medication?.takeIf { it.profileId == profileId }
+    }
 }

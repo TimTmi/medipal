@@ -7,6 +7,7 @@ import com.example.medipal.domain.model.Reminder
 import com.example.medipal.domain.model.Frequency
 import com.example.medipal.domain.usecase.AddReminderUseCase
 import com.example.medipal.domain.service.NotificationService
+import com.example.medipal.util.ProfileRepositoryManager
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
@@ -17,9 +18,12 @@ import java.util.Locale
 
 class AddHealthcareReminderViewModel(
     private val addReminderUseCase: AddReminderUseCase,
-    private val notificationService: NotificationService
+    private val notificationService: NotificationService,
+    private val profileRepositoryManager: ProfileRepositoryManager
 //    private val historyRepository: HistoryRepository
 ) : ViewModel() {
+
+    private val profileId = profileRepositoryManager.getCurrentProfileId()
 
     // --- CÁC TRẠNG THÁI CHO LUỒNG THÊM LỜI NHẮC ---
     val reminderCategories = mapOf(
@@ -118,12 +122,11 @@ class AddHealthcareReminderViewModel(
             val newReminder = Reminder(
                 id = UUID.randomUUID().toString(),
                 title = activityToSave,
-                scheduleTime = scheduledTimestamp,
-                notes = "Sessions: ${sessionCount.value}",
-                frequency = selectedFrequencyObject.value
+                dateTime = scheduledTimestamp,
+                description = "Sessions: ${sessionCount.value}"
             )
             // Gọi UseCase (là một suspend function) bên trong coroutine
-            addReminderUseCase(newReminder)
+            addReminderUseCase(newReminder, profileId)
             
             // Schedule notification
             notificationService.scheduleReminderNotification(newReminder)

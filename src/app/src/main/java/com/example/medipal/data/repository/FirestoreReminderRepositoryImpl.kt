@@ -5,9 +5,10 @@ import com.example.medipal.domain.repository.ReminderRepository
 import com.google.firebase.firestore.FirebaseFirestore
 
 class FirestoreReminderRepositoryImpl(
-    firestore: FirebaseFirestore
+    firestore: FirebaseFirestore,
+    private val profileId: String
 ) : FirestoreRepositoryImpl<Reminder>(
-    firestore.collection("reminders"),
+    firestore.collection("profiles").document(profileId).collection("reminders"),
     Reminder::class.java,
     setId = { reminder, id -> reminder.copy(id = id) }
 ), ReminderRepository {

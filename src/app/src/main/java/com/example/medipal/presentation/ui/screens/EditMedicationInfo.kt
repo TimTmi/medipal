@@ -29,7 +29,7 @@ fun EditMedicineScreen(
     viewModel: MedicationDetailViewModel
 ) {
     val medicineName by viewModel.medicineName.collectAsState()
-    val instructions by viewModel.notes.collectAsState()
+    val instructions by viewModel.description.collectAsState()
     val selectedFrequencyObject by viewModel.selectedFrequencyObject.collectAsState()
     val darkGreen = Color(0xFF1C5F55)
     val whiteColor = Color.White
@@ -113,7 +113,7 @@ fun EditMedicineScreen(
             )
             OutlinedTextField(
                 value = instructions,
-                onValueChange = { viewModel.notes.value = it },
+                onValueChange = { viewModel.description.value = it },
                 modifier = Modifier.fillMaxWidth(),
                 shape = RoundedCornerShape(8.dp)
             )

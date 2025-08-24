@@ -5,17 +5,19 @@ import com.example.medipal.data.local.entity.ReminderEntity
 import com.example.medipal.domain.model.Reminder
 import com.example.medipal.data.mapper.toDomain
 import com.example.medipal.data.mapper.toEntity
+import com.example.medipal.domain.repository.LocalRepository
 import com.example.medipal.domain.repository.ReminderRepository
 
 class RoomReminderRepositoryImpl(
-    dao: ReminderDao
+    private val dao: ReminderDao,
+    private val profileId: String
 ) : RoomRepositoryImpl<Reminder, ReminderEntity>(
-    { dao.getAll() },
-    { dao.getAllOnce() },
-    { dao.getById(it) },
+    { dao.getAllByProfileId(profileId) },
+    { dao.getAllOnceByProfileId(profileId) },
+    { dao.getByIdAndProfileId(it, profileId) },
     { dao.insert(it) },
     { dao.update(it) },
-    { dao.deleteById(it) },
+    { dao.deleteByIdAndProfileId(it, profileId) },
     { it.toDomain() },
     { it.toEntity() },
     { it.id }

@@ -61,10 +61,10 @@ fun MedicationCard(
                 color = Color.Black
             )
             
-            if (medication.notes != "") {
+            if (medication.description != "") {
                 Spacer(modifier = Modifier.height(4.dp))
                 Text(
-                    text = "Notes: ${medication.notes}",
+                    text = "Notes: ${medication.description}",
                     fontSize = 12.sp,
                     color = Color.Gray
                 )

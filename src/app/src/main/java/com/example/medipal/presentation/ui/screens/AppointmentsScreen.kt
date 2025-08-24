@@ -121,7 +121,7 @@ fun AppointmentListCard(
     appointment: Appointment,
     onClick: () -> Unit
 ) {
-    val formattedTime = Instant.ofEpochMilli(appointment.scheduleTime)
+    val formattedTime = Instant.ofEpochMilli(appointment.dateTime)
         .atZone(ZoneId.systemDefault())
         .toLocalTime()
         .format(DateTimeFormatter.ofPattern("hh:mm a"))
@@ -156,7 +156,7 @@ fun AppointmentListCard(
                     color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f)
                 )
                 Text(
-                    text = "Doctor: ${appointment.doctor}",
+                    text = "Doctor: ${appointment.doctorName}",
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
                 )
@@ -176,7 +176,7 @@ fun AppointmentDetailDialog(
     onDismiss: () -> Unit,
     onDelete: () -> Unit
 ) {
-    val formattedTime = Instant.ofEpochMilli(appointment.scheduleTime)
+    val formattedTime = Instant.ofEpochMilli(appointment.dateTime)
         .atZone(ZoneId.systemDefault())
         .toLocalTime()
         .format(DateTimeFormatter.ofPattern("hh:mm a"))
@@ -238,12 +238,12 @@ fun AppointmentDetailDialog(
                     )
                     Spacer(modifier = Modifier.width(8.dp))
                     Text(
-                        text = "Doctor: ${appointment.doctor}",
+                        text = "Doctor: ${appointment.doctorName}",
                         style = MaterialTheme.typography.bodyLarge
                     )
                 }
 
-                if (appointment.notes.isNotBlank()) {
+                if (appointment.description.isNotBlank()) {
                     Spacer(modifier = Modifier.height(12.dp))
                     Row(
                         verticalAlignment = Alignment.Top,
@@ -256,7 +256,7 @@ fun AppointmentDetailDialog(
                         )
                         Spacer(modifier = Modifier.width(8.dp))
                         Text(
-                            text = appointment.notes,
+                            text = appointment.description,
                             style = MaterialTheme.typography.bodyMedium,
                             modifier = Modifier.weight(1f)
                         )

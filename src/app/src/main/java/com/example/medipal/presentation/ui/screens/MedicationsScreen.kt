@@ -298,10 +298,10 @@ fun MedicationCard(
                 color = Color.Black
             )
             
-            if (medication.notes != "") {
+            if (medication.description != "") {
                 Spacer(modifier = Modifier.height(4.dp))
                 Text(
-                    text = "Notes: ${medication.notes}",
+                    text = "Notes: ${medication.description}",
                     fontSize = 12.sp,
                     color = Color.Gray
                 )
@@ -319,7 +319,7 @@ fun MedicationCard(
 //) {
 //    var name by remember { mutableStateOf(medication.name) }
 //    var dosage by remember { mutableStateOf(medication.dosage) }
-//    var notes by remember { mutableStateOf(medication.notes ?: "") }
+//    var description by remember { mutableStateOf(medication.description ?: "") }
 //
 //    Dialog(onDismissRequest = onDismiss) {
 //        Card(
@@ -357,8 +357,8 @@ fun MedicationCard(
 //                Spacer(modifier = Modifier.height(8.dp))
 //
 //                OutlinedTextField(
-//                    value = notes,
-//                    onValueChange = { notes = it },
+//                    value = description,
+//                    onValueChange = { description = it },
 //                    label = { Text("Notes (Optional)") },
 //                    modifier = Modifier.fillMaxWidth(),
 //                    maxLines = 3
@@ -391,7 +391,7 @@ fun MedicationCard(
 //                            val updatedMedication = medication.copy(
 //                                name = name,
 //                                dosage = dosage,
-//                                notes = notes.takeIf { it.isNotBlank() }
+//                                description = description.takeIf { it.isNotBlank() }
 //                            )
 //                            onSave(updatedMedication)
 //                        },

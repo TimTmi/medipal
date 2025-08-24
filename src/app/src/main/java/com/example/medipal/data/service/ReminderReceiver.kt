@@ -40,7 +40,7 @@ class ReminderReceiver : BroadcastReceiver(), KoinComponent {
                 else -> NotificationType.REMINDER
             },
             instructions = content,
-            doctor = "",
+            doctorName = "",
             originalItem = null
         )
 

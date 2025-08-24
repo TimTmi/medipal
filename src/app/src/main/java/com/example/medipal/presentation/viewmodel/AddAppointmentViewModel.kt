@@ -6,6 +6,7 @@ import com.example.medipal.domain.model.Appointment
 //import com.example.medipal.domain.repository.HistoryRepository
 import com.example.medipal.domain.usecase.AddAppointmentUseCase
 import com.example.medipal.domain.service.NotificationService
+import com.example.medipal.util.ProfileRepositoryManager
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
@@ -15,9 +16,12 @@ import java.util.Locale
 
 class AddAppointmentViewModel(
     private val addAppointmentUseCase: AddAppointmentUseCase,
-    private val notificationService: NotificationService
+    private val notificationService: NotificationService,
+    private val profileRepositoryManager: ProfileRepositoryManager
 //    private val historyRepository: HistoryRepository
 ) : ViewModel() {
+
+    private val profileId = profileRepositoryManager.getCurrentProfileId()
 
     // Các trạng thái cho form
     val doctorName = MutableStateFlow("")
@@ -60,11 +64,12 @@ class AddAppointmentViewModel(
             val newAppointment = Appointment(
                 id = UUID.randomUUID().toString(),
                 title = reasonForVisit.value.ifEmpty { "Appointment" },
-                scheduleTime = scheduledTimestamp,
-                doctor = doctorName.value,
-                notes = "Location: ${location.value}, Date: ${date.value}"
+                dateTime = scheduledTimestamp,
+                doctorName = doctorName.value,
+                location = location.value,
+                description = "Date: ${date.value}"
             )
-            addAppointmentUseCase(newAppointment)
+            addAppointmentUseCase(newAppointment, profileId)
             
             // Schedule notification
             notificationService.scheduleAppointmentNotification(newAppointment)

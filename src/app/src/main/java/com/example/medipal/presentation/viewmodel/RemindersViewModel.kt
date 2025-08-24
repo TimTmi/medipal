@@ -5,16 +5,20 @@ import androidx.lifecycle.viewModelScope
 import com.example.medipal.domain.model.Reminder
 import com.example.medipal.domain.usecase.GetRemindersUseCase
 import com.example.medipal.domain.usecase.RemoveReminderUseCase
+import com.example.medipal.util.ProfileRepositoryManager
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 
 class RemindersViewModel(
     getRemindersUseCase: GetRemindersUseCase,
-    private val removeReminderUseCase: RemoveReminderUseCase
+    private val removeReminderUseCase: RemoveReminderUseCase,
+    private val profileRepositoryManager: ProfileRepositoryManager
 ) : ViewModel() {
 
-    val reminders = getRemindersUseCase()
+    private val profileId = profileRepositoryManager.getCurrentProfileId()
+
+    val reminders = getRemindersUseCase(profileId)
 
     private val _selectedReminder = MutableStateFlow<Reminder?>(null)
     val selectedReminder = _selectedReminder.asStateFlow()

@@ -40,8 +40,8 @@ class NotificationServiceAndroidNotif(
         scheduleNotification(
             id = appointment.id,
             title = appointment.title,
-            content = "Appointment with ${appointment.doctor}",
-            scheduleTime = appointment.scheduleTime,
+            content = "Appointment with ${appointment.doctorName}",
+            scheduleTime = appointment.dateTime,
             type = "APPOINTMENT"
         )
     }
@@ -50,8 +50,8 @@ class NotificationServiceAndroidNotif(
         scheduleNotification(
             id = reminder.id,
             title = reminder.title,
-            content = reminder.notes.ifEmpty { "Health reminder" },
-            scheduleTime = reminder.scheduleTime,
+            content = reminder.description.ifEmpty { "Health reminder" },
+            scheduleTime = reminder.dateTime,
             type = "REMINDER"
         )
     }

@@ -6,6 +6,7 @@ import com.example.medipal.domain.model.Medication
 import com.example.medipal.domain.model.Frequency
 import com.example.medipal.domain.usecase.AddMedicationUseCase
 import com.example.medipal.domain.service.NotificationService
+import com.example.medipal.util.ProfileRepositoryManager
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
@@ -14,12 +15,15 @@ import java.util.*
 
 class AddMedicationViewModel(
     private val addMedicationUseCase: AddMedicationUseCase,
-    private val notificationService: NotificationService // Assuming NotificationService is injected
+    private val notificationService: NotificationService, // Assuming NotificationService is injected
+    private val profileRepositoryManager: ProfileRepositoryManager
 ) : ViewModel() {
+
+    private val profileId = profileRepositoryManager.getCurrentProfileId()
 
     val medicineName = MutableStateFlow("")
     val dosage = MutableStateFlow("")
-    val notes = MutableStateFlow("")
+    val description = MutableStateFlow("")
     val time = MutableStateFlow(System.currentTimeMillis()) // Thời gian được chọn dưới dạng Long
     val baseFrequencyOptions = listOf(
         "Every day",
@@ -75,10 +79,10 @@ class AddMedicationViewModel(
                 name = medicineName.value,
                 dosage = dosage.value.ifEmpty { "Standard dose" },
                 scheduleTime = time.value,
-                notes = "Frequency: ${selectedFrequencyObject.value.displayText}",
+                description = "Frequency: ${selectedFrequencyObject.value.displayText}",
                 frequency = selectedFrequencyObject.value
             )
-            addMedicationUseCase(newMedication)
+            addMedicationUseCase(newMedication, profileId)
             
             // Schedule notification
             notificationService.scheduleMedicationNotification(newMedication)
