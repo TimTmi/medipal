@@ -1,9 +1,9 @@
 package com.example.medipal.domain.usecase
 
 import com.example.medipal.domain.model.Reminder
-import com.example.medipal.domain.repository.Repository
+import com.example.medipal.domain.repository.ReminderRepository
 
-class RemoveReminderUseCase(private val repository: Repository<Reminder>) {
+class RemoveReminderUseCase(private val repository: ReminderRepository) {
     suspend operator fun invoke(id: String) {
         repository.remove(id)
     }

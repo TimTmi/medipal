@@ -14,14 +14,14 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
-import com.example.medipal.MediPalApplication
+//import com.example.medipal.MediPalApplication
 import com.example.medipal.presentation.navigation.Screen
 import com.example.medipal.presentation.ui.components.BottomTabBar
 import com.example.medipal.presentation.viewmodel.AddMedicationViewModel
 import com.example.medipal.presentation.viewmodel.AddHealthcareReminderViewModel
 import com.example.medipal.presentation.viewmodel.AddAppointmentViewModel
 import com.example.medipal.presentation.viewmodel.HomeViewModel
-import com.example.medipal.presentation.viewmodel.ViewModelFactory
+import org.koin.androidx.compose.koinViewModel
 
 @Composable
 fun MainScreen() {
@@ -29,13 +29,16 @@ fun MainScreen() {
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = navBackStackEntry?.destination?.route
 
-    val application = LocalContext.current.applicationContext as MediPalApplication
-    val viewModelFactory = ViewModelFactory(application.container)
+//    val application = LocalContext.current.applicationContext as MediPalApplication
+//    val viewModelFactory = ViewModelFactory(application.container)
 
-    val homeViewModel: HomeViewModel = viewModel(factory = viewModelFactory)
-    val addMedicationViewModel: AddMedicationViewModel = viewModel(factory = viewModelFactory)
-    val addHealthcareReminderViewModel: AddHealthcareReminderViewModel = viewModel(factory = viewModelFactory)
-    val addAppointmentViewModel: AddAppointmentViewModel = viewModel(factory = viewModelFactory)
+    val homeViewModel: HomeViewModel = koinViewModel()
+    val addMedicationViewModel: AddMedicationViewModel = koinViewModel()
+    val addHealthcareReminderViewModel: AddHealthcareReminderViewModel = koinViewModel()
+    val addAppointmentViewModel: AddAppointmentViewModel = koinViewModel()
+
+
+
 
     // THAY ĐỔI QUAN TRỌNG: Thêm mã để điều khiển màu sắc icon trên status bar
     val view = LocalView.current
@@ -71,8 +74,7 @@ fun MainScreen() {
             }
             composable(Screen.Medications.route) {
                 MedicationsScreen(
-                    navController = navController,
-                    viewModelFactory = viewModelFactory
+                    navController = navController
                 )
             }
             composable(Screen.Notifications.route) {

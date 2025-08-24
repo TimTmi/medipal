@@ -5,14 +5,18 @@ import com.example.medipal.data.local.dao.AppointmentDao
 import com.example.medipal.data.local.entity.AppointmentEntity
 import com.example.medipal.data.mapper.toDomain
 import com.example.medipal.data.mapper.toEntity
+import com.example.medipal.domain.repository.AppointmentRepository
 
 class RoomAppointmentRepositoryImpl(
     dao: AppointmentDao
 ) : RoomRepositoryImpl<Appointment, AppointmentEntity>(
-    getAllFlow = { dao.getAll() },
-    insert = { dao.insert(it) },
-    update = { dao.update(it) },
-    deleteById = { dao.deleteById(it) },
-    toDomain = { it.toDomain() },
-    toEntity = { it.toEntity() }
-)
+    { dao.getAll() },
+    { dao.getAllOnce() },
+    { dao.getById(it) },
+    { dao.insert(it) },
+    { dao.update(it) },
+    { dao.deleteById(it) },
+    { it.toDomain() },
+    { it.toEntity() },
+    { it.id }
+), AppointmentRepository

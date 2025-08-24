@@ -4,14 +4,16 @@ import com.example.medipal.domain.model.Appointment
 import com.example.medipal.domain.model.Medication
 import com.example.medipal.domain.model.Reminder
 import com.example.medipal.domain.model.ScheduledItem
-import com.example.medipal.domain.repository.Repository
+import com.example.medipal.domain.repository.AppointmentRepository
+import com.example.medipal.domain.repository.MedicationRepository
+import com.example.medipal.domain.repository.ReminderRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
 
 class GetScheduledEventsUseCase(
-    private val medicationRepo: Repository<Medication>,
-    private val appointmentRepo: Repository<Appointment>,
-    private val reminderRepo: Repository<Reminder>
+    private val medicationRepo: MedicationRepository,
+    private val appointmentRepo: AppointmentRepository,
+    private val reminderRepo: ReminderRepository
 ) {
     operator fun invoke(): Flow<List<ScheduledItem>> {
         return combine(
