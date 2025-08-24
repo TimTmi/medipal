@@ -1,7 +1,5 @@
 package com.example.medipal.data.repository
 
-import com.example.medipal.data.local.dao.BaseDao
-import com.example.medipal.data.local.entity.SyncEntity
 import com.example.medipal.domain.repository.LocalRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map

@@ -34,10 +34,7 @@ fun HistoryLogScreen(navController: NavController) {
     val colorMatrix = ColorMatrix().apply {
         setToScale(brightness, brightness, brightness, 1f)
     }
-    
-    // Get history data from ViewModel
-//    val application = LocalContext.current.applicationContext as MediPalApplication
-//    val viewModelFactory = ViewModelFactory(application.container)
+
     val historyViewModel: HistoryViewModel = koinViewModel()
     val historyItems by historyViewModel.historyItems.collectAsState(initial = emptyList())
     

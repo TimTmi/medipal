@@ -1,8 +1,12 @@
-package com.example.medipal.domain.model
+package com.example.medipal.data.local.entity
 
+import androidx.room.Entity
+import androidx.room.PrimaryKey
 import java.util.UUID
 
-data class Profile (
+@Entity(tableName = "profile")
+data class ProfileEntity(
+    @PrimaryKey
     val id: String = UUID.randomUUID().toString(),
     val fullName: String = "",
     val birthday: Long = 0,

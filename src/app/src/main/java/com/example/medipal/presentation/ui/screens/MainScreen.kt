@@ -23,8 +23,6 @@ import com.example.medipal.presentation.viewmodel.AddAppointmentViewModel
 import com.example.medipal.presentation.viewmodel.HomeViewModel
 import org.koin.androidx.compose.koinViewModel
 
-//import com.example.medipal.presentation.viewmodel.ViewModelFactory
-
 @Composable
 fun MainScreen() {
     val navController = rememberNavController()
