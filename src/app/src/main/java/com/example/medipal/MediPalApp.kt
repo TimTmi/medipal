@@ -12,13 +12,13 @@ import com.example.medipal.di.networkModule
 import com.example.medipal.di.repositoryModule
 import com.example.medipal.di.useCaseModule
 import com.example.medipal.di.viewModelModule
+import coroutineModule
 import com.example.medipal.domain.repository.AppointmentRepository
 import com.example.medipal.domain.repository.MedicationRepository
 import com.example.medipal.domain.repository.ReminderRepository
 import com.example.medipal.util.NetworkObserver
 import com.example.medipal.util.SyncManager
 import com.example.medipal.workers.SyncWorker
-import coroutineModule
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch

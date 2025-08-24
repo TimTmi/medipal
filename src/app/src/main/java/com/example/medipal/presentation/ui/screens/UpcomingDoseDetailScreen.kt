@@ -15,19 +15,16 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.ColorMatrix
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
-import com.example.medipal.MediPalApplication
 import com.example.medipal.R
 import com.example.medipal.domain.model.NotificationType
 import com.example.medipal.presentation.viewmodel.NotificationViewModel
-import com.example.medipal.presentation.viewmodel.ViewModelFactory
+import org.koin.androidx.compose.koinViewModel
 import kotlinx.coroutines.delay
 import java.util.concurrent.TimeUnit
 
@@ -37,9 +34,7 @@ fun UpcomingDoseDetailScreen(
     navController: NavController,
     notificationId: String
 ) {
-    val application = LocalContext.current.applicationContext as MediPalApplication
-    val viewModelFactory = ViewModelFactory(application.container)
-    val viewModel: NotificationViewModel = viewModel(factory = viewModelFactory)
+    val viewModel: NotificationViewModel = koinViewModel()
     
     val notification = viewModel.getNotificationById(notificationId)
     

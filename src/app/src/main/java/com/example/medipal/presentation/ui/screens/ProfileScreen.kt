@@ -28,17 +28,14 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
-import com.example.medipal.MediPalApplication
 import com.example.medipal.R
 import com.example.medipal.presentation.viewmodel.ProfileViewModel
-import com.example.medipal.presentation.viewmodel.ViewModelFactory
+import org.koin.androidx.compose.koinViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ProfileScreen(navController: NavController) {
-    val application = LocalContext.current.applicationContext as MediPalApplication
-    val viewModelFactory = ViewModelFactory(application.container)
-    val viewModel: ProfileViewModel = viewModel(factory = viewModelFactory)
+    val viewModel: ProfileViewModel = koinViewModel()
     
     val uiState by viewModel.uiState.collectAsState()
     
