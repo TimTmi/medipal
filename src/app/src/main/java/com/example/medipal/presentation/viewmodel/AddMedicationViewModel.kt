@@ -5,13 +5,15 @@ import androidx.lifecycle.viewModelScope
 import com.example.medipal.domain.model.Medication
 
 import com.example.medipal.domain.usecase.AddMedicationUseCase
+import com.example.medipal.domain.service.NotificationService
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import java.util.*
 
 class AddMedicationViewModel(
-    private val addMedicationUseCase: AddMedicationUseCase
+    private val addMedicationUseCase: AddMedicationUseCase,
+    private val notificationService: NotificationService // Assuming NotificationService is injected
 ) : ViewModel() {
 
     val medicineName = MutableStateFlow("")
@@ -52,7 +54,10 @@ class AddMedicationViewModel(
                 scheduleTime = time.value,
             )
             addMedicationUseCase(newMedication)
-
+            
+            // Schedule notification
+            notificationService.scheduleMedicationNotification(newMedication)
+            
             _lastSavedMedicineName.value = newMedication.name
             _showSuccessDialog.value = true // Hiển thị dialog sau khi lưu
         }

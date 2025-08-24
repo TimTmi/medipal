@@ -5,6 +5,7 @@ import androidx.lifecycle.viewModelScope
 import com.example.medipal.domain.model.Appointment
 //import com.example.medipal.domain.repository.HistoryRepository
 import com.example.medipal.domain.usecase.AddAppointmentUseCase
+import com.example.medipal.domain.service.NotificationService
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
@@ -14,6 +15,7 @@ import java.util.Locale
 
 class AddAppointmentViewModel(
     private val addAppointmentUseCase: AddAppointmentUseCase,
+    private val notificationService: NotificationService
 //    private val historyRepository: HistoryRepository
 ) : ViewModel() {
 
@@ -63,6 +65,9 @@ class AddAppointmentViewModel(
                 notes = "Location: ${location.value}, Date: ${date.value}"
             )
             addAppointmentUseCase(newAppointment)
+            
+            // Schedule notification
+            notificationService.scheduleAppointmentNotification(newAppointment)
             
             // Auto-add to history
 //            historyRepository.addAppointmentHistory(newAppointment)

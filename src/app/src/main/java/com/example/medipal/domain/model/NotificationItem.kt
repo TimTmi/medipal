@@ -23,5 +23,5 @@ data class NotificationItem(
     val type: NotificationType,
     val instructions: String = "", // for medications
     val doctor: String = "", // for appointments
-    val originalItem: Any // stores original Medication/Appointment/Reminder object
+    val originalItem: Any? = null // stores original Medication/Appointment/Reminder object
 )

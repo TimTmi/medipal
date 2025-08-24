@@ -1,43 +1,51 @@
 package com.example.medipal.data.service
 
-import android.app.AlarmManager
-import android.app.NotificationManager
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
-import android.content.pm.PackageManager
-import androidx.core.app.ActivityCompat
-import com.example.medipal.R
-import com.example.medipal.domain.model.Reminder
-import com.example.medipal.data.service.NotificationServiceAndroidNotif
+import com.example.medipal.domain.model.NotificationItem
+import com.example.medipal.domain.model.NotificationStatus
+import com.example.medipal.domain.model.NotificationType
+import com.example.medipal.domain.service.InAppNotificationManager
+import com.example.medipal.domain.service.NotificationService
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import org.koin.core.component.KoinComponent
+import org.koin.core.component.inject
 
-class ReminderReceiver : BroadcastReceiver() {
-    override fun onReceive(context: Context, intent: Intent) {
-        val title = intent.getStringExtra("reminder_title") ?: "Reminder"
-        val notes = intent.getStringExtra("reminder_notes")
+class ReminderReceiver : BroadcastReceiver(), KoinComponent {
+    private val notificationService: NotificationService by inject()
 
-        val reminder = Reminder(
-            id = intent.getStringExtra("reminder_id") ?: System.currentTimeMillis().toString(),
+    override fun onReceive(context: Context?, intent: Intent?) {
+        val notificationId = intent?.getStringExtra("notification_id") ?: return
+        val title = intent.getStringExtra("notification_title") ?: ""
+        val content = intent.getStringExtra("notification_content") ?: ""
+        val type = intent.getStringExtra("notification_type") ?: "REMINDER"
+
+        // Show system notification
+        (notificationService as NotificationServiceAndroidNotif).showSystemNotification(notificationId, title, content)
+
+        // Show in-app notification
+        val notificationItem = NotificationItem(
+            id = notificationId,
             title = title,
+            subtitle = content,
+            time = System.currentTimeMillis().toString(),
             scheduleTime = System.currentTimeMillis(),
-            notes = notes ?: ""
+            status = NotificationStatus.UPCOMING,
+            type = when (type) {
+                "MEDICATION" -> NotificationType.MEDICATION
+                "APPOINTMENT" -> NotificationType.APPOINTMENT
+                else -> NotificationType.REMINDER
+            },
+            instructions = content,
+            doctor = "",
+            originalItem = null
         )
 
-        val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
-        val notificationManager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
-
-        val notificationService = NotificationServiceAndroidNotif(
-            context,
-            alarmManager,
-            notificationManager
-        )
-
-        if (ActivityCompat.checkSelfPermission(
-                context,
-                android.Manifest.permission.POST_NOTIFICATIONS
-            ) == PackageManager.PERMISSION_GRANTED
-        ) {
-            notificationService.showNotification(reminder)
+        CoroutineScope(Dispatchers.Main).launch {
+            InAppNotificationManager.showNotification(notificationItem)
         }
     }
 }

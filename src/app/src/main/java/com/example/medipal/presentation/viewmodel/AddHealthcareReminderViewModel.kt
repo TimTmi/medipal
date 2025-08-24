@@ -5,6 +5,7 @@ import androidx.lifecycle.viewModelScope
 import com.example.medipal.domain.model.Reminder
 //import com.example.medipal.domain.repository.HistoryRepository
 import com.example.medipal.domain.usecase.AddReminderUseCase
+import com.example.medipal.domain.service.NotificationService
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
@@ -14,6 +15,7 @@ import java.util.Locale
 
 class AddHealthcareReminderViewModel(
     private val addReminderUseCase: AddReminderUseCase,
+    private val notificationService: NotificationService
 //    private val historyRepository: HistoryRepository
 ) : ViewModel() {
 
@@ -100,6 +102,9 @@ class AddHealthcareReminderViewModel(
             )
             // Gọi UseCase (là một suspend function) bên trong coroutine
             addReminderUseCase(newReminder)
+            
+            // Schedule notification
+            notificationService.scheduleReminderNotification(newReminder)
             
             // Auto-add to history
 //            historyRepository.addReminderHistory(newReminder)
