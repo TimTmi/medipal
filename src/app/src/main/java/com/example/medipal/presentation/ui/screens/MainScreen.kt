@@ -28,7 +28,10 @@ import com.example.medipal.presentation.viewmodel.NotificationViewModel
 import com.example.medipal.domain.service.InAppNotificationManager
 import com.example.medipal.presentation.viewmodel.AppointmentsViewModel
 import com.example.medipal.presentation.viewmodel.RemindersViewModel
+import com.example.medipal.presentation.viewmodel.AuthViewModel
+import com.example.medipal.presentation.viewmodel.AuthState
 import org.koin.androidx.compose.koinViewModel
+import org.koin.core.context.GlobalContext
 
 @OptIn(ExperimentalMaterial3Api::class)
 
@@ -38,9 +41,7 @@ fun MainScreen() {
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = navBackStackEntry?.destination?.route
 
-//    val application = LocalContext.current.applicationContext as MediPalApplication
-//    val viewModelFactory = ViewModelFactory(application.container)
-
+    val authViewModel: AuthViewModel = koinViewModel()
     val homeViewModel: HomeViewModel = koinViewModel()
     val addMedicationViewModel: AddMedicationViewModel = koinViewModel()
     val addHealthcareReminderViewModel: AddHealthcareReminderViewModel = koinViewModel()
@@ -65,6 +66,22 @@ fun MainScreen() {
         InAppNotificationManager.notificationFlow.collect { notification ->
             currentNotification = notification
         }
+    }
+
+    // Check authentication state
+    LaunchedEffect(Unit) {
+        authViewModel.checkAuthState()
+    }
+
+    val authState by authViewModel.authState.collectAsState()
+
+    // Show loading screen while checking auth state
+    if (authState is AuthState.Initial) {
+        LoadingScreen()
+        return
+    } else if (authState is AuthState.Unauthenticated) {
+        AuthScreen(navController = navController, viewModel = authViewModel)
+        return
     }
 
     // THAY ĐỔI QUAN TRỌNG: Thêm mã để điều khiển màu sắc icon trên status bar
