@@ -17,4 +17,5 @@ interface MedicationRepository {
     
     // Xóa medication
     suspend fun removeMedication(id: String)
+    fun getMedicationsById(id: String): Flow<Medication?>
 }

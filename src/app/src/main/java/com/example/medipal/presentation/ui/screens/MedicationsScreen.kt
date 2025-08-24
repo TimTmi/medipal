@@ -34,6 +34,7 @@ import com.example.medipal.domain.model.Medication
 import com.example.medipal.presentation.viewmodel.MedicationListViewModel
 import com.example.medipal.presentation.viewmodel.ViewModelFactory
 import java.text.SimpleDateFormat
+import com.example.medipal.presentation.navigation.Screen
 import java.util.*
 
 enum class MedicationStatus {
@@ -57,8 +58,7 @@ fun MedicationsScreen(
     val filteredMedications by viewModel.filteredMedications.collectAsState(initial = emptyList())
     val searchQuery by viewModel.searchQuery.collectAsState()
     val isSearchVisible by viewModel.isSearchVisible.collectAsState()
-    val isEditDialogVisible by viewModel.isEditDialogVisible.collectAsState()
-    val selectedMedication by viewModel.selectedMedication.collectAsState()
+
 
     Box(modifier = Modifier.fillMaxSize()) {
         // Background
@@ -119,7 +119,9 @@ fun MedicationsScreen(
                     items(filteredMedications) { medication ->
                         MedicationCard(
                             medication = medication,
-                            onClick = { viewModel.selectMedicationForEdit(medication) }
+                            onClick = {
+                                navController.navigate(Screen.MedicineDetail.createRoute(medication.id))
+                            }
                         )
                     }
                     
@@ -144,20 +146,20 @@ fun MedicationsScreen(
             }
         }
 
-        if (isEditDialogVisible && selectedMedication != null) {
-            EditMedicationDialog(
-                medication = selectedMedication!!,
-                onDismiss = viewModel::hideEditDialog,
-                onSave = { updatedMedication ->
-                    viewModel.updateMedication(updatedMedication)
-                    viewModel.hideEditDialog()
-                },
-                onDelete = {
-                    viewModel.deleteMedication(selectedMedication!!.id)
-                    viewModel.hideEditDialog()
-                }
-            )
-        }
+//        if (isEditDialogVisible && selectedMedication != null) {
+//            EditMedicationDialog(
+//                medication = selectedMedication!!,
+//                onDismiss = viewModel::hideEditDialog,
+//                onSave = { updatedMedication ->
+//                    viewModel.updateMedication(updatedMedication)
+//                    viewModel.hideEditDialog()
+//                },
+//                onDelete = {
+//                    viewModel.deleteMedication(selectedMedication!!.id)
+//                    viewModel.hideEditDialog()
+//                }
+//            )
+//        }
     }
 }
 
@@ -290,7 +292,7 @@ fun MedicationCard(
             Spacer(modifier = Modifier.height(8.dp))
             
             Text(
-                text = "Dosage: ${medication.dosage}",
+                text = "${medication.frequency.displayText}",
                 fontSize = 14.sp,
                 color = Color.Black
             )
@@ -307,115 +309,115 @@ fun MedicationCard(
     }
 }
 
-@Composable
-fun EditMedicationDialog(
-    medication: Medication,
-    onDismiss: () -> Unit,
-    onSave: (Medication) -> Unit,
-    onDelete: () -> Unit
-) {
-    var name by remember { mutableStateOf(medication.name) }
-    var dosage by remember { mutableStateOf(medication.dosage) }
-    var notes by remember { mutableStateOf(medication.notes ?: "") }
-    
-    Dialog(onDismissRequest = onDismiss) {
-        Card(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(16.dp),
-            shape = RoundedCornerShape(16.dp)
-        ) {
-            Column(
-                modifier = Modifier.padding(24.dp)
-            ) {
-                Text(
-                    text = "Edit Medication",
-                    fontSize = 20.sp,
-                    fontWeight = FontWeight.Bold,
-                    modifier = Modifier.padding(bottom = 16.dp)
-                )
-                
-                OutlinedTextField(
-                    value = name,
-                    onValueChange = { name = it },
-                    label = { Text("Medication Name") },
-                    modifier = Modifier.fillMaxWidth()
-                )
-                
-                Spacer(modifier = Modifier.height(8.dp))
-                
-                OutlinedTextField(
-                    value = dosage,
-                    onValueChange = { dosage = it },
-                    label = { Text("Dosage") },
-                    modifier = Modifier.fillMaxWidth()
-                )
-                
-                Spacer(modifier = Modifier.height(8.dp))
-                
-                OutlinedTextField(
-                    value = notes,
-                    onValueChange = { notes = it },
-                    label = { Text("Notes (Optional)") },
-                    modifier = Modifier.fillMaxWidth(),
-                    maxLines = 3
-                )
-                
-                Spacer(modifier = Modifier.height(16.dp))
-                
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(8.dp)
-                ) {
-                    OutlinedButton(
-                        onClick = onDelete,
-                        modifier = Modifier.weight(1f),
-                        colors = ButtonDefaults.outlinedButtonColors(
-                            contentColor = Color.Red
-                        )
-                    ) {
-                        Icon(
-                            Icons.Default.Delete,
-                            contentDescription = "Delete",
-                            modifier = Modifier.size(16.dp)
-                        )
-                        Spacer(modifier = Modifier.width(4.dp))
-                        Text("Delete")
-                    }
-                    
-                    Button(
-                        onClick = {
-                            val updatedMedication = medication.copy(
-                                name = name,
-                                dosage = dosage,
-                                notes = notes.takeIf { it.isNotBlank() }
-                            )
-                            onSave(updatedMedication)
-                        },
-                        modifier = Modifier.weight(1f),
-                        colors = ButtonDefaults.buttonColors(
-                            containerColor = Color(0xFF2E7D32)
-                        )
-                    ) {
-                        Icon(
-                            Icons.Default.Edit,
-                            contentDescription = "Save",
-                            modifier = Modifier.size(16.dp)
-                        )
-                        Spacer(modifier = Modifier.width(4.dp))
-                        Text("Save")
-                    }
-                }
-                
-                Spacer(modifier = Modifier.height(8.dp))
-                
-                TextButton(
-                    onClick = onDismiss,
-                    modifier = Modifier.fillMaxWidth()
-                ) {
-                    Text("Cancel")
-                }
-            }
-        }
-    }
-}
+//@Composable
+//fun EditMedicationDialog(
+//    medication: Medication,
+//    onDismiss: () -> Unit,
+//    onSave: (Medication) -> Unit,
+//    onDelete: () -> Unit
+//) {
+//    var name by remember { mutableStateOf(medication.name) }
+//    var dosage by remember { mutableStateOf(medication.dosage) }
+//    var notes by remember { mutableStateOf(medication.notes ?: "") }
+//
+//    Dialog(onDismissRequest = onDismiss) {
+//        Card(
+//            modifier = Modifier
+//                .fillMaxWidth()
+//                .padding(16.dp),
+//            shape = RoundedCornerShape(16.dp)
+//        ) {
+//            Column(
+//                modifier = Modifier.padding(24.dp)
+//            ) {
+//                Text(
+//                    text = "Edit Medication",
+//                    fontSize = 20.sp,
+//                    fontWeight = FontWeight.Bold,
+//                    modifier = Modifier.padding(bottom = 16.dp)
+//                )
+//
+//                OutlinedTextField(
+//                    value = name,
+//                    onValueChange = { name = it },
+//                    label = { Text("Medication Name") },
+//                    modifier = Modifier.fillMaxWidth()
+//                )
+//
+//                Spacer(modifier = Modifier.height(8.dp))
+//
+//                OutlinedTextField(
+//                    value = dosage,
+//                    onValueChange = { dosage = it },
+//                    label = { Text("Dosage") },
+//                    modifier = Modifier.fillMaxWidth()
+//                )
+//
+//                Spacer(modifier = Modifier.height(8.dp))
+//
+//                OutlinedTextField(
+//                    value = notes,
+//                    onValueChange = { notes = it },
+//                    label = { Text("Notes (Optional)") },
+//                    modifier = Modifier.fillMaxWidth(),
+//                    maxLines = 3
+//                )
+//
+//                Spacer(modifier = Modifier.height(16.dp))
+//
+//                Row(
+//                    modifier = Modifier.fillMaxWidth(),
+//                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+//                ) {
+//                    OutlinedButton(
+//                        onClick = onDelete,
+//                        modifier = Modifier.weight(1f),
+//                        colors = ButtonDefaults.outlinedButtonColors(
+//                            contentColor = Color.Red
+//                        )
+//                    ) {
+//                        Icon(
+//                            Icons.Default.Delete,
+//                            contentDescription = "Delete",
+//                            modifier = Modifier.size(16.dp)
+//                        )
+//                        Spacer(modifier = Modifier.width(4.dp))
+//                        Text("Delete")
+//                    }
+//
+//                    Button(
+//                        onClick = {
+//                            val updatedMedication = medication.copy(
+//                                name = name,
+//                                dosage = dosage,
+//                                notes = notes.takeIf { it.isNotBlank() }
+//                            )
+//                            onSave(updatedMedication)
+//                        },
+//                        modifier = Modifier.weight(1f),
+//                        colors = ButtonDefaults.buttonColors(
+//                            containerColor = Color(0xFF2E7D32)
+//                        )
+//                    ) {
+//                        Icon(
+//                            Icons.Default.Edit,
+//                            contentDescription = "Save",
+//                            modifier = Modifier.size(16.dp)
+//                        )
+//                        Spacer(modifier = Modifier.width(4.dp))
+//                        Text("Save")
+//                    }
+//                }
+//
+//                Spacer(modifier = Modifier.height(8.dp))
+//
+//                TextButton(
+//                    onClick = onDismiss,
+//                    modifier = Modifier.fillMaxWidth()
+//                ) {
+//                    Text("Cancel")
+//                }
+//            }
+//        }
+//    }
+//}

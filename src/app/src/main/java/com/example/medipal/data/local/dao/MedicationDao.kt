@@ -9,6 +9,8 @@ interface MedicationDao {
 
     @Query("SELECT * FROM medication")
     fun getAll(): Flow<List<MedicationEntity>>
+    @Query("SELECT * FROM medication WHERE id = :id")
+    fun getMedicationById(id: String): Flow<MedicationEntity?>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insert(medication: MedicationEntity)
@@ -21,4 +23,5 @@ interface MedicationDao {
 
     @Query("DELETE FROM medication WHERE id = :id")
     suspend fun deleteById(id: String)
+
 }

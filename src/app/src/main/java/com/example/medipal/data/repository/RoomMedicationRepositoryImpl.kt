@@ -27,4 +27,9 @@ class RoomMedicationRepositoryImpl(
     override suspend fun updateMedication(medication: Medication) {
         dao.update(medication.toEntity())
     }
+
+    override fun getMedicationsById(id: String): Flow<Medication?> {
+        return dao.getMedicationById(id).map { it?.toDomain() }
+    }
+
 }

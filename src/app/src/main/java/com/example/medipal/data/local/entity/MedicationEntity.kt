@@ -2,6 +2,8 @@ package com.example.medipal.data.local.entity
 
 import androidx.room.Entity
 import androidx.room.PrimaryKey
+import com.example.medipal.domain.model.Frequency
+
 
 @Entity(tableName = "medication")
 data class MedicationEntity(
@@ -9,5 +11,6 @@ data class MedicationEntity(
     val name: String,
     val dosage: String,
     val scheduleTime: Long,
-    val notes: String?
+    val notes: String?,
+    val frequency: Frequency
 )

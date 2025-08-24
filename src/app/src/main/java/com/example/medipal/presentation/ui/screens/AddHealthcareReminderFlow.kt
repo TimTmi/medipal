@@ -22,12 +22,18 @@ import androidx.navigation.compose.rememberNavController
 import androidx.compose.material3.CenterAlignedTopAppBar
 import com.example.medipal.presentation.viewmodel.AddHealthcareReminderViewModel
 import com.example.medipal.presentation.ui.components.TimePickerDialog
+import com.example.medipal.presentation.ui.components.FrequencyOptionRow
+import com.example.medipal.presentation.navigation.Screen
 import java.util.Locale
+import java.time.DayOfWeek
 
 // Các route cho các bước con
 private const val STEP_CATEGORY = "reminder_category"
 private const val STEP_ACTIVITY = "reminder_activity"
 private const val STEP_FREQUENCY_REMINDER = "reminder_frequency"
+private const val STEP_X_DAYS = "reminder_x_days"
+private const val STEP_SPECIFIC_DAYS = "reminder_specific_days"
+private const val STEP_X_WEEKS = "reminder_x_weeks"
 private const val STEP_TIME = "reminder_time"
 
 @Composable
@@ -70,6 +76,30 @@ fun AddHealthcareReminderFlow(
         }
         composable(STEP_FREQUENCY_REMINDER) {
             ReminderFrequencyScreen(
+                viewModel = viewModel,
+                onNext = { flowNavController.navigate(STEP_TIME) },
+                onXDays = { flowNavController.navigate(STEP_X_DAYS) },
+                onSpecificDays = { flowNavController.navigate(STEP_SPECIFIC_DAYS) },
+                onXWeeks = { flowNavController.navigate(STEP_X_WEEKS) },
+                onCancel = { mainNavController.popBackStack() }
+            )
+        }
+        composable(STEP_X_DAYS) {
+            ReminderXDaysScreen(
+                viewModel = viewModel,
+                onNext = { flowNavController.navigate(STEP_TIME) },
+                onCancel = { mainNavController.popBackStack() }
+            )
+        }
+        composable(STEP_SPECIFIC_DAYS) {
+            ReminderSpecificDaysScreen(
+                viewModel = viewModel,
+                onNext = { flowNavController.navigate(STEP_TIME) },
+                onCancel = { mainNavController.popBackStack() }
+            )
+        }
+        composable(STEP_X_WEEKS) {
+            ReminderXWeeksScreen(
                 viewModel = viewModel,
                 onNext = { flowNavController.navigate(STEP_TIME) },
                 onCancel = { mainNavController.popBackStack() }
@@ -183,11 +213,14 @@ fun ReminderActivityScreen(
 fun ReminderFrequencyScreen(
     viewModel: AddHealthcareReminderViewModel,
     onNext: () -> Unit,
+    onXDays: () -> Unit,
+    onSpecificDays: () -> Unit,
+    onXWeeks: () -> Unit,
     onCancel: () -> Unit
 ) {
     val selectedActivity by viewModel.selectedActivity.collectAsState()
-    val options = viewModel.frequencyOptions
-    val selectedOption by viewModel.selectedFrequency.collectAsState()
+    val options = viewModel.baseFrequencyOptions
+    val selectedFrequencyObject by viewModel.selectedFrequencyObject.collectAsState()
 
     Scaffold(
         topBar = {
@@ -212,16 +245,89 @@ fun ReminderFrequencyScreen(
 
             LazyColumn(modifier = Modifier.weight(1f)) {
                 items(options) { option ->
-                    ReminderFrequencyOptionRow(
+                    FrequencyOptionRow(
                         text = option,
-                        selected = (option == selectedOption),
-                        onClick = { viewModel.onFrequencySelected(option) }
+                        selected = (option == selectedFrequencyObject.displayText),
+                        onClick = {
+                            when (option) {
+                                "Every day" -> {
+                                    viewModel.setFrequencyEveryDay()
+                                    onNext()
+                                }
+                                "Only as needed" -> {
+                                    viewModel.setFrequencyAsNeeded()
+                                    onNext()
+                                }
+                                "Every X days" -> {
+                                    onXDays()
+                                }
+                                "Specific days of the week" -> {
+                                    onSpecificDays()
+                                }
+                                "Every X weeks" -> {
+                                    onXWeeks()
+                                }
+                            }
+                        }
                     )
                 }
             }
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun ReminderXDaysScreen(
+    viewModel: AddHealthcareReminderViewModel,
+    onNext: () -> Unit,
+    onCancel: () -> Unit
+) {
+    val selectedActivity by viewModel.selectedActivity.collectAsState()
+    val xDaysValue by viewModel.xDaysValue.collectAsState()
+    var tempDays by remember { mutableStateOf(xDaysValue.toString()) }
+
+    Scaffold(
+        topBar = {
+            CenterAlignedTopAppBar(
+                title = { Text(selectedActivity) },
+                navigationIcon = { TextButton(onClick = onCancel) { Text("Cancel") } }
+            )
+        }
+    ) { padding ->
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(padding)
+                .padding(16.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Text(
+                "Every how many days?",
+                style = MaterialTheme.typography.titleLarge,
+                modifier = Modifier.align(Alignment.CenterHorizontally)
+            )
+            Spacer(modifier = Modifier.height(32.dp))
+
+            OutlinedTextField(
+                value = tempDays,
+                onValueChange = { 
+                    if (it.isEmpty() || it.toIntOrNull() != null) {
+                        tempDays = it
+                    }
+                },
+                label = { Text("Number of days") },
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                modifier = Modifier.fillMaxWidth()
+            )
+            Spacer(modifier = Modifier.height(32.dp))
 
             Button(
-                onClick = onNext,
+                onClick = {
+                    val days = tempDays.toIntOrNull() ?: 2
+                    viewModel.saveFrequencyXDays(days)
+                    onNext()
+                },
                 modifier = Modifier.fillMaxWidth()
             ) {
                 Text("Next")
@@ -230,22 +336,195 @@ fun ReminderFrequencyScreen(
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ReminderFrequencyOptionRow(
-    text: String,
-    selected: Boolean,
-    onClick: () -> Unit
+fun ReminderSpecificDaysScreen(
+    viewModel: AddHealthcareReminderViewModel,
+    onNext: () -> Unit,
+    onCancel: () -> Unit
 ) {
-    ListItem(
-        headlineContent = { Text(text) },
-        leadingContent = {
-            RadioButton(
-                selected = selected,
-                onClick = onClick
-            )
-        },
-        modifier = Modifier.clickable { onClick() }
+    val selectedActivity by viewModel.selectedActivity.collectAsState()
+    val selectedWeekDays by viewModel.selectedWeekDays.collectAsState()
+    var tempSelectedDays by remember { mutableStateOf(selectedWeekDays) }
+
+    val weekDays = listOf(
+        DayOfWeek.MONDAY to "Monday",
+        DayOfWeek.TUESDAY to "Tuesday", 
+        DayOfWeek.WEDNESDAY to "Wednesday",
+        DayOfWeek.THURSDAY to "Thursday",
+        DayOfWeek.FRIDAY to "Friday",
+        DayOfWeek.SATURDAY to "Saturday",
+        DayOfWeek.SUNDAY to "Sunday"
     )
+
+    Scaffold(
+        topBar = {
+            CenterAlignedTopAppBar(
+                title = { Text(selectedActivity) },
+                navigationIcon = { TextButton(onClick = onCancel) { Text("Cancel") } }
+            )
+        }
+    ) { padding ->
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(padding)
+                .padding(16.dp)
+        ) {
+            Text(
+                "Select specific days",
+                style = MaterialTheme.typography.titleLarge,
+                modifier = Modifier.align(Alignment.CenterHorizontally)
+            )
+            Spacer(modifier = Modifier.height(16.dp))
+
+            LazyColumn(modifier = Modifier.weight(1f)) {
+                items(weekDays) { (dayOfWeek, dayName) ->
+                    ListItem(
+                        headlineContent = { Text(dayName) },
+                        leadingContent = {
+                            Checkbox(
+                                checked = tempSelectedDays.contains(dayOfWeek),
+                                onCheckedChange = { checked ->
+                                    tempSelectedDays = if (checked) {
+                                        tempSelectedDays + dayOfWeek
+                                    } else {
+                                        tempSelectedDays - dayOfWeek
+                                    }
+                                }
+                            )
+                        },
+                        modifier = Modifier.clickable {
+                            val newSelection = if (tempSelectedDays.contains(dayOfWeek)) {
+                                tempSelectedDays - dayOfWeek
+                            } else {
+                                tempSelectedDays + dayOfWeek
+                            }
+                            tempSelectedDays = newSelection
+                        }
+                    )
+                }
+            }
+
+            Button(
+                onClick = {
+                    viewModel.saveFrequencySpecificDays(tempSelectedDays)
+                    onNext()
+                },
+                modifier = Modifier.fillMaxWidth(),
+                enabled = tempSelectedDays.isNotEmpty()
+            ) {
+                Text("Next")
+            }
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun ReminderXWeeksScreen(
+    viewModel: AddHealthcareReminderViewModel,
+    onNext: () -> Unit,
+    onCancel: () -> Unit
+) {
+    val selectedActivity by viewModel.selectedActivity.collectAsState()
+    val xWeeksValue by viewModel.xWeeksValue.collectAsState()
+    val selectedWeekDays by viewModel.selectedWeekDays.collectAsState()
+    var tempWeeks by remember { mutableStateOf(xWeeksValue.toString()) }
+    var tempSelectedDays by remember { mutableStateOf(selectedWeekDays) }
+
+    val weekDays = listOf(
+        DayOfWeek.MONDAY to "Monday",
+        DayOfWeek.TUESDAY to "Tuesday", 
+        DayOfWeek.WEDNESDAY to "Wednesday",
+        DayOfWeek.THURSDAY to "Thursday",
+        DayOfWeek.FRIDAY to "Friday",
+        DayOfWeek.SATURDAY to "Saturday",
+        DayOfWeek.SUNDAY to "Sunday"
+    )
+
+    Scaffold(
+        topBar = {
+            CenterAlignedTopAppBar(
+                title = { Text(selectedActivity) },
+                navigationIcon = { TextButton(onClick = onCancel) { Text("Cancel") } }
+            )
+        }
+    ) { padding ->
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(padding)
+                .padding(16.dp)
+        ) {
+            Text(
+                "Every how many weeks?",
+                style = MaterialTheme.typography.titleLarge,
+                modifier = Modifier.align(Alignment.CenterHorizontally)
+            )
+            Spacer(modifier = Modifier.height(16.dp))
+
+            OutlinedTextField(
+                value = tempWeeks,
+                onValueChange = { 
+                    if (it.isEmpty() || it.toIntOrNull() != null) {
+                        tempWeeks = it
+                    }
+                },
+                label = { Text("Number of weeks") },
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                modifier = Modifier.fillMaxWidth()
+            )
+            Spacer(modifier = Modifier.height(24.dp))
+
+            Text(
+                "On which days?",
+                style = MaterialTheme.typography.titleMedium,
+                fontWeight = FontWeight.Bold
+            )
+            Spacer(modifier = Modifier.height(8.dp))
+
+            LazyColumn(modifier = Modifier.weight(1f)) {
+                items(weekDays) { (dayOfWeek, dayName) ->
+                    ListItem(
+                        headlineContent = { Text(dayName) },
+                        leadingContent = {
+                            Checkbox(
+                                checked = tempSelectedDays.contains(dayOfWeek),
+                                onCheckedChange = { checked ->
+                                    tempSelectedDays = if (checked) {
+                                        tempSelectedDays + dayOfWeek
+                                    } else {
+                                        tempSelectedDays - dayOfWeek
+                                    }
+                                }
+                            )
+                        },
+                        modifier = Modifier.clickable {
+                            val newSelection = if (tempSelectedDays.contains(dayOfWeek)) {
+                                tempSelectedDays - dayOfWeek
+                            } else {
+                                tempSelectedDays + dayOfWeek
+                            }
+                            tempSelectedDays = newSelection
+                        }
+                    )
+                }
+            }
+
+            Button(
+                onClick = {
+                    val weeks = tempWeeks.toIntOrNull() ?: 1
+                    viewModel.saveFrequencyXWeeks(weeks, tempSelectedDays)
+                    onNext()
+                },
+                modifier = Modifier.fillMaxWidth(),
+                enabled = tempSelectedDays.isNotEmpty()
+            ) {
+                Text("Next")
+            }
+        }
+    }
 }
 
 @OptIn(ExperimentalMaterial3Api::class)

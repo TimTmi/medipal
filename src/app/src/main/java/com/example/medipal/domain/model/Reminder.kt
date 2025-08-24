@@ -4,5 +4,6 @@ data class Reminder(
     val id: String,
     val title: String,
     val scheduleTime: Long,
-    val notes: String?
+    val notes: String?,
+    val frequency: Frequency
 )
