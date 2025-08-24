@@ -105,6 +105,9 @@ class AddHealthcareReminderViewModel(
 //            historyRepository.addReminderHistory(newReminder)
 
             _lastSavedReminderTitle.value = activityToSave
+            
+            // Reset form trước khi hiển thị dialog để tránh hiệu ứng nhấp nháy
+            resetForm()
             _showSuccessDialog.value = true
         }
     }
@@ -112,5 +115,18 @@ class AddHealthcareReminderViewModel(
     fun dismissSuccessDialog() {
         _lastSavedReminderTitle.value = null
         _showSuccessDialog.value = false
+    }
+    
+    private fun resetForm() {
+        selectedCategory.value = ""
+        selectedActivity.value = ""
+        selectedFrequency.value = frequencyOptions.first()
+        selectedTime.value = "16:46 AM"
+        sessionCount.value = 1
+    }
+    
+    // Thêm function public để reset form khi cần
+    fun clearForm() {
+        resetForm()
     }
 } 
