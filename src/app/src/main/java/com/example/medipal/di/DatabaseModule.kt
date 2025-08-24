@@ -12,7 +12,7 @@ val databaseModule = module {
             context = get(),
             klass = MediPalDatabase::class.java,
             name = "medipal.db"
-        ).build()
+        ).fallbackToDestructiveMigration(false).build()
     }
 
     // Provide DAOs

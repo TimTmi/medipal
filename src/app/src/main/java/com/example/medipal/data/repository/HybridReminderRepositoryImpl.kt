@@ -1,18 +1,17 @@
 package com.example.medipal.data.repository
 
-import com.example.medipal.domain.model.Medication
+import com.example.medipal.domain.model.Reminder
 import com.example.medipal.domain.repository.LocalRepository
-import com.example.medipal.domain.repository.MedicationRepository
+import com.example.medipal.domain.repository.ReminderRepository
 import com.example.medipal.domain.repository.RemoteRepository
 import kotlinx.coroutines.CoroutineScope
-import org.koin.dsl.module
 
-class HybridMedicationRepositoryImpl(
-    localRepo: LocalRepository<Medication>,
-    remoteRepo: RemoteRepository<Medication>,
+class HybridReminderRepositoryImpl(
+    localRepo: LocalRepository<Reminder>,
+    remoteRepo: RemoteRepository<Reminder>,
     networkChecker: () -> Boolean,
     appScope: CoroutineScope
-) : HybridRepositoryImpl<Medication>(
+) : HybridRepositoryImpl<Reminder>(
     localRepo = localRepo,
     remoteRepo = remoteRepo,
     networkChecker = networkChecker,
@@ -22,4 +21,4 @@ class HybridMedicationRepositoryImpl(
     getDeletedAt = { it.deletedAt },
     copyWithUpdated = { item, time -> item.copy(updatedAt = time) },
     copyWithDeleted = { item, time -> item.copy(deletedAt = time) }
-), MedicationRepository
+), ReminderRepository

@@ -8,14 +8,16 @@ import com.example.medipal.data.local.dao.ReminderDao
 import com.example.medipal.data.local.entity.MedicationEntity
 import com.example.medipal.data.local.entity.AppointmentEntity
 import com.example.medipal.data.local.entity.ReminderEntity
+import com.example.medipal.data.local.entity.SyncEntity
 
 @Database(
     entities = [
         MedicationEntity::class,
         AppointmentEntity::class,
-        ReminderEntity::class
+        ReminderEntity::class,
+        SyncEntity::class
     ],
-    version = 2,
+    version = 7,
     exportSchema = false
 )
 abstract class MediPalDatabase : RoomDatabase() {

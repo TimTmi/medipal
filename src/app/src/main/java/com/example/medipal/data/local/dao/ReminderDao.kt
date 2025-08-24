@@ -5,17 +5,23 @@ import com.example.medipal.data.local.entity.ReminderEntity
 import kotlinx.coroutines.flow.Flow
 
 @Dao
-interface ReminderDao : BaseDao<ReminderEntity> {
+interface ReminderDao {
 
     @Query("SELECT * FROM reminder")
-    override fun getAll(): Flow<List<ReminderEntity>>
+    fun getAll(): Flow<List<ReminderEntity>>
+
+    @Query("SELECT * FROM reminder")
+    suspend fun getAllOnce(): List<ReminderEntity>
+
+    @Query("SELECT * FROM reminder WHERE id = :id LIMIT 1")
+    suspend fun getById(id: String): ReminderEntity?
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    override suspend fun insert(entity: ReminderEntity)
+    suspend fun insert(entity: ReminderEntity)
 
     @Query("DELETE FROM reminder WHERE id = :id")
-    override suspend fun deleteById(id: String)
+    suspend fun deleteById(id: String)
 
     @Update
-    override suspend fun update(entity: ReminderEntity)
+    suspend fun update(entity: ReminderEntity)
 }

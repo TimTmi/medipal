@@ -1,11 +1,16 @@
 package com.example.medipal.presentation.viewmodel
 
+import android.content.Context
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.example.medipal.domain.usecase.GetMedicationsUseCase
 import com.example.medipal.domain.usecase.GetAppointmentsUseCase
 import com.example.medipal.domain.usecase.GetRemindersUseCase
+import com.example.medipal.util.NetworkObserver
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.launch
+import org.koin.dsl.module
 
 class HomeViewModel(
     getMedicationsUseCase: GetMedicationsUseCase,

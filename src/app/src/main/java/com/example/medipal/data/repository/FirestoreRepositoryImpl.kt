@@ -6,9 +6,11 @@ import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.tasks.await
+import kotlinx.serialization.serializer
 
 abstract class FirestoreRepositoryImpl<T : Any>(
     private val collection: CollectionReference,
+    private val modelClass: Class<T>,
     private val setId: (T, String) -> T
 ) : RemoteRepository<T> {
 
@@ -20,7 +22,7 @@ abstract class FirestoreRepositoryImpl<T : Any>(
             }
 
             val items = snapshot?.documents?.mapNotNull { doc ->
-                doc.toObject(getModelClass())?.let { setId(it, doc.id) }
+                doc.toObject(modelClass)?.let { setId(it, doc.id) }
             } ?: emptyList()
 
             trySend(items)
@@ -29,10 +31,22 @@ abstract class FirestoreRepositoryImpl<T : Any>(
         awaitClose { listener.remove() }
     }
 
+    override suspend fun getAllOnce(): List<T> {
+        val snapshot = collection.get().await()
+        return snapshot.documents.mapNotNull { doc ->
+            doc.toObject(modelClass)?.let { setId(it, doc.id) }
+        }
+    }
+
+    override suspend fun getById(id: String): T? {
+        val snapshot = collection.document(id).get().await()
+        return snapshot.toObject(modelClass)?.let { setId(it, snapshot.id) }
+    }
+
     override suspend fun add(item: T) {
-        val docRef = collection.document()
-        val itemWithId = setId(item, docRef.id)
-        docRef.set(itemWithId).await()
+        val id = getId(item) // use the domain ID
+        val itemWithId = setId(item, id)
+        collection.document(id).set(itemWithId).await() // suspend until write finishes
     }
 
     override suspend fun update(item: T) {
@@ -43,8 +57,7 @@ abstract class FirestoreRepositoryImpl<T : Any>(
         collection.document(id).delete().await()
     }
 
-    /** Must return the KClass for Firestore to deserialize */
-    protected abstract fun getModelClass(): Class<T>
+    override fun getCollection() = collection
 
     /** Must return the item's id for update */
     protected abstract fun getId(item: T): String
