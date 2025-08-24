@@ -9,13 +9,11 @@ import kotlinx.coroutines.CoroutineScope
 class HybridProfileRepositoryImpl(
     localRepo: LocalRepository<Profile>,
     remoteRepo: RemoteRepository<Profile>,
-    networkChecker: () -> Boolean,
-    appScope: CoroutineScope
+    networkChecker: () -> Boolean
 ) : HybridRepositoryImpl<Profile>(
     localRepo = localRepo,
     remoteRepo = remoteRepo,
     networkChecker = networkChecker,
-    appScope = appScope,
     getId = { it.id },
     getUpdatedAt = { it.updatedAt },
     getDeletedAt = { it.deletedAt },

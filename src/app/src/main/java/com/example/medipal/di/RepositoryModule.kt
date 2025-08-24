@@ -29,16 +29,18 @@ val repositoryModule = module {
     single<MedicationRepository> { HybridMedicationRepositoryImpl(
         get<RoomMedicationRepositoryImpl>(),
         get<FirestoreMedicationRepositoryImpl>(),
-        { get<NetworkChecker>().isOnline() },
-        get()) }
-    single<AppointmentRepository> { HybridAppointmentRepositoryImpl(
+        { get<NetworkChecker>().isOnline() })
+    }
+    single<AppointmentRepository> {
+        HybridAppointmentRepositoryImpl(
         get<RoomAppointmentRepositoryImpl>(),
         get<FirestoreAppointmentRepositoryImpl>(),
-        { get<NetworkChecker>().isOnline() },
-        get()) }
-    single<ReminderRepository> { HybridReminderRepositoryImpl(
+        { get<NetworkChecker>().isOnline() })
+    }
+    single<ReminderRepository> {
+        HybridReminderRepositoryImpl(
         get<RoomReminderRepositoryImpl>(),
         get<FirestoreReminderRepositoryImpl>(),
-        { get<NetworkChecker>().isOnline() },
-        get()) }
+        { get<NetworkChecker>().isOnline() })
+    }
 }

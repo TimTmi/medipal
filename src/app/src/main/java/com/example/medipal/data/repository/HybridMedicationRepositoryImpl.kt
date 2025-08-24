@@ -9,13 +9,11 @@ import kotlinx.coroutines.CoroutineScope
 class HybridMedicationRepositoryImpl(
     localRepo: LocalRepository<Medication>,
     remoteRepo: RemoteRepository<Medication>,
-    networkChecker: () -> Boolean,
-    appScope: CoroutineScope
+    networkChecker: () -> Boolean
 ) : HybridRepositoryImpl<Medication>(
     localRepo = localRepo,
     remoteRepo = remoteRepo,
     networkChecker = networkChecker,
-    appScope = appScope,
     getId = { it.id },
     getUpdatedAt = { it.updatedAt },
     getDeletedAt = { it.deletedAt },
