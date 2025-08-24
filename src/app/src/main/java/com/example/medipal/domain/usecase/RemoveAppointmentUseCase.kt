@@ -5,6 +5,6 @@ import com.example.medipal.domain.repository.AppointmentRepository
 
 class RemoveAppointmentUseCase(private val repository: AppointmentRepository) {
     suspend operator fun invoke(id: String) {
-        repository.removeAppointment(id)
+        repository.remove(id)
     }
 }

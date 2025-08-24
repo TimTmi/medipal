@@ -32,10 +32,11 @@ import androidx.navigation.NavController
 import com.example.medipal.R
 import com.example.medipal.domain.model.Medication
 import com.example.medipal.presentation.viewmodel.MedicationListViewModel
-import com.example.medipal.presentation.viewmodel.ViewModelFactory
+import org.koin.androidx.compose.koinViewModel
 import java.text.SimpleDateFormat
 import java.util.*
 
+@Suppress("unused")
 enum class MedicationStatus {
     TAKEN,
     SKIPPED,
@@ -45,10 +46,9 @@ enum class MedicationStatus {
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MedicationsScreen(
-    navController: NavController,
-    viewModelFactory: ViewModelFactory
+    navController: NavController
 ) {
-    val viewModel: MedicationListViewModel = viewModel(factory = viewModelFactory)
+    val viewModel: MedicationListViewModel = koinViewModel()
     val brightness = 0.5f
     val colorMatrix = ColorMatrix().apply {
         setToScale(brightness, brightness, brightness, 1f)
@@ -295,7 +295,7 @@ fun MedicationCard(
                 color = Color.Black
             )
             
-            if (!medication.notes.isNullOrBlank()) {
+            if (medication.notes != "") {
                 Spacer(modifier = Modifier.height(4.dp))
                 Text(
                     text = "Notes: ${medication.notes}",
@@ -316,7 +316,7 @@ fun EditMedicationDialog(
 ) {
     var name by remember { mutableStateOf(medication.name) }
     var dosage by remember { mutableStateOf(medication.dosage) }
-    var notes by remember { mutableStateOf(medication.notes ?: "") }
+    var notes by remember { mutableStateOf(medication.notes) }
     
     Dialog(onDismissRequest = onDismiss) {
         Card(
@@ -388,7 +388,7 @@ fun EditMedicationDialog(
                             val updatedMedication = medication.copy(
                                 name = name,
                                 dosage = dosage,
-                                notes = notes.takeIf { it.isNotBlank() }
+                                notes = notes
                             )
                             onSave(updatedMedication)
                         },

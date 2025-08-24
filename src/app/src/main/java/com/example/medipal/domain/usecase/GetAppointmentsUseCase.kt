@@ -6,6 +6,6 @@ import kotlinx.coroutines.flow.Flow
 
 class GetAppointmentsUseCase(private val repository: AppointmentRepository) {
     operator fun invoke(): Flow<List<Appointment>> {
-        return repository.getAppointments()
+        return repository.getAll()
     }
 }

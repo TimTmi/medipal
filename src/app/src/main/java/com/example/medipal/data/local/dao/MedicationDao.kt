@@ -10,15 +10,18 @@ interface MedicationDao {
     @Query("SELECT * FROM medication")
     fun getAll(): Flow<List<MedicationEntity>>
 
+    @Query("SELECT * FROM medication")
+    suspend fun getAllOnce(): List<MedicationEntity>
+
+    @Query("SELECT * FROM medication WHERE id = :id LIMIT 1")
+    suspend fun getById(id: String): MedicationEntity?
+
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insert(medication: MedicationEntity)
-
-    @Delete
-    suspend fun delete(medication: MedicationEntity)
-
-    @Update
-    suspend fun update(medication: MedicationEntity)
+    suspend fun insert(entity: MedicationEntity)
 
     @Query("DELETE FROM medication WHERE id = :id")
     suspend fun deleteById(id: String)
+
+    @Update
+    suspend fun update(entity: MedicationEntity)
 }
