@@ -18,9 +18,9 @@ val repositoryModule = module {
 //    single<ReminderRepository> { FirestoreReminderRepositoryImpl(get()) }
 //    single<AppointmentRepository> { FirestoreAppointmentRepositoryImpl(get()) }
 
-    single { RoomMedicationRepositoryImpl(get(), get()) }
-    single { RoomAppointmentRepositoryImpl(get(), get()) }
-    single { RoomReminderRepositoryImpl(get(), get()) }
+    single { RoomMedicationRepositoryImpl(get()) }
+    single { RoomAppointmentRepositoryImpl(get()) }
+    single { RoomReminderRepositoryImpl(get()) }
 
     single { FirestoreMedicationRepositoryImpl(get()) }
     single { FirestoreAppointmentRepositoryImpl(get()) }

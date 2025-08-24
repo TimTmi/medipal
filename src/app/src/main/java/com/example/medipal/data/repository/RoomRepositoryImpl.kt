@@ -1,7 +1,6 @@
 package com.example.medipal.data.repository
 
 import com.example.medipal.data.local.dao.BaseDao
-import com.example.medipal.data.local.dao.SyncDao
 import com.example.medipal.data.local.entity.SyncEntity
 import com.example.medipal.domain.repository.LocalRepository
 import kotlinx.coroutines.flow.Flow
@@ -14,12 +13,9 @@ abstract class RoomRepositoryImpl<TDomain, TEntity>(
     private val insert: suspend (TEntity) -> Unit,
     private val updateFunc: suspend (TEntity) -> Unit,
     private val deleteById: suspend (String) -> Unit,
-    protected val syncDao: SyncDao,
-    protected val entityType: String,
     protected val toDomain: (TEntity) -> TDomain,
     protected val toEntity: (TDomain) -> TEntity,
-    protected val getId: (TDomain) -> String,
-    protected val lastModified: (TDomain) -> Long
+    protected val getId: (TDomain) -> String
 ) : LocalRepository<TDomain> {
 
     override fun getAll(): Flow<List<TDomain>> =
@@ -33,22 +29,14 @@ abstract class RoomRepositoryImpl<TDomain, TEntity>(
 
     override suspend fun add(item: TDomain) {
         insert(toEntity(item))
-//        syncDao.upsert(SyncEntity(getId(item), entityType, lastModified(item)))
     }
 
     override suspend fun update(item: TDomain) {
         updateFunc(toEntity(item))
-//        syncDao.upsert(SyncEntity(getId(item), entityType, lastModified(item)))
     }
 
     override suspend fun remove(id: String) {
         deleteById(id)
-//        syncDao.upsert(SyncEntity(id, entityType, System.currentTimeMillis(), isDeleted = true))
     }
-
-//    override suspend fun getPendingSync(): List<TDomain> {
-//        val pendingIds = syncDao.getPendingForType(entityType)
-//        return getByIds(pendingIds).map(toDomain)
-//    }
 }
 
