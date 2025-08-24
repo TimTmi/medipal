@@ -9,13 +9,11 @@ import kotlinx.coroutines.CoroutineScope
 class HybridReminderRepositoryImpl(
     localRepo: LocalRepository<Reminder>,
     remoteRepo: RemoteRepository<Reminder>,
-    networkChecker: () -> Boolean,
-    appScope: CoroutineScope
+    networkChecker: () -> Boolean
 ) : HybridRepositoryImpl<Reminder>(
     localRepo = localRepo,
     remoteRepo = remoteRepo,
     networkChecker = networkChecker,
-    appScope = appScope,
     getId = { it.id },
     getUpdatedAt = { it.updatedAt },
     getDeletedAt = { it.deletedAt },
