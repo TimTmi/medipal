@@ -5,9 +5,10 @@ import com.example.medipal.domain.repository.MedicationRepository
 import com.google.firebase.firestore.FirebaseFirestore
 
 class FirestoreMedicationRepositoryImpl(
-    firestore: FirebaseFirestore
+    firestore: FirebaseFirestore,
+    private val profileId: String
 ) : FirestoreRepositoryImpl<Medication>(
-    firestore.collection("medications"),
+    firestore.collection("profiles").document(profileId).collection("medications"),
     Medication::class.java,
     setId = { medication, id -> medication.copy(id = id) }
 ), MedicationRepository {

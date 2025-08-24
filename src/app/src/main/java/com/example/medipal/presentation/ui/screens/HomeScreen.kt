@@ -293,7 +293,7 @@ fun MedicationCard(medication: Medication) {
 
 @Composable
 fun AppointmentCard(appointment: Appointment, onClick: () -> Unit = {}) {
-    val formattedTime = Instant.ofEpochMilli(appointment.scheduleTime)
+    val formattedTime = Instant.ofEpochMilli(appointment.dateTime)
         .atZone(ZoneId.systemDefault())
         .toLocalTime()
         .format(DateTimeFormatter.ofPattern("hh:mm a"))
@@ -319,7 +319,7 @@ fun AppointmentCard(appointment: Appointment, onClick: () -> Unit = {}) {
             )
             Spacer(modifier = Modifier.height(4.dp))
             Text(
-                text = "Doctor: ${appointment.doctor}",
+                text = "Doctor: ${appointment.doctorName}",
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
             )
@@ -329,7 +329,7 @@ fun AppointmentCard(appointment: Appointment, onClick: () -> Unit = {}) {
 
 @Composable
 fun ReminderCard(reminder: Reminder) {
-    val formattedTime = Instant.ofEpochMilli(reminder.scheduleTime)
+    val formattedTime = Instant.ofEpochMilli(reminder.dateTime)
         .atZone(ZoneId.systemDefault())
         .toLocalTime()
         .format(DateTimeFormatter.ofPattern("hh:mm a"))

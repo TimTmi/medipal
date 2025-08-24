@@ -13,12 +13,12 @@ class CalendarServiceGoogleCalendar(
 
     override fun addEvent(appointment: Appointment) {
         // Default duration: 1 hour
-        val startMillis = appointment.scheduleTime
+        val startMillis = appointment.dateTime
         val endMillis = startMillis + 60 * 60 * 1000 // 1 hour later
 
         val event = Event().apply {
             summary = appointment.title
-            description = appointment.notes
+            description = appointment.description
             start = EventDateTime().setDateTime(DateTime(startMillis))
             end = EventDateTime().setDateTime(DateTime(endMillis))
         }

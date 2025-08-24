@@ -8,6 +8,7 @@ import com.example.medipal.domain.usecase.GetMedicationByIdUseCase
 import com.example.medipal.domain.usecase.GetMedicationsUseCase
 import com.example.medipal.domain.usecase.UpdateMedicationUseCase
 import com.example.medipal.domain.usecase.RemoveMedicationUseCase
+import com.example.medipal.util.ProfileRepositoryManager
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import com.example.medipal.domain.model.Frequency
@@ -19,17 +20,19 @@ class MedicationDetailViewModel(
     // Các instance của UseCase được cung cấp sẵn ở đây
     private val getMedicationByIdUseCase: GetMedicationByIdUseCase,
     private val updateMedicationUseCase: UpdateMedicationUseCase,
-    private val deleteMedicationUseCase: RemoveMedicationUseCase
+    private val deleteMedicationUseCase: RemoveMedicationUseCase,
+    private val profileRepositoryManager: ProfileRepositoryManager
 ) : ViewModel() {
 
     private val medicationId: String = checkNotNull(savedStateHandle["medicationId"])
+    private val profileId = profileRepositoryManager.getCurrentProfileId()
 
     private val _medication = MutableStateFlow<Medication?>(null)
     val medication = _medication.asStateFlow()
 
     val medicineName = MutableStateFlow("")
     val dosage = MutableStateFlow("")
-    val notes = MutableStateFlow("")
+    val description = MutableStateFlow("")
 
     // Frequency options và selected frequency object
     val baseFrequencyOptions = listOf(
@@ -49,13 +52,13 @@ class MedicationDetailViewModel(
     init {
         Log.d("ViewModelLifecycle", "MedicationDetailViewModel created for medicationId: $medicationId. Instance: ${this.hashCode()}")
         viewModelScope.launch {
-            val med = getMedicationByIdUseCase(medicationId)
+            val med = getMedicationByIdUseCase(medicationId, profileId)
             _medication.value = med
 
             med?.let { medicationData ->
                 medicineName.value = medicationData.name
                 dosage.value = medicationData.dosage
-                notes.value = medicationData.notes ?: ""
+                description.value = medicationData.description ?: ""
                 selectedFrequencyObject.value = medicationData.frequency
 
                 // Cập nhật các state con dựa trên frequency hiện tại
@@ -110,7 +113,7 @@ class MedicationDetailViewModel(
             val updatedMed = currentMed.copy(
                 name = medicineName.value,
                 dosage = dosage.value,
-                notes = notes.value,
+                description = description.value,
                 frequency = selectedFrequencyObject.value
             )
             updateMedicationUseCase(updatedMed)

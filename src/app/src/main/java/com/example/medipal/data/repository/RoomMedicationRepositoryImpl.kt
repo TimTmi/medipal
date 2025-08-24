@@ -9,14 +9,15 @@ import com.example.medipal.domain.repository.LocalRepository
 import com.example.medipal.domain.repository.MedicationRepository
 
 class RoomMedicationRepositoryImpl(
-    dao: MedicationDao
+    private val dao: MedicationDao,
+    private val profileId: String
 ) : RoomRepositoryImpl<Medication, MedicationEntity>(
-    { dao.getAll() },
-    { dao.getAllOnce() },
-    { dao.getById(it) },
+    { dao.getAllByProfileId(profileId) },
+    { dao.getAllOnceByProfileId(profileId) },
+    { dao.getByIdAndProfileId(it, profileId) },
     { dao.insert(it) },
     { dao.update(it) },
-    { dao.deleteById(it) },
+    { dao.deleteByIdAndProfileId(it, profileId) },
     { it.toDomain() },
     { it.toEntity() },
     { it.id }

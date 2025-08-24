@@ -5,16 +5,20 @@ import androidx.lifecycle.viewModelScope
 import com.example.medipal.domain.model.Appointment
 import com.example.medipal.domain.usecase.GetAppointmentsUseCase
 import com.example.medipal.domain.usecase.RemoveAppointmentUseCase
+import com.example.medipal.util.ProfileRepositoryManager
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 
 class AppointmentsViewModel(
     getAppointmentsUseCase: GetAppointmentsUseCase,
-    private val removeAppointmentUseCase: RemoveAppointmentUseCase
+    private val removeAppointmentUseCase: RemoveAppointmentUseCase,
+    private val profileRepositoryManager: ProfileRepositoryManager
 ) : ViewModel() {
 
-    val appointments = getAppointmentsUseCase()
+    val profileId = profileRepositoryManager.getCurrentProfileId()
+
+    val appointments = getAppointmentsUseCase(profileId)
 
     private val _selectedAppointment = MutableStateFlow<Appointment?>(null)
     val selectedAppointment = _selectedAppointment.asStateFlow()

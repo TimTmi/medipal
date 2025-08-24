@@ -6,6 +6,7 @@ import com.example.medipal.domain.model.Medication
 import com.example.medipal.domain.usecase.GetMedicationsUseCase
 import com.example.medipal.domain.usecase.UpdateMedicationUseCase
 import com.example.medipal.domain.usecase.RemoveMedicationUseCase
+import com.example.medipal.util.ProfileRepositoryManager
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -15,15 +16,18 @@ import kotlinx.coroutines.launch
 class MedicationListViewModel(
     private val getMedicationsUseCase: GetMedicationsUseCase,
     private val updateMedicationUseCase: UpdateMedicationUseCase,
-    private val removeMedicationUseCase: RemoveMedicationUseCase
+    private val removeMedicationUseCase: RemoveMedicationUseCase,
+    private val profileRepositoryManager: ProfileRepositoryManager
 ) : ViewModel() {
+
+    private val profileId = profileRepositoryManager.getCurrentProfileId()
 
     // Search query state
     private val _searchQuery = MutableStateFlow("")
     val searchQuery: StateFlow<String> = _searchQuery.asStateFlow()
 
-    // All medications from repository
-    private val allMedications = getMedicationsUseCase()
+    // All medications from repository (profile-scoped)
+    private val allMedications = getMedicationsUseCase(profileId)
 
     // Filtered medications based on search query
     val filteredMedications = combine(

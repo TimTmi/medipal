@@ -8,6 +8,7 @@ import com.example.medipal.domain.usecase.GetAppointmentsUseCase
 import com.example.medipal.domain.usecase.GetRemindersUseCase
 import com.example.medipal.domain.usecase.RemoveAppointmentUseCase
 import com.example.medipal.domain.usecase.RemoveReminderUseCase
+import com.example.medipal.util.ProfileRepositoryManager
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
@@ -17,12 +18,15 @@ class AppointmentReminderViewModel(
     getAppointmentsUseCase: GetAppointmentsUseCase,
     getRemindersUseCase: GetRemindersUseCase,
     private val removeAppointmentUseCase: RemoveAppointmentUseCase,
-    private val removeReminderUseCase: RemoveReminderUseCase
+    private val removeReminderUseCase: RemoveReminderUseCase,
+    private val profileRepositoryManager: ProfileRepositoryManager
 ) : ViewModel() {
 
+    private val profileId = profileRepositoryManager.getCurrentProfileId()
+
     // Data flows
-    val appointments = getAppointmentsUseCase()
-    val reminders = getRemindersUseCase()
+    val appointments = getAppointmentsUseCase(profileId)
+    val reminders = getRemindersUseCase(profileId)
 
     // Search functionality
     private val _searchQuery = MutableStateFlow("")
@@ -54,7 +58,7 @@ class AppointmentReminderViewModel(
         if (query.isBlank()) appointments
         else appointments.filter { 
             it.title.contains(query, ignoreCase = true) || 
-            it.doctor.contains(query, ignoreCase = true) 
+            it.doctorName.contains(query, ignoreCase = true) 
         }
     }
 
@@ -62,7 +66,7 @@ class AppointmentReminderViewModel(
         if (query.isBlank()) reminders
         else reminders.filter { 
             it.title.contains(query, ignoreCase = true) || 
-            it.notes.contains(query, ignoreCase = true) 
+            it.description.contains(query, ignoreCase = true) 
         }
     }
 

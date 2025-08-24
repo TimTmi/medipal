@@ -2,15 +2,17 @@ package com.example.medipal.data.local.entity
 
 import androidx.room.Entity
 import androidx.room.PrimaryKey
-import com.example.medipal.domain.model.Frequency
+import java.util.UUID
 
 @Entity(tableName = "reminder")
 data class ReminderEntity(
-    @PrimaryKey val id: String = "",
+    @PrimaryKey
+    val id: String = UUID.randomUUID().toString(),
+    val profileId: String = "",
     val title: String = "",
-    val scheduleTime: Long = 0,
-    val notes: String = "",
-    val frequency: Frequency,
+    val description: String = "",
+    val dateTime: Long = 0,
+    val isCompleted: Boolean = false,
     val updatedAt: Long = System.currentTimeMillis(),
     val deletedAt: Long? = null
 )

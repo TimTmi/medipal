@@ -5,9 +5,10 @@ import com.example.medipal.domain.repository.AppointmentRepository
 import com.google.firebase.firestore.FirebaseFirestore
 
 class FirestoreAppointmentRepositoryImpl(
-    firestore: FirebaseFirestore
+    firestore: FirebaseFirestore,
+    private val profileId: String
 ) : FirestoreRepositoryImpl<Appointment>(
-    firestore.collection("appointments"),
+    firestore.collection("profiles").document(profileId).collection("appointments"),
     Appointment::class.java,
     setId = { appointment, id -> appointment.copy(id = id) }
 ), AppointmentRepository {

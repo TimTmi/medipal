@@ -4,20 +4,24 @@ import java.util.UUID
 
 data class Appointment(
     val id: String = UUID.randomUUID().toString(),
+    val profileId: String = "",
     val title: String = "",
-    val scheduleTime: Long = 0,
-    val doctor: String = "",
-    val notes: String = "",
+    val description: String = "",
+    val dateTime: Long = 0,
+    val location: String = "",
+    val doctorName: String = "",
     val updatedAt: Long = System.currentTimeMillis(),
     val deletedAt: Long? = null
 ) {
     // No-argument constructor for Firestore
     constructor() : this(
         id = UUID.randomUUID().toString(),
+        profileId = "",
         title = "",
-        scheduleTime = 0,
-        doctor = "",
-        notes = "",
+        description = "",
+        dateTime = 0,
+        location = "",
+        doctorName = "",
         updatedAt = System.currentTimeMillis(),
         deletedAt = null
     )

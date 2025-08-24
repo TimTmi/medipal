@@ -146,7 +146,7 @@ fun MissedDoseDetailScreen(
                             Text(
                                 text = when (notification.type) {
                                     NotificationType.MEDICATION -> notification.instructions.ifEmpty { "Take as prescribed" }
-                                    NotificationType.APPOINTMENT -> "Appointment with ${notification.doctor}"
+                                    NotificationType.APPOINTMENT -> "Appointment with ${notification.doctorName}"
                                     NotificationType.REMINDER -> "Complete your reminder task"
                                 },
                                 fontSize = 16.sp,

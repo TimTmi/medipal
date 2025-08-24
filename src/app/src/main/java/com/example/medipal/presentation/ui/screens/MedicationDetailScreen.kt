@@ -118,7 +118,7 @@ fun MedicineDetailScreen(
                 // Hiển thị thông tin chi tiết
                 DetailItem(
                     title = "Instructions",
-                    content = medication!!.notes ?: "No instructions provided."
+                    content = medication!!.description ?: "No instructions provided."
                 )
                 Spacer(modifier = Modifier.height(24.dp))
                 val timeFormatter = SimpleDateFormat("hh:mm a", Locale.getDefault())

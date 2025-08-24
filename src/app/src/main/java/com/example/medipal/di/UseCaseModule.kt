@@ -25,5 +25,5 @@ val useCaseModule = module {
     factory { UpdateReminderUseCase(get()) }
 
     // Combined / shared
-    factory { GetScheduledEventsUseCase(get(), get(), get()) }
+//    factory { GetScheduledEventsUseCase(get(), get(), get()) }
 }

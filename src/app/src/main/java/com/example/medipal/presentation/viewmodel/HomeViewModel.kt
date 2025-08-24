@@ -7,6 +7,7 @@ import com.example.medipal.domain.usecase.GetMedicationsUseCase
 import com.example.medipal.domain.usecase.GetAppointmentsUseCase
 import com.example.medipal.domain.usecase.GetRemindersUseCase
 import com.example.medipal.util.NetworkObserver
+import com.example.medipal.util.ProfileRepositoryManager
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
@@ -15,13 +16,16 @@ import org.koin.dsl.module
 class HomeViewModel(
     getMedicationsUseCase: GetMedicationsUseCase,
     getAppointmentsUseCase: GetAppointmentsUseCase,
-    getRemindersUseCase: GetRemindersUseCase
+    getRemindersUseCase: GetRemindersUseCase,
+    profileRepositoryManager: ProfileRepositoryManager
 ) : ViewModel() {
 
+    val profileId = profileRepositoryManager.getCurrentProfileId()
+
     // Giữ trạng thái của các danh sách riêng biệt
-    val medications = getMedicationsUseCase()
-    val appointments = getAppointmentsUseCase()
-    val reminders = getRemindersUseCase()
+    val medications = getMedicationsUseCase(profileId)
+    val appointments = getAppointmentsUseCase(profileId)
+    val reminders = getRemindersUseCase(profileId)
 
     // Giữ trạng thái hiển thị của BottomSheet
     private val _isAddSheetVisible = MutableStateFlow(false)

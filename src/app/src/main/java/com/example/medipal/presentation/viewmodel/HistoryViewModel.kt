@@ -7,6 +7,7 @@ import com.example.medipal.domain.model.Reminder
 import com.example.medipal.domain.usecase.GetMedicationsUseCase
 import com.example.medipal.domain.usecase.GetAppointmentsUseCase
 import com.example.medipal.domain.usecase.GetRemindersUseCase
+import com.example.medipal.util.ProfileRepositoryManager
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
 import java.text.SimpleDateFormat
@@ -28,13 +29,15 @@ data class HistoryItem(
 class HistoryViewModel(
     private val getMedicationsUseCase: GetMedicationsUseCase,
     private val getAppointmentsUseCase: GetAppointmentsUseCase,
-    private val getRemindersUseCase: GetRemindersUseCase
+    private val getRemindersUseCase: GetRemindersUseCase,
+    private val profileRepositoryManager: ProfileRepositoryManager
 ) : ViewModel() {
 
+    private val profileId = profileRepositoryManager.getCurrentProfileId()
     val historyItems: Flow<List<HistoryItem>> = combine(
-        getMedicationsUseCase(),
-        getAppointmentsUseCase(),
-        getRemindersUseCase()
+        getMedicationsUseCase(profileId),
+        getAppointmentsUseCase(profileId),
+        getRemindersUseCase(profileId)
     ) { medications, appointments, reminders ->
         val allItems = mutableListOf<HistoryItem>()
         
@@ -85,7 +88,7 @@ private fun Appointment.toHistoryItem(): HistoryItem {
     
     // Convert timestamp to LocalDateTime using actual event time
     val eventDateTime = LocalDateTime.ofInstant(
-        Instant.ofEpochMilli(this.scheduleTime),
+        Instant.ofEpochMilli(this.dateTime),
         ZoneId.systemDefault()
     )
     
@@ -94,8 +97,8 @@ private fun Appointment.toHistoryItem(): HistoryItem {
         day = dateFormatter.format(eventDateTime),
         time = timeFormatter.format(eventDateTime),
         type = "Appointment",
-        information = "${this.title} with ${this.doctor}",
-        timestamp = this.scheduleTime
+        information = "${this.title} with ${this.doctorName}",
+        timestamp = this.dateTime
     )
 }
 
@@ -105,7 +108,7 @@ private fun Reminder.toHistoryItem(): HistoryItem {
     
     // Convert timestamp to LocalDateTime using actual event time
     val eventDateTime = LocalDateTime.ofInstant(
-        Instant.ofEpochMilli(this.scheduleTime),
+        Instant.ofEpochMilli(this.dateTime),
         ZoneId.systemDefault()
     )
     
@@ -115,6 +118,6 @@ private fun Reminder.toHistoryItem(): HistoryItem {
         time = timeFormatter.format(eventDateTime),
         type = "Reminder",
         information = this.title,
-        timestamp = this.scheduleTime
+        timestamp = this.dateTime
     )
 }

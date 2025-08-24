@@ -93,7 +93,7 @@ fun AppointmentFormScreen(
             value = doctorName,
             onValueChange = { viewModel.doctorName.value = it },
             label = { Text("Doctor's name") },
-            placeholder = { Text("Input doctor's name") },
+            placeholder = { Text("Input doctorName's name") },
             modifier = Modifier.fillMaxWidth()
         )
 
