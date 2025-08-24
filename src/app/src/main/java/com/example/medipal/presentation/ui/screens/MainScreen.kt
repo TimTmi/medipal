@@ -104,6 +104,23 @@ fun MainScreen() {
             composable(Screen.HistoryLog.route) {
                 HistoryLogScreen(navController = navController)
             }
+            composable(Screen.MissedDoseDetail.route) { backStackEntry ->
+                val notificationId = backStackEntry.arguments?.getString("notificationId") ?: ""
+                MissedDoseDetailScreen(
+                    navController = navController,
+                    notificationId = notificationId
+                )
+            }
+            composable(Screen.UpcomingDoseDetail.route) { backStackEntry ->
+                val notificationId = backStackEntry.arguments?.getString("notificationId") ?: ""
+                UpcomingDoseDetailScreen(
+                    navController = navController,
+                    notificationId = notificationId
+                )
+            }
+            composable(Screen.EditProfile.route) {
+                EditProfileScreen(navController = navController)
+            }
         }
     }
 }

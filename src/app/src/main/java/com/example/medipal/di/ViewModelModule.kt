@@ -12,4 +12,6 @@ val viewModelModule = module {
     viewModel { MedicationListViewModel(get(), get(), get()) }
     viewModel { HistoryViewModel(get(), get(), get()) }
     viewModel { CalendarViewModel() }
+    viewModel { ProfileViewModel() }
+    viewModel { NotificationViewModel(get(), get(), get()) }
 }
