@@ -9,6 +9,3 @@ class GetMedicationsUseCase(private val repository: MedicationRepository) {
         return repository.getAll()
     }
 }
-class GetMedicationByIdUseCase(private val repository: MedicationRepository) {
-    operator fun invoke(id: String): Flow<Medication?> = repository.getMedicationsById(id)
-}

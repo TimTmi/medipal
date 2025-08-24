@@ -49,30 +49,29 @@ class MedicationDetailViewModel(
     init {
         Log.d("ViewModelLifecycle", "MedicationDetailViewModel created for medicationId: $medicationId. Instance: ${this.hashCode()}")
         viewModelScope.launch {
-            getMedicationByIdUseCase(medicationId).collect { med ->
-                _medication.value = med
+            val med = getMedicationByIdUseCase(medicationId)
+            _medication.value = med
 
-                med?.let { medicationData ->
-                    medicineName.value = medicationData.name
-                    dosage.value = medicationData.dosage
-                    notes.value = medicationData.notes ?: ""
-                    selectedFrequencyObject.value = medicationData.frequency
-                    
-                    // Cập nhật các state con dựa trên frequency hiện tại
-                    when (medicationData.frequency) {
-                        is Frequency.EveryXDays -> {
-                            xDaysValue.value = medicationData.frequency.days
-                        }
-                        is Frequency.SpecificDaysOfWeek -> {
-                            selectedWeekDays.value = medicationData.frequency.days
-                        }
-                        is Frequency.EveryXWeeks -> {
-                            xWeeksValue.value = medicationData.frequency.weeks
-                            selectedWeekDays.value = medicationData.frequency.days
-                        }
-                        else -> {
-                            // Không cần cập nhật gì cho EveryDay và AsNeeded
-                        }
+            med?.let { medicationData ->
+                medicineName.value = medicationData.name
+                dosage.value = medicationData.dosage
+                notes.value = medicationData.notes ?: ""
+                selectedFrequencyObject.value = medicationData.frequency
+
+                // Cập nhật các state con dựa trên frequency hiện tại
+                when (medicationData.frequency) {
+                    is Frequency.EveryXDays -> {
+                        xDaysValue.value = medicationData.frequency.days
+                    }
+                    is Frequency.SpecificDaysOfWeek -> {
+                        selectedWeekDays.value = medicationData.frequency.days
+                    }
+                    is Frequency.EveryXWeeks -> {
+                        xWeeksValue.value = medicationData.frequency.weeks
+                        selectedWeekDays.value = medicationData.frequency.days
+                    }
+                    else -> {
+                        // Không cần cập nhật gì cho EveryDay và AsNeeded
                     }
                 }
             }

@@ -19,12 +19,13 @@ import androidx.navigation.navArgument
 import com.example.medipal.presentation.navigation.Screen
 import com.example.medipal.presentation.ui.components.BottomTabBar
 import com.example.medipal.presentation.viewmodel.*
-@OptIn(ExperimentalMaterial3Api::class)
 import com.example.medipal.presentation.viewmodel.AddMedicationViewModel
 import com.example.medipal.presentation.viewmodel.AddHealthcareReminderViewModel
 import com.example.medipal.presentation.viewmodel.AddAppointmentViewModel
 import com.example.medipal.presentation.viewmodel.HomeViewModel
 import org.koin.androidx.compose.koinViewModel
+
+@OptIn(ExperimentalMaterial3Api::class)
 
 @Composable
 fun MainScreen() {
@@ -71,7 +72,7 @@ fun MainScreen() {
             modifier = Modifier.padding(paddingValues)
         ) {
             composable(Screen.Home.route) {
-                val homeViewModel: HomeViewModel = viewModel(factory = viewModelFactory)
+                val homeViewModel: HomeViewModel = koinViewModel()
                 HomeScreen(navController = navController, viewModel = homeViewModel)
             }
             composable(Screen.Calendar.route) {
@@ -89,21 +90,21 @@ fun MainScreen() {
                 ProfileScreen(navController = navController)
             }
             composable(Screen.AddMedicineFlow.route) {
-                val addMedicationViewModel: AddMedicationViewModel = viewModel(factory = viewModelFactory)
+                val addMedicationViewModel: AddMedicationViewModel = koinViewModel()
                 AddMedicineFlow(
                     mainNavController = navController,
                     viewModel = addMedicationViewModel
                 )
             }
             composable(Screen.AddHealthcareReminderFlow.route) {
-                val addHealthcareReminderViewModel: AddHealthcareReminderViewModel = viewModel(factory = viewModelFactory)
+                val addHealthcareReminderViewModel: AddHealthcareReminderViewModel = koinViewModel()
                 AddHealthcareReminderFlow(
                     mainNavController = navController,
                     viewModel = addHealthcareReminderViewModel
                 )
             }
             composable(Screen.AddAppointmentFlow.route) {
-                val addAppointmentViewModel: AddAppointmentViewModel = viewModel(factory = viewModelFactory)
+                val addAppointmentViewModel: AddAppointmentViewModel = koinViewModel()
                 AddAppointmentFlow(
                     mainNavController = navController,
                     viewModel = addAppointmentViewModel
@@ -120,7 +121,7 @@ fun MainScreen() {
                 arguments = listOf(navArgument("medicationId") { type = NavType.StringType })
             ) {
                 // SỬA LỖI Ở ĐÂY: Dùng factory đã được tạo
-                val viewModel: MedicationDetailViewModel = viewModel(factory = viewModelFactory)
+                val viewModel: MedicationDetailViewModel = koinViewModel()
                 MedicineDetailScreen(navController = navController, viewModel = viewModel)
             }
 
@@ -132,10 +133,7 @@ fun MainScreen() {
                     navController.getBackStackEntry(Screen.MedicineDetail.route)
                 }
                 // SỬA LỖI Ở ĐÂY: Dùng lại factory, nhưng với owner là màn hình cha
-                val viewModel: MedicationDetailViewModel = viewModel(
-                    viewModelStoreOwner = parentEntry,
-                    factory = viewModelFactory
-                )
+                val viewModel: MedicationDetailViewModel = koinViewModel(viewModelStoreOwner = parentEntry)
                 EditMedicineScreen(navController = navController, viewModel = viewModel)
             }
             composable(Screen.EditMedicineFrequency.route) { backStackEntry ->
@@ -146,10 +144,7 @@ fun MainScreen() {
                 }
 
                 // Yêu cầu cung cấp cùng một instance ViewModel mà màn hình Detail và Edit đang sử dụng
-                val viewModel: MedicationDetailViewModel = viewModel(
-                    viewModelStoreOwner = parentEntry,
-                    factory = viewModelFactory
-                )
+                val viewModel: MedicationDetailViewModel = koinViewModel(viewModelStoreOwner = parentEntry)
 
                 SelectFrequencyScreen(navController = navController, viewModel = viewModel)
             }
@@ -159,10 +154,7 @@ fun MainScreen() {
                 val parentEntry = remember(backStackEntry) {
                     navController.getBackStackEntry(Screen.MedicineDetail.route)
                 }
-                val viewModel: MedicationDetailViewModel = viewModel(
-                    viewModelStoreOwner = parentEntry,
-                    factory = viewModelFactory
-                )
+                val viewModel: MedicationDetailViewModel = koinViewModel(viewModelStoreOwner = parentEntry)
                 EditMedicineXDaysScreen(navController = navController, viewModel = viewModel)
             }
 
@@ -170,10 +162,7 @@ fun MainScreen() {
                 val parentEntry = remember(backStackEntry) {
                     navController.getBackStackEntry(Screen.MedicineDetail.route)
                 }
-                val viewModel: MedicationDetailViewModel = viewModel(
-                    viewModelStoreOwner = parentEntry,
-                    factory = viewModelFactory
-                )
+                val viewModel: MedicationDetailViewModel = koinViewModel(viewModelStoreOwner = parentEntry)
                 EditMedicineSpecificDaysScreen(navController = navController, viewModel = viewModel)
             }
 
@@ -181,10 +170,7 @@ fun MainScreen() {
                 val parentEntry = remember(backStackEntry) {
                     navController.getBackStackEntry(Screen.MedicineDetail.route)
                 }
-                val viewModel: MedicationDetailViewModel = viewModel(
-                    viewModelStoreOwner = parentEntry,
-                    factory = viewModelFactory
-                )
+                val viewModel: MedicationDetailViewModel = koinViewModel(viewModelStoreOwner = parentEntry)
                 EditMedicineXWeeksScreen(navController = navController, viewModel = viewModel)
             }
             composable(Screen.MissedDoseDetail.route) { backStackEntry ->
