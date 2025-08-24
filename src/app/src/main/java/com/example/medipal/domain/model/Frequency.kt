@@ -1,13 +1,21 @@
 package com.example.medipal.domain.model
 import java.time.DayOfWeek
 
-sealed class Frequency(val displayText: String) {
-    object EveryDay : Frequency("Every day")
-    object AsNeeded : Frequency("Only as needed")
+open class Frequency(val displayText: String = "") {
+    // No-argument constructor for Firestore
+    constructor() : this("")
+    
+    class EveryDay() : Frequency("Every day")
+    
+    class AsNeeded() : Frequency("Only as needed")
 
     // Các lớp con chứa dữ liệu cụ thể
-    data class EveryXDays(val days: Int) : Frequency("Every $days days")
-    data class SpecificDaysOfWeek(val days: Set<DayOfWeek>) : Frequency(
+    data class EveryXDays(val days: Int = 1) : Frequency("Every $days days") {
+        // No-argument constructor for Firestore
+        constructor() : this(1)
+    }
+    
+    data class SpecificDaysOfWeek(val days: List<DayOfWeek> = emptyList()) : Frequency(
         when {
             days.isEmpty() -> "Specific days"
             days.size == 1 -> days.first().name.lowercase().replaceFirstChar { it.uppercase() }
@@ -19,9 +27,12 @@ sealed class Frequency(val displayText: String) {
                 dayNames.joinToString(", ")
             }
         }
-    )
+    ) {
+        // No-argument constructor for Firestore
+        constructor() : this(emptyList())
+    }
 
-    data class EveryXWeeks(val weeks: Int, val days: Set<DayOfWeek>) : Frequency(
+    data class EveryXWeeks(val weeks: Int = 1, val days: List<DayOfWeek> = emptyList()) : Frequency(
         when {
             days.isEmpty() -> "Every $weeks weeks"
             days.size == 1 -> "Every $weeks weeks on ${days.first().name.lowercase().replaceFirstChar { it.uppercase() }}"
@@ -32,17 +43,20 @@ sealed class Frequency(val displayText: String) {
                 "Every $weeks weeks on ${dayNames.joinToString(", ")}"
             }
         }
-    )
+    ) {
+        // No-argument constructor for Firestore
+        constructor() : this(1, emptyList())
+    }
 
     companion object {
         // Chuyển đổi từ chuỗi sang đối tượng
         // Logic này sẽ cần phức tạp hơn, tạm thời để đơn giản
         fun fromDisplayText(text: String): Frequency {
             return when {
-                text == "Every day" -> EveryDay
-                text == "Only as needed" -> AsNeeded
+                text == "Every day" -> EveryDay()
+                text == "Only as needed" -> AsNeeded()
                 // ... cần logic phân tích chuỗi phức tạp hơn
-                else -> EveryDay // Mặc định
+                else -> EveryDay() // Mặc định
             }
         }
     }

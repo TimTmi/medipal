@@ -72,7 +72,9 @@ fun EditMedicineScreen(
             TextButton(
                 onClick = {
                     viewModel.onUpdate {
-                        navController.popBackStack()
+                        navController.navigate(Screen.Medications.route) {
+                            popUpTo(Screen.Medications.route) { inclusive = true }
+                        }
                     }
                 },
                 modifier = Modifier

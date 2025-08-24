@@ -39,11 +39,11 @@ class MedicationDetailViewModel(
         "Specific days of the week",
         "Every X weeks"
     )
-    val selectedFrequencyObject = MutableStateFlow<Frequency>(Frequency.EveryDay)
+    val selectedFrequencyObject = MutableStateFlow<Frequency>(Frequency.EveryDay())
     
     // Các state cho các màn hình con (để người dùng nhập liệu)
     val xDaysValue = MutableStateFlow(2) // Giá trị mặc định cho "Every X days"
-    val selectedWeekDays = MutableStateFlow<Set<DayOfWeek>>(emptySet())
+    val selectedWeekDays = MutableStateFlow<List<DayOfWeek>>(emptyList())
     val xWeeksValue = MutableStateFlow(1) // Giá trị mặc định cho "Every X weeks"
 
     init {
@@ -80,11 +80,11 @@ class MedicationDetailViewModel(
 
     // Các hàm để cập nhật frequency
     fun setFrequencyEveryDay() {
-        selectedFrequencyObject.value = Frequency.EveryDay
+        selectedFrequencyObject.value = Frequency.EveryDay()
     }
     
     fun setFrequencyAsNeeded() {
-        selectedFrequencyObject.value = Frequency.AsNeeded
+        selectedFrequencyObject.value = Frequency.AsNeeded()
     }
     
     fun saveFrequencyXDays(days: Int) {
@@ -92,12 +92,12 @@ class MedicationDetailViewModel(
         selectedFrequencyObject.value = Frequency.EveryXDays(days)
     }
     
-    fun saveFrequencySpecificDays(days: Set<DayOfWeek>) {
+    fun saveFrequencySpecificDays(days: List<DayOfWeek>) {
         selectedWeekDays.value = days
         selectedFrequencyObject.value = Frequency.SpecificDaysOfWeek(days)
     }
     
-    fun saveFrequencyXWeeks(weeks: Int, days: Set<DayOfWeek>) {
+    fun saveFrequencyXWeeks(weeks: Int, days: List<DayOfWeek>) {
         xWeeksValue.value = weeks
         selectedWeekDays.value = days
         selectedFrequencyObject.value = Frequency.EveryXWeeks(weeks, days)

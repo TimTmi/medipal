@@ -34,28 +34,28 @@ class AddHealthcareReminderViewModel(
         "Every day", "Only as needed", "Every X days",
         "Specific days of the week", "Every X weeks"
     )
-    val selectedFrequencyObject = MutableStateFlow<Frequency>(Frequency.EveryDay)
+    val selectedFrequencyObject = MutableStateFlow<Frequency>(Frequency.EveryDay())
     val xDaysValue = MutableStateFlow(2)
-    val selectedWeekDays = MutableStateFlow<Set<DayOfWeek>>(emptySet())
+    val selectedWeekDays = MutableStateFlow<List<DayOfWeek>>(emptyList())
     val xWeeksValue = MutableStateFlow(1)
 
 
 
     fun setFrequencyEveryDay() {
-        selectedFrequencyObject.value = Frequency.EveryDay
+        selectedFrequencyObject.value = Frequency.EveryDay()
     }
     fun setFrequencyAsNeeded() {
-        selectedFrequencyObject.value = Frequency.AsNeeded
+        selectedFrequencyObject.value = Frequency.AsNeeded()
     }
     fun saveFrequencyXDays(days: Int) {
         xDaysValue.value = days
         selectedFrequencyObject.value = Frequency.EveryXDays(days)
     }
-    fun saveFrequencySpecificDays(days: Set<DayOfWeek>) {
+    fun saveFrequencySpecificDays(days: List<DayOfWeek>) {
         selectedWeekDays.value = days
         selectedFrequencyObject.value = Frequency.SpecificDaysOfWeek(days)
     }
-    fun saveFrequencyXWeeks(weeks: Int, days: Set<DayOfWeek>) {
+    fun saveFrequencyXWeeks(weeks: Int, days: List<DayOfWeek>) {
         xWeeksValue.value = weeks
         selectedWeekDays.value = days
         selectedFrequencyObject.value = Frequency.EveryXWeeks(weeks, days)

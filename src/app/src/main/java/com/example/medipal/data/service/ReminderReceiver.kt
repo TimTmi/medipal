@@ -24,7 +24,7 @@ class ReminderReceiver : BroadcastReceiver() {
             title = title,
             scheduleTime = System.currentTimeMillis(),
             notes = notes ?: "",
-            frequency = com.example.medipal.domain.model.Frequency.EveryDay // Default frequency, not used for notification
+            frequency = com.example.medipal.domain.model.Frequency.EveryDay() // Default frequency, not used for notification
         )
 
         val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager

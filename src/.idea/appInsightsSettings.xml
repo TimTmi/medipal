@@ -9,10 +9,10 @@
             <InsightsFilterSettings>
               <option name="connection">
                 <ConnectionSetting>
-                  <option name="appId" value="PLACEHOLDER" />
-                  <option name="mobileSdkAppId" value="" />
-                  <option name="projectId" value="" />
-                  <option name="projectNumber" value="" />
+                  <option name="appId" value="com.example.medipal" />
+                  <option name="mobileSdkAppId" value="1:793994314732:android:5428e69cca2ecb46fbf6c9" />
+                  <option name="projectId" value="medipal-b08ce" />
+                  <option name="projectNumber" value="793994314732" />
                 </ConnectionSetting>
               </option>
               <option name="signal" value="SIGNAL_UNSPECIFIED" />

@@ -23,6 +23,7 @@ class Converters {
                 val daysString = frequency.days.joinToString(",") { it.name }
                 "EVERY_X_WEEKS:${frequency.weeks}:$daysString"
             }
+            else -> "EVERY_DAY" // Fallback for any other Frequency subclass
         }
     }
 
@@ -32,8 +33,8 @@ class Converters {
     @TypeConverter
     fun toFrequency(value: String): Frequency {
         return when {
-            value == "EVERY_DAY" -> Frequency.EveryDay
-            value == "AS_NEEDED" -> Frequency.AsNeeded
+            value == "EVERY_DAY" -> Frequency.EveryDay()
+            value == "AS_NEEDED" -> Frequency.AsNeeded()
             value.startsWith("EVERY_X_DAYS:") -> {
                 val days = value.substringAfter("EVERY_X_DAYS:").toIntOrNull() ?: 2
                 Frequency.EveryXDays(days)
@@ -41,7 +42,7 @@ class Converters {
             value.startsWith("SPECIFIC_DAYS:") -> {
                 val daysString = value.substringAfter("SPECIFIC_DAYS:")
                 val days = if (daysString.isEmpty()) {
-                    emptySet()
+                    emptyList()
                 } else {
                     daysString.split(",").mapNotNull { dayName ->
                         try {
@@ -49,7 +50,7 @@ class Converters {
                         } catch (e: IllegalArgumentException) {
                             null
                         }
-                    }.toSet()
+                    }
                 }
                 Frequency.SpecificDaysOfWeek(days)
             }
@@ -58,7 +59,7 @@ class Converters {
                 val weeks = parts.getOrNull(0)?.toIntOrNull() ?: 1
                 val daysString = parts.getOrNull(1) ?: ""
                 val days = if (daysString.isEmpty()) {
-                    emptySet()
+                    emptyList()
                 } else {
                     daysString.split(",").mapNotNull { dayName ->
                         try {
@@ -66,11 +67,11 @@ class Converters {
                         } catch (e: IllegalArgumentException) {
                             null
                         }
-                    }.toSet()
+                    }
                 }
                 Frequency.EveryXWeeks(weeks, days)
             }
-            else -> Frequency.EveryDay // Fallback
+            else -> Frequency.EveryDay() // Fallback
         }
     }
 }
