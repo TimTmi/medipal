@@ -18,11 +18,14 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.example.medipal.presentation.navigation.Screen
 import com.example.medipal.presentation.ui.components.BottomTabBar
+import com.example.medipal.presentation.ui.components.InAppNotificationBottomSheet
 import com.example.medipal.presentation.viewmodel.*
 import com.example.medipal.presentation.viewmodel.AddMedicationViewModel
 import com.example.medipal.presentation.viewmodel.AddHealthcareReminderViewModel
 import com.example.medipal.presentation.viewmodel.AddAppointmentViewModel
 import com.example.medipal.presentation.viewmodel.HomeViewModel
+import com.example.medipal.presentation.viewmodel.NotificationViewModel
+import com.example.medipal.domain.service.InAppNotificationManager
 import com.example.medipal.presentation.viewmodel.AppointmentsViewModel
 import com.example.medipal.presentation.viewmodel.RemindersViewModel
 import org.koin.androidx.compose.koinViewModel
@@ -42,6 +45,29 @@ fun MainScreen() {
     val addMedicationViewModel: AddMedicationViewModel = koinViewModel()
     val addHealthcareReminderViewModel: AddHealthcareReminderViewModel = koinViewModel()
     val addAppointmentViewModel: AddAppointmentViewModel = koinViewModel()
+    val notificationViewModel: NotificationViewModel = koinViewModel()
+
+    // In-app notification state
+    var currentNotification by remember { mutableStateOf<com.example.medipal.domain.model.NotificationItem?>(null) }
+    
+    // Get today's notification count for badge
+    val notificationUiState by notificationViewModel.uiState.collectAsState()
+    val todayNotificationCount = notificationUiState.todayNotifications.size
+    
+    // Debug logging
+    LaunchedEffect(todayNotificationCount) {
+        println("DEBUG MainScreen: todayNotificationCount = $todayNotificationCount")
+        println("DEBUG MainScreen: todayNotifications = ${notificationUiState.todayNotifications.map { it.title }}")
+    }
+    
+    // Listen for in-app notifications
+    LaunchedEffect(Unit) {
+        InAppNotificationManager.notificationFlow.collect { notification ->
+            currentNotification = notification
+        }
+    }
+
+    // THAY ĐỔI QUAN TRỌNG: Thêm mã để điều khiển màu sắc icon trên status bar
     val view = LocalView.current
     if (!view.isInEditMode) {
         SideEffect {
@@ -63,7 +89,8 @@ fun MainScreen() {
             if (showBottomBar) {
                 BottomTabBar(
                     navController = navController,
-                    currentRoute = currentRoute
+                    currentRoute = currentRoute,
+                    todayNotificationCount = todayNotificationCount
                 )
             }
         }
@@ -202,5 +229,23 @@ fun MainScreen() {
                 AddOptionsScreen(navController = navController)
             }
         }
+        
+        // In-app notification bottom sheet
+        InAppNotificationBottomSheet(
+            notification = currentNotification,
+            onDismiss = { currentNotification = null },
+            onTaken = {
+                currentNotification?.let { notification ->
+                    notificationViewModel.markAsTaken(notification.id)
+                }
+                currentNotification = null
+            },
+            onSkipped = {
+                currentNotification?.let { notification ->
+                    notificationViewModel.markAsSkipped(notification.id)
+                }
+                currentNotification = null
+            }
+        )
     }
 }

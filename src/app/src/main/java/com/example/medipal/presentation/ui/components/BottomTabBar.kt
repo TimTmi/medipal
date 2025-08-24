@@ -25,7 +25,8 @@ data class BottomNavItem(
 @Composable
 fun BottomTabBar(
     navController: NavController,
-    currentRoute: String?
+    currentRoute: String?,
+    todayNotificationCount: Int = 0
 ) {
     // THAY ĐỔI 2: Định nghĩa màu xanh teal cho tab được chọn
     val selectedColor = Color(0xFF00A99D)
@@ -52,8 +53,8 @@ fun BottomTabBar(
             route = Screen.Notifications.route,
             icon = Icons.Outlined.Notifications,
             label = "Alerts",
-            hasNotification = true,
-            notificationCount = 9
+            hasNotification = todayNotificationCount > 0,
+            notificationCount = todayNotificationCount
         ),
         BottomNavItem(
             route = Screen.Profile.route,
@@ -92,7 +93,7 @@ fun BottomTabBar(
                         badge = {
                             if (item.hasNotification && item.notificationCount > 0) {
                                 Badge {
-                                    Text(text = if (item.notificationCount > 9) "9+" else item.notificationCount.toString())
+                                    Text(text = if (item.notificationCount >= 100) "99+" else item.notificationCount.toString())
                                 }
                             }
                         }

@@ -5,6 +5,7 @@ import androidx.lifecycle.viewModelScope
 import com.example.medipal.domain.model.Medication
 import com.example.medipal.domain.model.Frequency
 import com.example.medipal.domain.usecase.AddMedicationUseCase
+import com.example.medipal.domain.service.NotificationService
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
@@ -12,7 +13,8 @@ import java.time.DayOfWeek
 import java.util.*
 
 class AddMedicationViewModel(
-    private val addMedicationUseCase: AddMedicationUseCase
+    private val addMedicationUseCase: AddMedicationUseCase,
+    private val notificationService: NotificationService // Assuming NotificationService is injected
 ) : ViewModel() {
 
     val medicineName = MutableStateFlow("")
@@ -71,13 +73,16 @@ class AddMedicationViewModel(
             val newMedication = Medication(
                 id = UUID.randomUUID().toString(),
                 name = medicineName.value,
-                dosage = "Frequency: ${selectedFrequencyObject.value}", // Có thể thêm màn hình chọn liều lượng
+                dosage = dosage.value.ifEmpty { "Standard dose" },
                 scheduleTime = time.value,
-                notes = "",
+                notes = "Frequency: ${selectedFrequencyObject.value.displayText}",
                 frequency = selectedFrequencyObject.value
             )
             addMedicationUseCase(newMedication)
-
+            
+            // Schedule notification
+            notificationService.scheduleMedicationNotification(newMedication)
+            
             _lastSavedMedicineName.value = newMedication.name
             _showSuccessDialog.value = true // Hiển thị dialog sau khi lưu
         }

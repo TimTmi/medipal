@@ -5,6 +5,9 @@ open class Frequency(val displayText: String = "") {
     // No-argument constructor for Firestore
     constructor() : this("")
     
+    // Override toString to return displayText for proper display
+    override fun toString(): String = displayText
+    
     class EveryDay() : Frequency("Every day")
     
     class AsNeeded() : Frequency("Only as needed")
@@ -50,7 +53,7 @@ open class Frequency(val displayText: String = "") {
 
     companion object {
         // Chuyển đổi từ chuỗi sang đối tượng
-        // Logic này sẽ cần phức tạp hơn, tạm thời để đơn giản
+        // Logic này sẽ cần phức tạp hơn, tạm thởi để đơn giản
         fun fromDisplayText(text: String): Frequency {
             return when {
                 text == "Every day" -> EveryDay()

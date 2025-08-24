@@ -75,13 +75,13 @@ class NotificationViewModel(
                     allNotifications.add(
                         NotificationItem(
                             id = "med_${medication.id}",
-                            title = "${medication.name} ${medication.dosage}",
+                            title = "${medication.name}",
                             subtitle = "Dose",
                             time = time,
                             scheduleTime = medication.scheduleTime,
                             status = status,
                             type = NotificationType.MEDICATION,
-                            instructions = medication.dosage + if (medication.notes.isNotEmpty()) ", ${medication.notes}" else "",
+                            instructions = "Frequency: ${medication.frequency.displayText}",
                             originalItem = medication
                         )
                     )
