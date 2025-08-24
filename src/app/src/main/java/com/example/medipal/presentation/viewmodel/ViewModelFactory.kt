@@ -43,6 +43,16 @@ class ViewModelFactory(private val container: AppContainer) : ViewModelProvider.
                     container.getRemindersUseCase
                 ) as T
             }
+            NotificationViewModel::class.java -> {
+                NotificationViewModel(
+                    container.getMedicationsUseCase,
+                    container.getAppointmentsUseCase,
+                    container.getRemindersUseCase
+                ) as T
+            }
+            ProfileViewModel::class.java -> {
+                ProfileViewModel() as T
+            }
             else -> throw IllegalArgumentException("Unknown ViewModel class: ${modelClass.name}")
         }
     }
