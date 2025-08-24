@@ -89,13 +89,13 @@ dependencies {
 
     implementation(libs.androidx.work.runtime.ktx)
 
-    implementation("com.google.android.gms:play-services-auth:21.4.0")
+    implementation(libs.play.services.auth)
 
-    implementation("com.google.api-client:google-api-client-android:2.8.1")
-    implementation("com.google.apis:google-api-services-calendar:v3-rev20250404-2.0.0")
+    implementation(libs.google.api.client.android)
+    implementation(libs.google.api.services.calendar)
 
-    implementation("com.squareup.retrofit2:retrofit:3.0.0")
-    implementation("com.squareup.retrofit2:converter-gson:3.0.0")
+    implementation(libs.retrofit)
+    implementation(libs.converter.gson)
 }
 
 kotlin {
