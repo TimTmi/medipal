@@ -1,17 +1,17 @@
 package com.example.medipal.data.repository
 
-import com.example.medipal.domain.model.Medication
+import com.example.medipal.domain.model.Profile
 import com.example.medipal.domain.repository.LocalRepository
-import com.example.medipal.domain.repository.MedicationRepository
+import com.example.medipal.domain.repository.ProfileRepository
 import com.example.medipal.domain.repository.RemoteRepository
 import kotlinx.coroutines.CoroutineScope
 
-class HybridMedicationRepositoryImpl(
-    localRepo: LocalRepository<Medication>,
-    remoteRepo: RemoteRepository<Medication>,
+class HybridProfileRepositoryImpl(
+    localRepo: LocalRepository<Profile>,
+    remoteRepo: RemoteRepository<Profile>,
     networkChecker: () -> Boolean,
     appScope: CoroutineScope
-) : HybridRepositoryImpl<Medication>(
+) : HybridRepositoryImpl<Profile>(
     localRepo = localRepo,
     remoteRepo = remoteRepo,
     networkChecker = networkChecker,
@@ -21,4 +21,4 @@ class HybridMedicationRepositoryImpl(
     getDeletedAt = { it.deletedAt },
     copyWithUpdated = { item, time -> item.copy(updatedAt = time) },
     copyWithDeleted = { item, time -> item.copy(deletedAt = time) }
-), MedicationRepository
+), ProfileRepository

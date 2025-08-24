@@ -20,7 +20,7 @@ class ReminderReceiver : BroadcastReceiver() {
             id = intent.getStringExtra("reminder_id") ?: System.currentTimeMillis().toString(),
             title = title,
             scheduleTime = System.currentTimeMillis(),
-            notes = notes
+            notes = notes ?: ""
         )
 
         val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
