@@ -73,6 +73,9 @@ class AddAppointmentViewModel(
 //            historyRepository.addAppointmentHistory(newAppointment)
             
             _lastSavedAppointmentTitle.value = newAppointment.title
+            
+            // Reset form trước khi hiển thị dialog để tránh hiệu ứng nhấp nháy
+            resetForm()
             _showSuccessDialog.value = true // Hiển thị dialog sau khi lưu
         }
     }
@@ -80,5 +83,18 @@ class AddAppointmentViewModel(
     fun dismissSuccessDialog() {
         _lastSavedAppointmentTitle.value = null
         _showSuccessDialog.value = false
+    }
+    
+    private fun resetForm() {
+        doctorName.value = ""
+        location.value = ""
+        date.value = ""
+        time.value = ""
+        reasonForVisit.value = ""
+    }
+    
+    // Thêm function public để reset form khi cần
+    fun clearForm() {
+        resetForm()
     }
 } 

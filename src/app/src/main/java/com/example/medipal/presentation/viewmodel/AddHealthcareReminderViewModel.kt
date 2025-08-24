@@ -4,12 +4,14 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.medipal.domain.model.Reminder
 //import com.example.medipal.domain.repository.HistoryRepository
+import com.example.medipal.domain.model.Frequency
 import com.example.medipal.domain.usecase.AddReminderUseCase
 import com.example.medipal.domain.service.NotificationService
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import java.util.*
+import java.time.DayOfWeek
 import java.text.SimpleDateFormat
 import java.util.Locale
 
@@ -25,37 +27,56 @@ class AddHealthcareReminderViewModel(
         "Vital & Health monitoring" to listOf("Blood pressure", "Blood glucose", "Body temperature"),
         "Exercise" to listOf("Walking", "Yoga", "Running")
     )
-    val frequencyOptions = listOf(
-        "Every day", "Only as needed", "Every X days",
-        "Specific days of the week", "Every X weeks"
-    )
-    val selectedFrequency = MutableStateFlow(frequencyOptions.first())
     val selectedCategory = MutableStateFlow("")
     val selectedActivity = MutableStateFlow("")
     val selectedTime = MutableStateFlow("16:46 AM")
     val sessionCount = MutableStateFlow(1)
+
+    val baseFrequencyOptions = listOf(
+        "Every day", "Only as needed", "Every X days",
+        "Specific days of the week", "Every X weeks"
+    )
+    val selectedFrequencyObject = MutableStateFlow<Frequency>(Frequency.EveryDay())
+    val xDaysValue = MutableStateFlow(2)
+    val selectedWeekDays = MutableStateFlow<List<DayOfWeek>>(emptyList())
+    val xWeeksValue = MutableStateFlow(1)
+
+
+
+    fun setFrequencyEveryDay() {
+        selectedFrequencyObject.value = Frequency.EveryDay()
+    }
+    fun setFrequencyAsNeeded() {
+        selectedFrequencyObject.value = Frequency.AsNeeded()
+    }
+    fun saveFrequencyXDays(days: Int) {
+        xDaysValue.value = days
+        selectedFrequencyObject.value = Frequency.EveryXDays(days)
+    }
+    fun saveFrequencySpecificDays(days: List<DayOfWeek>) {
+        selectedWeekDays.value = days
+        selectedFrequencyObject.value = Frequency.SpecificDaysOfWeek(days)
+    }
+    fun saveFrequencyXWeeks(weeks: Int, days: List<DayOfWeek>) {
+        xWeeksValue.value = weeks
+        selectedWeekDays.value = days
+        selectedFrequencyObject.value = Frequency.EveryXWeeks(weeks, days)
+    }
 
     // --- CÁC HÀM CẬP NHẬT TRẠNG THÁI TỪ UI ---
     fun onCategorySelected(category: String) {
         selectedCategory.value = category
         selectedActivity.value = reminderCategories[category]?.firstOrNull() ?: ""
     }
-
     fun onActivitySelected(activity: String) {
         selectedActivity.value = activity
     }
-
-    fun onFrequencySelected(frequency: String) {
-        selectedFrequency.value = frequency
-    }
-
     fun onSessionCountChanged(count: Int) {
         // Đảm bảo số phiên không nhỏ hơn 1
         if (count >= 1) {
             sessionCount.value = count
         }
     }
-
     fun onTimeSelected(time: String) {
         selectedTime.value = time
     }
@@ -71,24 +92,24 @@ class AddHealthcareReminderViewModel(
     fun saveReminder() {
         viewModelScope.launch {
             val activityToSave = selectedActivity.value
-            
+
             // Convert user-selected time to timestamp with current date
             val timeString = selectedTime.value.ifEmpty { "09:00 AM" }
             val scheduledTimestamp = try {
                 val format = SimpleDateFormat("hh:mm a", Locale.getDefault())
                 val parsedTime = format.parse(timeString)
-                
+
                 // Get current date and combine with selected time
                 val calendar = Calendar.getInstance()
                 val timeCalendar = Calendar.getInstance()
                 timeCalendar.time = parsedTime ?: Date()
-                
+
                 // Set the time on current date
                 calendar.set(Calendar.HOUR_OF_DAY, timeCalendar.get(Calendar.HOUR_OF_DAY))
                 calendar.set(Calendar.MINUTE, timeCalendar.get(Calendar.MINUTE))
                 calendar.set(Calendar.SECOND, 0)
                 calendar.set(Calendar.MILLISECOND, 0)
-                
+
                 calendar.timeInMillis
             } catch (e: Exception) {
                 System.currentTimeMillis()
@@ -98,7 +119,8 @@ class AddHealthcareReminderViewModel(
                 id = UUID.randomUUID().toString(),
                 title = activityToSave,
                 scheduleTime = scheduledTimestamp,
-                notes = "Frequency: ${selectedFrequency.value}, Sessions: ${sessionCount.value}"
+                notes = "Sessions: ${sessionCount.value}",
+                frequency = selectedFrequencyObject.value
             )
             // Gọi UseCase (là một suspend function) bên trong coroutine
             addReminderUseCase(newReminder)

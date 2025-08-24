@@ -283,7 +283,7 @@ fun MedicationCard(medication: Medication) {
             )
             Spacer(modifier = Modifier.height(4.dp))
             Text(
-                text = medication.dosage,
+                text = "Frequency: ${medication.frequency?.displayText ?: medication.frequency?.toString() ?: "Every day"}",
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
             )
@@ -292,13 +292,17 @@ fun MedicationCard(medication: Medication) {
 }
 
 @Composable
-fun AppointmentCard(appointment: Appointment) {
+fun AppointmentCard(appointment: Appointment, onClick: () -> Unit = {}) {
     val formattedTime = Instant.ofEpochMilli(appointment.scheduleTime)
         .atZone(ZoneId.systemDefault())
         .toLocalTime()
         .format(DateTimeFormatter.ofPattern("hh:mm a"))
     
-    Card(modifier = Modifier.fillMaxWidth()) {
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable { onClick() }
+    ) {
         Column(modifier = Modifier.padding(16.dp)) {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Text(

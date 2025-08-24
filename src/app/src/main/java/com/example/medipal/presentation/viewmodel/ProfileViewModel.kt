@@ -11,7 +11,9 @@ data class ProfileUiState(
     val userName: String = "Tom Conor",
     val userEmail: String = "",
     val dateOfBirth: String = "August 20, 1987",
-    val healthInformation: String = "",
+    val height: String = "",
+    val weight: String = "",
+    val conditions: String = "",
     val avatarUrl: String = "",
     val isLoading: Boolean = false,
     val errorMessage: String? = null
@@ -55,7 +57,9 @@ class ProfileViewModel : ViewModel() {
     fun updateProfile(
         name: String,
         dateOfBirth: String,
-        healthInformation: String
+        height: String,
+        weight: String,
+        conditions: String
     ) {
         viewModelScope.launch {
             _uiState.value = _uiState.value.copy(isLoading = true)
@@ -65,7 +69,9 @@ class ProfileViewModel : ViewModel() {
                 // val updatedProfile = UserProfile(
                 //     name = name,
                 //     dateOfBirth = dateOfBirth,
-                //     healthInformation = healthInformation,
+                //     height = height.toFloatOrNull() ?: 0f,
+                //     weight = weight.toFloatOrNull() ?: 0f,
+                //     conditions = conditions,
                 //     email = _uiState.value.userEmail,
                 //     avatarUrl = _uiState.value.avatarUrl
                 // )
@@ -74,7 +80,9 @@ class ProfileViewModel : ViewModel() {
                 _uiState.value = _uiState.value.copy(
                     userName = name,
                     dateOfBirth = dateOfBirth,
-                    healthInformation = healthInformation,
+                    height = height,
+                    weight = weight,
+                    conditions = conditions,
                     isLoading = false
                 )
             } catch (e: Exception) {

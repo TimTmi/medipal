@@ -40,13 +40,17 @@ fun EditProfileScreen(navController: NavController) {
     
     var name by remember { mutableStateOf(uiState.userName) }
     var dateOfBirth by remember { mutableStateOf(uiState.dateOfBirth) }
-    var healthInformation by remember { mutableStateOf(uiState.healthInformation) }
+    var height by remember { mutableStateOf(uiState.height) }
+    var weight by remember { mutableStateOf(uiState.weight) }
+    var conditions by remember { mutableStateOf(uiState.conditions) }
     
     // Update local state when uiState changes
     LaunchedEffect(uiState) {
         name = uiState.userName
         dateOfBirth = uiState.dateOfBirth
-        healthInformation = uiState.healthInformation
+        height = uiState.height
+        weight = uiState.weight
+        conditions = uiState.conditions
     }
     
     val brightness = 0.5f
@@ -80,7 +84,7 @@ fun EditProfileScreen(navController: NavController) {
                     actions = {
                         TextButton(
                             onClick = {
-                                viewModel.updateProfile(name, dateOfBirth, healthInformation)
+                                viewModel.updateProfile(name, dateOfBirth, height, weight, conditions)
                                 navController.navigateUp()
                             }
                         ) {
@@ -189,12 +193,34 @@ fun EditProfileScreen(navController: NavController) {
                         
                         Spacer(modifier = Modifier.height(24.dp))
                         
-                        // Health Information Field
+                        // Height Field
                         ProfileEditField(
-                            label = "Health Information",
-                            value = healthInformation,
-                            onValueChange = { healthInformation = it },
-                            placeholder = "Tap to edit",
+                            label = "Height (cm)",
+                            value = height,
+                            onValueChange = { height = it },
+                            placeholder = "170",
+                            keyboardType = KeyboardType.Number
+                        )
+                        
+                        Spacer(modifier = Modifier.height(24.dp))
+                        
+                        // Weight Field
+                        ProfileEditField(
+                            label = "Weight (kg)",
+                            value = weight,
+                            onValueChange = { weight = it },
+                            placeholder = "65",
+                            keyboardType = KeyboardType.Number
+                        )
+                        
+                        Spacer(modifier = Modifier.height(24.dp))
+                        
+                        // Medical Conditions Field
+                        ProfileEditField(
+                            label = "Medical Conditions",
+                            value = conditions,
+                            onValueChange = { conditions = it },
+                            placeholder = "Any medical conditions or allergies",
                             multiline = true
                         )
                     }
@@ -230,7 +256,8 @@ fun ProfileEditField(
     value: String,
     onValueChange: (String) -> Unit,
     placeholder: String,
-    multiline: Boolean = false
+    multiline: Boolean = false,
+    keyboardType: KeyboardType = KeyboardType.Text
 ) {
     Column {
         Text(
@@ -261,7 +288,7 @@ fun ProfileEditField(
             ),
             singleLine = !multiline,
             maxLines = if (multiline) 3 else 1,
-            keyboardOptions = if (multiline) KeyboardOptions.Default else KeyboardOptions(keyboardType = KeyboardType.Text)
+            keyboardOptions = KeyboardOptions(keyboardType = keyboardType)
         )
     }
 }

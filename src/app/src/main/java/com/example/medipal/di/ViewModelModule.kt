@@ -10,8 +10,12 @@ val viewModelModule = module {
     viewModel { AddHealthcareReminderViewModel(get(), get()) }
     viewModel { AddAppointmentViewModel(get(), get()) }
     viewModel { MedicationListViewModel(get(), get(), get()) }
+    viewModel { MedicationDetailViewModel(get(), get(), get(), get()) }
     viewModel { HistoryViewModel(get(), get(), get()) }
     viewModel { CalendarViewModel() }
     viewModel { ProfileViewModel() }
     viewModel { NotificationViewModel(get(), get(), get()) }
+    viewModel { AppointmentsViewModel(get(), get()) }
+    viewModel { RemindersViewModel(get(), get()) }
+    viewModel { AppointmentReminderViewModel(get(), get(), get(), get()) }
 }

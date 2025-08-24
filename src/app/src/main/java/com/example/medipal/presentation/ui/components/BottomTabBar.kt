@@ -45,7 +45,7 @@ fun BottomTabBar(
             label = "Medicines"
         ),
         BottomNavItem(
-            route = Screen.Calendar.route,
+            route = Screen.AppointmentReminder.route,
             icon = Icons.Outlined.CalendarMonth,
             label = "Calendar"
         ),

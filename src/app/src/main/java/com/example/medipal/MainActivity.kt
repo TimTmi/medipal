@@ -13,6 +13,9 @@ import androidx.compose.material3.Surface
 import androidx.compose.ui.Modifier
 import androidx.core.content.ContextCompat
 import androidx.core.view.WindowCompat
+import com.example.medipal.domain.repository.AppointmentRepository
+import com.example.medipal.domain.repository.MedicationRepository
+import com.example.medipal.domain.repository.ReminderRepository
 import com.example.medipal.domain.usecase.AddMedicationUseCase
 import com.example.medipal.domain.usecase.GetScheduledEventsUseCase
 import com.example.medipal.presentation.ui.screens.MainScreen

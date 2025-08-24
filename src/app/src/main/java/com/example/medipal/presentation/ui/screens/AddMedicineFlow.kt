@@ -29,11 +29,18 @@ import com.example.medipal.presentation.ui.components.TimePickerDialog
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import com.example.medipal.presentation.ui.components.FrequencyOptionRow
 import java.util.Locale
+import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.ui.text.input.KeyboardType
+import java.time.DayOfWeek
 
 // Các route cho các bước con bên trong luồng thêm thuốc
 private const val STEP_NAME = "step_name"
 private const val STEP_FREQUENCY = "step_frequency"
+private const val STEP_X_DAYS = "step_x_days"
+private const val STEP_SPECIFIC_DAYS = "step_specific_days"
+private const val STEP_X_WEEKS = "step_x_weeks"
 private const val STEP_TIME = "step_time"
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -69,6 +76,30 @@ fun AddMedicineFlow(
             SelectFrequencyScreen(
                 viewModel = viewModel,
                 onNext = { flowNavController.navigate(STEP_TIME) },
+                onXDays = { flowNavController.navigate(STEP_X_DAYS) },
+                onSpecificDays = { flowNavController.navigate(STEP_SPECIFIC_DAYS) },
+                onXWeeks = { flowNavController.navigate(STEP_X_WEEKS) },
+                onCancel = { mainNavController.popBackStack() }
+            )
+        }
+        composable(STEP_X_DAYS) {
+            SelectXDaysScreen(
+                viewModel = viewModel,
+                onNext = { flowNavController.navigate(STEP_TIME) },
+                onCancel = { mainNavController.popBackStack() }
+            )
+        }
+        composable(STEP_SPECIFIC_DAYS) {
+            SelectSpecificDaysScreen(
+                viewModel = viewModel,
+                onNext = { flowNavController.navigate(STEP_TIME) },
+                onCancel = { mainNavController.popBackStack() }
+            )
+        }
+        composable(STEP_X_WEEKS) {
+            SelectXWeeksScreen(
+                viewModel = viewModel,
+                onNext = { flowNavController.navigate(STEP_TIME) },
                 onCancel = { mainNavController.popBackStack() }
             )
         }
@@ -88,7 +119,7 @@ fun SelectMedicineNameScreen(viewModel: AddMedicationViewModel, onNext: () -> Un
     val medicineName by viewModel.medicineName.collectAsState()
     Scaffold(
         topBar = {
-            TopAppBar(
+            CenterAlignedTopAppBar(
                 title = { Text("Add medicine") },
                 navigationIcon = { TextButton(onClick = onCancel) { Text("Cancel") } }
             )
@@ -119,18 +150,14 @@ fun SelectMedicineNameScreen(viewModel: AddMedicationViewModel, onNext: () -> Un
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun SelectFrequencyScreen(viewModel: AddMedicationViewModel, onNext: () -> Unit, onCancel: () -> Unit) {
+fun SelectFrequencyScreen(viewModel: AddMedicationViewModel, onNext: () -> Unit, onXDays: () -> Unit, onSpecificDays: () -> Unit, onXWeeks: () -> Unit, onCancel: () -> Unit) {
     val medicineName by viewModel.medicineName.collectAsState()
-
-    // SỬA LỖI Ở ĐÂY: Lấy danh sách tĩnh trực tiếp, không dùng collectAsState
-    val options = viewModel.frequencyOptions
-
-    // Dòng này đúng vì selectedFrequency là StateFlow
-    val selectedOption by viewModel.selectedFrequency.collectAsState()
+    val options = viewModel.baseFrequencyOptions
+    val selectedFrequencyObject by viewModel.selectedFrequencyObject.collectAsState()
 
     Scaffold(
         topBar = {
-            TopAppBar(
+            CenterAlignedTopAppBar(
                 title = { Text(medicineName) },
                 navigationIcon = { TextButton(onClick = onCancel) { Text("Cancel") } }
             )
@@ -153,14 +180,83 @@ fun SelectFrequencyScreen(viewModel: AddMedicationViewModel, onNext: () -> Unit,
                 items(options) { option ->
                     FrequencyOptionRow(
                         text = option,
-                        selected = (option == selectedOption),
-                        onClick = { viewModel.onFrequencySelected(option) }
+                        selected = (option == selectedFrequencyObject.displayText),
+                        onClick = {
+                            when (option) {
+                                "Every day" -> {
+                                    viewModel.setFrequencyEveryDay()
+                                    onNext()
+                                }
+                                "Only as needed" -> {
+                                    viewModel.setFrequencyAsNeeded()
+                                    onNext()
+                                }
+                                "Every X days" -> {
+                                    onXDays()
+                                }
+                                "Specific days of the week" -> {
+                                    onSpecificDays()
+                                }
+                                "Every X weeks" -> {
+                                    onXWeeks()
+                                }
+                            }
+                        }
                     )
                 }
             }
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun SelectXDaysScreen(viewModel: AddMedicationViewModel, onNext: () -> Unit, onCancel: () -> Unit) {
+    val medicineName by viewModel.medicineName.collectAsState()
+    val xDaysValue by viewModel.xDaysValue.collectAsState()
+    var tempDays by remember { mutableStateOf(xDaysValue.toString()) }
+
+    Scaffold(
+        topBar = {
+            CenterAlignedTopAppBar(
+                title = { Text(medicineName) },
+                navigationIcon = { TextButton(onClick = onCancel) { Text("Cancel") } }
+            )
+        }
+    ) { padding ->
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(padding)
+                .padding(16.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Text(
+                "Every how many days?",
+                style = MaterialTheme.typography.titleLarge,
+                modifier = Modifier.align(Alignment.CenterHorizontally)
+            )
+            Spacer(modifier = Modifier.height(32.dp))
+
+            OutlinedTextField(
+                value = tempDays,
+                onValueChange = { 
+                    if (it.isEmpty() || it.toIntOrNull() != null) {
+                        tempDays = it
+                    }
+                },
+                label = { Text("Number of days") },
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                modifier = Modifier.fillMaxWidth()
+            )
+            Spacer(modifier = Modifier.height(32.dp))
 
             Button(
-                onClick = onNext,
+                onClick = {
+                    val days = tempDays.toIntOrNull() ?: 2
+                    viewModel.saveFrequencyXDays(days)
+                    onNext()
+                },
                 modifier = Modifier.fillMaxWidth()
             ) {
                 Text("Next")
@@ -171,24 +267,184 @@ fun SelectFrequencyScreen(viewModel: AddMedicationViewModel, onNext: () -> Unit,
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun FrequencyOptionRow(
-    text: String,
-    selected: Boolean,
-    onClick: () -> Unit
-) {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .clickable(onClick = onClick)
-            .padding(vertical = 12.dp),
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        RadioButton(
-            selected = selected,
-            onClick = onClick
-        )
-        Spacer(modifier = Modifier.width(16.dp))
-        Text(text = text, style = MaterialTheme.typography.bodyLarge)
+fun SelectSpecificDaysScreen(viewModel: AddMedicationViewModel, onNext: () -> Unit, onCancel: () -> Unit) {
+    val medicineName by viewModel.medicineName.collectAsState()
+    val selectedWeekDays by viewModel.selectedWeekDays.collectAsState()
+    var tempSelectedDays by remember { mutableStateOf(selectedWeekDays) }
+
+    val weekDays = listOf(
+        DayOfWeek.MONDAY to "Monday",
+        DayOfWeek.TUESDAY to "Tuesday", 
+        DayOfWeek.WEDNESDAY to "Wednesday",
+        DayOfWeek.THURSDAY to "Thursday",
+        DayOfWeek.FRIDAY to "Friday",
+        DayOfWeek.SATURDAY to "Saturday",
+        DayOfWeek.SUNDAY to "Sunday"
+    )
+
+    Scaffold(
+        topBar = {
+            CenterAlignedTopAppBar(
+                title = { Text(medicineName) },
+                navigationIcon = { TextButton(onClick = onCancel) { Text("Cancel") } }
+            )
+        }
+    ) { padding ->
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(padding)
+                .padding(16.dp)
+        ) {
+            Text(
+                "Select specific days",
+                style = MaterialTheme.typography.titleLarge,
+                modifier = Modifier.align(Alignment.CenterHorizontally)
+            )
+            Spacer(modifier = Modifier.height(16.dp))
+
+            LazyColumn(modifier = Modifier.weight(1f)) {
+                items(weekDays) { (dayOfWeek, dayName) ->
+                    ListItem(
+                        headlineContent = { Text(dayName) },
+                        leadingContent = {
+                            Checkbox(
+                                checked = tempSelectedDays.contains(dayOfWeek),
+                                onCheckedChange = { checked ->
+                                    tempSelectedDays = if (checked) {
+                                        tempSelectedDays + dayOfWeek
+                                    } else {
+                                        tempSelectedDays - dayOfWeek
+                                    }
+                                }
+                            )
+                        },
+                        modifier = Modifier.clickable {
+                            val newSelection = if (tempSelectedDays.contains(dayOfWeek)) {
+                                tempSelectedDays - dayOfWeek
+                            } else {
+                                tempSelectedDays + dayOfWeek
+                            }
+                            tempSelectedDays = newSelection
+                        }
+                    )
+                }
+            }
+
+            Button(
+                onClick = {
+                    viewModel.saveFrequencySpecificDays(tempSelectedDays)
+                    onNext()
+                },
+                modifier = Modifier.fillMaxWidth(),
+                enabled = tempSelectedDays.isNotEmpty()
+            ) {
+                Text("Next")
+            }
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun SelectXWeeksScreen(viewModel: AddMedicationViewModel, onNext: () -> Unit, onCancel: () -> Unit) {
+    val medicineName by viewModel.medicineName.collectAsState()
+    val xWeeksValue by viewModel.xWeeksValue.collectAsState()
+    val selectedWeekDays by viewModel.selectedWeekDays.collectAsState()
+    var tempWeeks by remember { mutableStateOf(xWeeksValue.toString()) }
+    var tempSelectedDays by remember { mutableStateOf(selectedWeekDays) }
+
+    val weekDays = listOf(
+        DayOfWeek.MONDAY to "Monday",
+        DayOfWeek.TUESDAY to "Tuesday", 
+        DayOfWeek.WEDNESDAY to "Wednesday",
+        DayOfWeek.THURSDAY to "Thursday",
+        DayOfWeek.FRIDAY to "Friday",
+        DayOfWeek.SATURDAY to "Saturday",
+        DayOfWeek.SUNDAY to "Sunday"
+    )
+
+    Scaffold(
+        topBar = {
+            CenterAlignedTopAppBar(
+                title = { Text(medicineName) },
+                navigationIcon = { TextButton(onClick = onCancel) { Text("Cancel") } }
+            )
+        }
+    ) { padding ->
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(padding)
+                .padding(16.dp)
+        ) {
+            Text(
+                "Every how many weeks?",
+                style = MaterialTheme.typography.titleLarge,
+                modifier = Modifier.align(Alignment.CenterHorizontally)
+            )
+            Spacer(modifier = Modifier.height(16.dp))
+
+            OutlinedTextField(
+                value = tempWeeks,
+                onValueChange = { 
+                    if (it.isEmpty() || it.toIntOrNull() != null) {
+                        tempWeeks = it
+                    }
+                },
+                label = { Text("Number of weeks") },
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                modifier = Modifier.fillMaxWidth()
+            )
+            Spacer(modifier = Modifier.height(24.dp))
+
+            Text(
+                "On which days?",
+                style = MaterialTheme.typography.titleMedium,
+                fontWeight = FontWeight.Bold
+            )
+            Spacer(modifier = Modifier.height(8.dp))
+
+            LazyColumn(modifier = Modifier.weight(1f)) {
+                items(weekDays) { (dayOfWeek, dayName) ->
+                    ListItem(
+                        headlineContent = { Text(dayName) },
+                        leadingContent = {
+                            Checkbox(
+                                checked = tempSelectedDays.contains(dayOfWeek),
+                                onCheckedChange = { checked ->
+                                    tempSelectedDays = if (checked) {
+                                        tempSelectedDays + dayOfWeek
+                                    } else {
+                                        tempSelectedDays - dayOfWeek
+                                    }
+                                }
+                            )
+                        },
+                        modifier = Modifier.clickable {
+                            val newSelection = if (tempSelectedDays.contains(dayOfWeek)) {
+                                tempSelectedDays - dayOfWeek
+                            } else {
+                                tempSelectedDays + dayOfWeek
+                            }
+                            tempSelectedDays = newSelection
+                        }
+                    )
+                }
+            }
+
+            Button(
+                onClick = {
+                    val weeks = tempWeeks.toIntOrNull() ?: 1
+                    viewModel.saveFrequencyXWeeks(weeks, tempSelectedDays)
+                    onNext()
+                },
+                modifier = Modifier.fillMaxWidth(),
+                enabled = tempSelectedDays.isNotEmpty()
+            ) {
+                Text("Next")
+            }
+        }
     }
 }
 
@@ -201,7 +457,8 @@ fun SelectTimeScreen(viewModel: AddMedicationViewModel, onSave: () -> Unit, onCa
 
     Scaffold(
         topBar = {
-            TopAppBar(
+            // SỬA Ở ĐÂY: Dùng CenterAlignedTopAppBar
+            CenterAlignedTopAppBar(
                 title = { Text(medicineName) },
                 navigationIcon = { TextButton(onClick = onCancel) { Text("Cancel") } }
             )
@@ -292,7 +549,6 @@ fun SelectTimeScreen(viewModel: AddMedicationViewModel, onSave: () -> Unit, onCa
             onDismiss = { showTimePicker = false }
         )
     }
-
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
