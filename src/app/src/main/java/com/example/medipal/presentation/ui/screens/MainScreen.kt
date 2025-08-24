@@ -23,6 +23,8 @@ import com.example.medipal.presentation.viewmodel.AddMedicationViewModel
 import com.example.medipal.presentation.viewmodel.AddHealthcareReminderViewModel
 import com.example.medipal.presentation.viewmodel.AddAppointmentViewModel
 import com.example.medipal.presentation.viewmodel.HomeViewModel
+import com.example.medipal.presentation.viewmodel.AppointmentsViewModel
+import com.example.medipal.presentation.viewmodel.RemindersViewModel
 import org.koin.androidx.compose.koinViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -75,8 +77,8 @@ fun MainScreen() {
                 val homeViewModel: HomeViewModel = koinViewModel()
                 HomeScreen(navController = navController, viewModel = homeViewModel)
             }
-            composable(Screen.Calendar.route) {
-                CalendarScreen(navController = navController)
+            composable(Screen.AppointmentReminder.route) {
+                AppointmentReminderScreen(navController = navController)
             }
             composable(Screen.Medications.route) {
                 MedicationsScreen(
@@ -189,6 +191,15 @@ fun MainScreen() {
             }
             composable(Screen.EditProfile.route) {
                 EditProfileScreen(navController = navController)
+            }
+            composable(Screen.Appointments.route) {
+                AppointmentsScreen(navController = navController)
+            }
+            composable(Screen.Reminders.route) {
+                RemindersScreen(navController = navController)
+            }
+            composable(Screen.AddOptions.route) {
+                AddOptionsScreen(navController = navController)
             }
         }
     }

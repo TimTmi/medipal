@@ -2,7 +2,7 @@ package com.example.medipal.presentation.navigation
 
 sealed class Screen(val route: String) {
     object Home : Screen("home_screen")
-    object Calendar : Screen("calendar_screen")
+    object AppointmentReminder : Screen("appointment_reminder_screen")
     object Medications : Screen("medications_screen")
     object Notifications : Screen("notifications_screen")
     object Profile : Screen("profile_screen")
@@ -11,6 +11,9 @@ sealed class Screen(val route: String) {
     object AddHealthcareReminderFlow : Screen("add_healthcare_reminder_flow") // Flow thêm healthcare reminder
     object AddAppointmentFlow : Screen("add_appointment_flow") // Flow thêm cuộc hẹn
     object HistoryLog : Screen("history_log") // Màn hình lịch sử
+    object Appointments : Screen("appointments_screen") // Màn hình danh sách appointments
+    object Reminders : Screen("reminders_screen") // Màn hình danh sách reminders
+    object AddOptions : Screen("add_options_screen") // Màn hình lựa chọn thêm mới
     object MissedDoseDetail : Screen("missed_dose_detail/{notificationId}") {
         fun createRoute(notificationId: String) = "missed_dose_detail/$notificationId"
     }

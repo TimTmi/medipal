@@ -292,13 +292,17 @@ fun MedicationCard(medication: Medication) {
 }
 
 @Composable
-fun AppointmentCard(appointment: Appointment) {
+fun AppointmentCard(appointment: Appointment, onClick: () -> Unit = {}) {
     val formattedTime = Instant.ofEpochMilli(appointment.scheduleTime)
         .atZone(ZoneId.systemDefault())
         .toLocalTime()
         .format(DateTimeFormatter.ofPattern("hh:mm a"))
     
-    Card(modifier = Modifier.fillMaxWidth()) {
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable { onClick() }
+    ) {
         Column(modifier = Modifier.padding(16.dp)) {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Text(
