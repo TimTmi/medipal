@@ -18,6 +18,7 @@ navigationComposeVersion = "2.9.3"
 roomCompiler = "2.7.2"
 roomKtx = "2.7.2"
 roomRuntime = "2.7.2"
+workRuntimeKtx = "2.10.3"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -28,6 +29,7 @@ androidx-navigation-compose-v277 = { module = "androidx.navigation:navigation-co
 androidx-room-compiler = { module = "androidx.room:room-compiler", version.ref = "roomCompiler" }
 androidx-room-ktx = { module = "androidx.room:room-ktx", version.ref = "roomKtx" }
 androidx-room-runtime = { module = "androidx.room:room-runtime", version.ref = "roomRuntime" }
+androidx-work-runtime-ktx = { module = "androidx.work:work-runtime-ktx", version.ref = "workRuntimeKtx" }
 firebase-bom = { module = "com.google.firebase:firebase-bom", version.ref = "firebaseBomVersion" }
 firebase-auth = { module = "com.google.firebase:firebase-auth" }
 firebase-firestore = { module = "com.google.firebase:firebase-firestore" }

@@ -21,12 +21,10 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.example.medipal.R
-import com.example.medipal.MediPalApplication
 import com.example.medipal.presentation.viewmodel.HistoryViewModel
 import com.example.medipal.presentation.viewmodel.HistoryItem
-import com.example.medipal.presentation.viewmodel.ViewModelFactory
 import androidx.lifecycle.viewmodel.compose.viewModel
-
+import org.koin.androidx.compose.koinViewModel
 
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -38,9 +36,9 @@ fun HistoryLogScreen(navController: NavController) {
     }
     
     // Get history data from ViewModel
-    val application = LocalContext.current.applicationContext as MediPalApplication
-    val viewModelFactory = ViewModelFactory(application.container)
-    val historyViewModel: HistoryViewModel = viewModel(factory = viewModelFactory)
+//    val application = LocalContext.current.applicationContext as MediPalApplication
+//    val viewModelFactory = ViewModelFactory(application.container)
+    val historyViewModel: HistoryViewModel = koinViewModel()
     val historyItems by historyViewModel.historyItems.collectAsState(initial = emptyList())
     
     Box(modifier = Modifier.fillMaxSize()) {

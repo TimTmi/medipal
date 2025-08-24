@@ -5,17 +5,23 @@ import com.example.medipal.data.local.entity.AppointmentEntity
 import kotlinx.coroutines.flow.Flow
 
 @Dao
-interface AppointmentDao : BaseDao<AppointmentEntity> {
+interface AppointmentDao {
 
     @Query("SELECT * FROM appointment")
-    override fun getAll(): Flow<List<AppointmentEntity>>
+    fun getAll(): Flow<List<AppointmentEntity>>
+
+    @Query("SELECT * FROM appointment")
+    suspend fun getAllOnce(): List<AppointmentEntity>
+
+    @Query("SELECT * FROM appointment WHERE id = :id LIMIT 1")
+    suspend fun getById(id: String): AppointmentEntity?
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    override suspend fun insert(entity: AppointmentEntity)
+    suspend fun insert(entity: AppointmentEntity)
 
     @Query("DELETE FROM appointment WHERE id = :id")
-    override suspend fun deleteById(id: String)
+    suspend fun deleteById(id: String)
 
     @Update
-    override suspend fun update(entity: AppointmentEntity)
+    suspend fun update(entity: AppointmentEntity)
 }

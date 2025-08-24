@@ -12,11 +12,12 @@ val databaseModule = module {
             context = get(),
             klass = MediPalDatabase::class.java,
             name = "medipal.db"
-        ).build()
+        ).fallbackToDestructiveMigration(false).build()
     }
 
     // Provide DAOs
     single { get<MediPalDatabase>().medicationDao() }
     single { get<MediPalDatabase>().appointmentDao() }
     single { get<MediPalDatabase>().reminderDao() }
+    single { get<MediPalDatabase>().syncDao() }
 }

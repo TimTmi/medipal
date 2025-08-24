@@ -9,5 +9,7 @@ data class AppointmentEntity(
     val title: String = "",
     val scheduleTime: Long = 0,
     val doctor: String = "",
-    val notes: String = ""
+    val notes: String = "",
+    val updatedAt: Long = System.currentTimeMillis(),
+    val deletedAt: Long? = null
 )
