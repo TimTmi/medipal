@@ -8,8 +8,8 @@ enum class AccountType {
     CARETAKER
 }
 
-data class Account (
-    val id: String = UUID.randomUUID().toString(),
-    val accountType: AccountType = AccountType.CUSTOMER,
-    val profileId: String = ""
+data class Account(
+    val id: String,
+    val email: String,
+    val profileId: String
 )
