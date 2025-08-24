@@ -90,24 +90,24 @@ class AddHealthcareReminderViewModel(
     fun saveReminder() {
         viewModelScope.launch {
             val activityToSave = selectedActivity.value
-            
+
             // Convert user-selected time to timestamp with current date
             val timeString = selectedTime.value.ifEmpty { "09:00 AM" }
             val scheduledTimestamp = try {
                 val format = SimpleDateFormat("hh:mm a", Locale.getDefault())
                 val parsedTime = format.parse(timeString)
-                
+
                 // Get current date and combine with selected time
                 val calendar = Calendar.getInstance()
                 val timeCalendar = Calendar.getInstance()
                 timeCalendar.time = parsedTime ?: Date()
-                
+
                 // Set the time on current date
                 calendar.set(Calendar.HOUR_OF_DAY, timeCalendar.get(Calendar.HOUR_OF_DAY))
                 calendar.set(Calendar.MINUTE, timeCalendar.get(Calendar.MINUTE))
                 calendar.set(Calendar.SECOND, 0)
                 calendar.set(Calendar.MILLISECOND, 0)
-                
+
                 calendar.timeInMillis
             } catch (e: Exception) {
                 System.currentTimeMillis()
@@ -122,14 +122,11 @@ class AddHealthcareReminderViewModel(
             )
             // Gọi UseCase (là một suspend function) bên trong coroutine
             addReminderUseCase(newReminder)
-            
+
             // Auto-add to history
 //            historyRepository.addReminderHistory(newReminder)
 
             _lastSavedReminderTitle.value = activityToSave
-            
-            // Reset form trước khi hiển thị dialog để tránh hiệu ứng nhấp nháy
-            resetForm()
             _showSuccessDialog.value = true
         }
     }
@@ -137,18 +134,5 @@ class AddHealthcareReminderViewModel(
     fun dismissSuccessDialog() {
         _lastSavedReminderTitle.value = null
         _showSuccessDialog.value = false
-    }
-    
-    private fun resetForm() {
-        selectedCategory.value = ""
-        selectedActivity.value = ""
-        selectedFrequency.value = frequencyOptions.first()
-        selectedTime.value = "16:46 AM"
-        sessionCount.value = 1
-    }
-    
-    // Thêm function public để reset form khi cần
-    fun clearForm() {
-        resetForm()
     }
 } 

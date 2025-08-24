@@ -55,7 +55,7 @@ fun MainScreen() {
             // Logic ẩn BottomBar (giữ nguyên)
             val showBottomBar = currentRoute in listOf(
                 Screen.Home.route,
-                Screen.Calendar.route,
+                Screen.AppointmentReminder.route,
                 Screen.Medications.route,
                 Screen.Notifications.route,
                 Screen.Profile.route
