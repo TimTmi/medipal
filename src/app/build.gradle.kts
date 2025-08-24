@@ -80,7 +80,7 @@ dependencies {
     implementation(libs.koin.android)
     implementation(libs.koin.androidx.compose)
     implementation(libs.androidx.lifecycle.viewmodel.compose)
-    implementation(libs.androidx.navigation.compose.v277)
+    implementation(libs.androidx.navigation.compose)
     implementation(libs.material.icons.extended)
     implementation(libs.androidx.runtime)
 

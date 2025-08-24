@@ -3,11 +3,12 @@ package com.example.medipal.presentation.viewmodel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.medipal.domain.model.Medication
-
+import com.example.medipal.domain.model.Frequency
 import com.example.medipal.domain.usecase.AddMedicationUseCase
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import java.time.DayOfWeek
 import java.util.*
 
 class AddMedicationViewModel(
@@ -15,21 +16,43 @@ class AddMedicationViewModel(
 ) : ViewModel() {
 
     val medicineName = MutableStateFlow("")
+    val dosage = MutableStateFlow("")
+    val notes = MutableStateFlow("")
     val time = MutableStateFlow(System.currentTimeMillis()) // Thời gian được chọn dưới dạng Long
-    val frequencyOptions = listOf(
+    val baseFrequencyOptions = listOf(
         "Every day",
         "Only as needed",
         "Every X days",
         "Specific days of the week",
         "Every X weeks"
-
     )
 
-    val selectedFrequency = MutableStateFlow(frequencyOptions.first())
+    // 2. State để lưu đối tượng Frequency cuối cùng. Khởi tạo giá trị mặc định.
+    val selectedFrequencyObject = MutableStateFlow<Frequency>(Frequency.EveryDay())
 
-    // SỬA LỖI 2: Đảm bảo cú pháp hàm đúng
-    fun onFrequencySelected(frequency: String) {
-        selectedFrequency.value = frequency
+    // 3. Các state cho các màn hình con (để người dùng nhập liệu)
+    val xDaysValue = MutableStateFlow(2) // Giá trị mặc định cho "Every X days"
+    val selectedWeekDays = MutableStateFlow<List<DayOfWeek>>(emptyList())
+    val xWeeksValue = MutableStateFlow(1) // Giá trị mặc định cho "Every X weeks"
+
+    fun setFrequencyEveryDay() {
+        selectedFrequencyObject.value = Frequency.EveryDay()
+    }
+    fun setFrequencyAsNeeded() {
+        selectedFrequencyObject.value = Frequency.AsNeeded()
+    }
+    fun saveFrequencyXDays(days: Int) {
+        xDaysValue.value = days
+        selectedFrequencyObject.value = Frequency.EveryXDays(days)
+    }
+    fun saveFrequencySpecificDays(days: List<DayOfWeek>) {
+        selectedWeekDays.value = days
+        selectedFrequencyObject.value = Frequency.SpecificDaysOfWeek(days)
+    }
+    fun saveFrequencyXWeeks(weeks: Int, days: List<DayOfWeek>) {
+        xWeeksValue.value = weeks
+        selectedWeekDays.value = days
+        selectedFrequencyObject.value = Frequency.EveryXWeeks(weeks, days)
     }
     
     // Method to update selected time
@@ -39,7 +62,7 @@ class AddMedicationViewModel(
 
     private val _lastSavedMedicineName = MutableStateFlow<String?>(null)
     val lastSavedMedicineName = _lastSavedMedicineName.asStateFlow()
-    // Trạng thái cho dialog thành công
+
     private val _showSuccessDialog = MutableStateFlow(false)
     val showSuccessDialog = _showSuccessDialog.asStateFlow()
 
@@ -48,8 +71,10 @@ class AddMedicationViewModel(
             val newMedication = Medication(
                 id = UUID.randomUUID().toString(),
                 name = medicineName.value,
-                dosage = "Frequency: ${selectedFrequency.value}", // Có thể thêm màn hình chọn liều lượng
+                dosage = "Frequency: ${selectedFrequencyObject.value}", // Có thể thêm màn hình chọn liều lượng
                 scheduleTime = time.value,
+                notes = "",
+                frequency = selectedFrequencyObject.value
             )
             addMedicationUseCase(newMedication)
 

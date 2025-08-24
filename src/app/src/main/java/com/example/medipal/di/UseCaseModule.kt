@@ -7,6 +7,7 @@ val useCaseModule = module {
 
     // Medication use cases
     factory { GetMedicationsUseCase(get()) }
+    factory { GetMedicationByIdUseCase(get()) }
     factory { AddMedicationUseCase(get()) }
     factory { RemoveMedicationUseCase(get()) }
     factory { UpdateMedicationUseCase(get()) }

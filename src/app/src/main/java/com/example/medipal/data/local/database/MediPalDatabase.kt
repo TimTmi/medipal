@@ -4,6 +4,7 @@ import androidx.room.Database
 import androidx.room.RoomDatabase
 import com.example.medipal.data.local.dao.*
 import com.example.medipal.data.local.entity.*
+import androidx.room.TypeConverters
 
 @Database(
     entities = [
@@ -12,9 +13,10 @@ import com.example.medipal.data.local.entity.*
         ReminderEntity::class,
         ProfileEntity::class
     ],
-    version = 10,
+    version = 11,
     exportSchema = false
 )
+@TypeConverters(Converters::class)
 abstract class MediPalDatabase : RoomDatabase() {
     abstract fun medicationDao(): MedicationDao
     abstract fun appointmentDao(): AppointmentDao
