@@ -40,6 +40,12 @@ android {
     buildFeatures {
         compose = true
     }
+
+    packaging {
+        resources {
+            excludes += "/META-INF/INDEX.LIST"
+        }
+    }
 }
 
 dependencies {
@@ -82,6 +88,14 @@ dependencies {
     implementation(libs.firebase.firestore)
 
     implementation(libs.androidx.work.runtime.ktx)
+
+    implementation(libs.play.services.auth)
+
+    implementation(libs.google.api.client.android)
+    implementation(libs.google.api.services.calendar)
+
+    implementation(libs.retrofit)
+    implementation(libs.converter.gson)
 }
 
 kotlin {
