@@ -5,6 +5,7 @@ import org.koin.core.module.dsl.*
 import org.koin.dsl.module
 
 val viewModelModule = module {
+    viewModel { AuthViewModel(get(), get()) }
     viewModel { HomeViewModel(get(), get(), get(), get()) }
     viewModel { AddMedicationViewModel(get(), get(), get()) }
     viewModel { AddHealthcareReminderViewModel(get(), get(), get()) }
@@ -18,5 +19,4 @@ val viewModelModule = module {
     viewModel { AppointmentsViewModel(get(), get(), get()) }
     viewModel { RemindersViewModel(get(), get(), get()) }
     viewModel { AppointmentReminderViewModel(get(), get(), get(), get(), get()) }
-    viewModel { AuthViewModel(get()) }
 }

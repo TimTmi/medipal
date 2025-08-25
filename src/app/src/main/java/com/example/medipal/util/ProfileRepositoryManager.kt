@@ -6,29 +6,17 @@ import com.example.medipal.domain.repository.ReminderRepository
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 import org.koin.core.parameter.parametersOf
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 
 class ProfileRepositoryManager : KoinComponent {
     
-    private var currentProfileId: String = ""
+    private var _currentProfileId = "default-profile"
     
     fun setCurrentProfile(profileId: String) {
-        currentProfileId = profileId
+        _currentProfileId = profileId.ifBlank { "default-profile" }
     }
     
-    fun getCurrentProfileId(): String = currentProfileId
-    
-    fun getMedicationRepository(): MedicationRepository {
-        val repository: MedicationRepository by inject { parametersOf(currentProfileId) }
-        return repository
-    }
-    
-    fun getAppointmentRepository(): AppointmentRepository {
-        val repository: AppointmentRepository by inject { parametersOf(currentProfileId) }
-        return repository
-    }
-    
-    fun getReminderRepository(): ReminderRepository {
-        val repository: ReminderRepository by inject { parametersOf(currentProfileId) }
-        return repository
-    }
+    fun getCurrentProfileId(): String = _currentProfileId.ifBlank { "default-profile" }
 }
