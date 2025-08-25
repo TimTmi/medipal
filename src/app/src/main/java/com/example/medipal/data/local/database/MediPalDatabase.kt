@@ -11,9 +11,10 @@ import androidx.room.TypeConverters
         MedicationEntity::class,
         AppointmentEntity::class,
         ReminderEntity::class,
-        ProfileEntity::class
+        ProfileEntity::class,
+        MedicationDoseEntity::class
     ],
-    version = 15,
+    version = 16,
     exportSchema = false
 )
 @TypeConverters(Converters::class)
