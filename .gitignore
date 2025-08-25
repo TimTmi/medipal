@@ -1,5 +1,6 @@
 # IDE / Editor
 .idea/
+src/.idea/
 *.iml
 *.ipr
 *.iws
