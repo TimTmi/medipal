@@ -1,15 +1,35 @@
+# IDE / Editor
+.idea/
 *.iml
-.gradle
-/local.properties
-/.idea/caches
-/.idea/libraries
-/.idea/modules.xml
-/.idea/workspace.xml
-/.idea/navEditor.xml
-/.idea/assetWizardSettings.xml
+*.ipr
+*.iws
 .DS_Store
-/build
-/captures
-.externalNativeBuild
-.cxx
+
+# Gradle
+.gradle/
+build/
+captures/
+.externalNativeBuild/
+.cxx/
+
+# Local configuration
 local.properties
+*.log
+*.keystore
+
+# Android build outputs
+*.apk
+*.ap_
+*.aab
+*.so
+
+# Navigation editor
+.idea/navEditor.xml
+
+# Misc
+*.hprof
+
+# Optional: keep certain IDE configs if your team wants
+# !.idea/codeStyles/
+# !.idea/inspectionProfiles/
+

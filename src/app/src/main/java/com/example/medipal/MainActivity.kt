@@ -20,13 +20,10 @@ import com.example.medipal.domain.usecase.AddMedicationUseCase
 //import com.example.medipal.domain.usecase.GetScheduledEventsUseCase
 import com.example.medipal.presentation.ui.screens.MainScreen
 import com.example.medipal.presentation.ui.theme.MediPalTheme
-import com.example.medipal.util.ProfileInitializer
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 
 class MainActivity : ComponentActivity(), KoinComponent {
-    
-    private val profileInitializer: ProfileInitializer by inject()
     
     private val requestPermissionLauncher = registerForActivityResult(
         ActivityResultContracts.RequestPermission()
@@ -40,9 +37,6 @@ class MainActivity : ComponentActivity(), KoinComponent {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
-        // Initialize profile-scoped repositories
-        profileInitializer.initializeWithDefaultProfile()
 
         // Kích hoạt chế độ edge-to-edge để giao diện vẽ ra sau các thanh hệ thống
         WindowCompat.setDecorFitsSystemWindows(window, false)

@@ -42,24 +42,9 @@ fun MainScreen() {
     val currentRoute = navBackStackEntry?.destination?.route
 
     val authViewModel: AuthViewModel = koinViewModel()
-    val homeViewModel: HomeViewModel = koinViewModel()
-    val addMedicationViewModel: AddMedicationViewModel = koinViewModel()
-    val addHealthcareReminderViewModel: AddHealthcareReminderViewModel = koinViewModel()
-    val addAppointmentViewModel: AddAppointmentViewModel = koinViewModel()
-    val notificationViewModel: NotificationViewModel = koinViewModel()
 
     // In-app notification state
     var currentNotification by remember { mutableStateOf<com.example.medipal.domain.model.NotificationItem?>(null) }
-    
-    // Get today's notification count for badge
-    val notificationUiState by notificationViewModel.uiState.collectAsState()
-    val todayNotificationCount = notificationUiState.todayNotifications.size
-    
-    // Debug logging
-    LaunchedEffect(todayNotificationCount) {
-        println("DEBUG MainScreen: todayNotificationCount = $todayNotificationCount")
-        println("DEBUG MainScreen: todayNotifications = ${notificationUiState.todayNotifications.map { it.title }}")
-    }
     
     // Listen for in-app notifications
     LaunchedEffect(Unit) {
@@ -82,6 +67,23 @@ fun MainScreen() {
     } else if (authState is AuthState.Unauthenticated) {
         AuthScreen(navController = navController, viewModel = authViewModel)
         return
+    }
+
+    // Only create ViewModels after authentication is confirmed
+    val homeViewModel: HomeViewModel = koinViewModel()
+    val addMedicationViewModel: AddMedicationViewModel = koinViewModel()
+    val addHealthcareReminderViewModel: AddHealthcareReminderViewModel = koinViewModel()
+    val addAppointmentViewModel: AddAppointmentViewModel = koinViewModel()
+    val notificationViewModel: NotificationViewModel = koinViewModel()
+    
+    // Get today's notification count for badge
+    val notificationUiState by notificationViewModel.uiState.collectAsState()
+    val todayNotificationCount = notificationUiState.todayNotifications.size
+    
+    // Debug logging
+    LaunchedEffect(todayNotificationCount) {
+        println("DEBUG MainScreen: todayNotificationCount = $todayNotificationCount")
+        println("DEBUG MainScreen: todayNotifications = ${notificationUiState.todayNotifications.map { it.title }}")
     }
 
     // THAY ĐỔI QUAN TRỌNG: Thêm mã để điều khiển màu sắc icon trên status bar
@@ -118,7 +120,6 @@ fun MainScreen() {
             modifier = Modifier.padding(paddingValues)
         ) {
             composable(Screen.Home.route) {
-                val homeViewModel: HomeViewModel = koinViewModel()
                 HomeScreen(navController = navController, viewModel = homeViewModel)
             }
             composable(Screen.AppointmentReminder.route) {
@@ -136,21 +137,18 @@ fun MainScreen() {
                 ProfileScreen(navController = navController)
             }
             composable(Screen.AddMedicineFlow.route) {
-                val addMedicationViewModel: AddMedicationViewModel = koinViewModel()
                 AddMedicineFlow(
                     mainNavController = navController,
                     viewModel = addMedicationViewModel
                 )
             }
             composable(Screen.AddHealthcareReminderFlow.route) {
-                val addHealthcareReminderViewModel: AddHealthcareReminderViewModel = koinViewModel()
                 AddHealthcareReminderFlow(
                     mainNavController = navController,
                     viewModel = addHealthcareReminderViewModel
                 )
             }
             composable(Screen.AddAppointmentFlow.route) {
-                val addAppointmentViewModel: AddAppointmentViewModel = koinViewModel()
                 AddAppointmentFlow(
                     mainNavController = navController,
                     viewModel = addAppointmentViewModel

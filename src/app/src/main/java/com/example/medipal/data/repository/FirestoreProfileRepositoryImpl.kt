@@ -7,7 +7,7 @@ import com.google.firebase.firestore.FirebaseFirestore
 class FirestoreProfileRepositoryImpl(
     firestore: FirebaseFirestore
 ) : FirestoreRepositoryImpl<Profile>(
-    firestore.collection("profiles"),
+    { firestore.collection("profiles") },
     Profile::class.java,
     setId = { profile, id -> profile.copy(id = id) }
 ), ProfileRepository {

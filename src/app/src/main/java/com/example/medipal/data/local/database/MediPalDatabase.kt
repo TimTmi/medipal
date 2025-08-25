@@ -13,7 +13,7 @@ import androidx.room.TypeConverters
         ReminderEntity::class,
         ProfileEntity::class
     ],
-    version = 13,
+    version = 15,
     exportSchema = false
 )
 @TypeConverters(Converters::class)

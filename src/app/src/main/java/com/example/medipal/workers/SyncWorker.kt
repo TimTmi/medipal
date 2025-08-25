@@ -10,7 +10,6 @@ import com.example.medipal.domain.repository.AppointmentRepository
 import com.example.medipal.domain.repository.MedicationRepository
 import com.example.medipal.domain.repository.ReminderRepository
 import org.koin.core.component.KoinComponent
-import org.koin.core.component.inject
 import org.koin.java.KoinJavaComponent.get
 
 class SyncWorker(

@@ -5,12 +5,14 @@ import androidx.lifecycle.viewModelScope
 import com.example.medipal.domain.model.Account
 import com.example.medipal.domain.model.Profile
 import com.example.medipal.domain.service.AccountService
+import com.example.medipal.util.ProfileRepositoryManager
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 
 class AuthViewModel(
-    private val accountService: AccountService
+    private val accountService: AccountService,
+    private val profileRepositoryManager: ProfileRepositoryManager
 ) : ViewModel() {
 
     private val _authState = MutableStateFlow<AuthState>(AuthState.Initial)
@@ -47,6 +49,8 @@ class AuthViewModel(
             try {
                 val account = accountService.signIn(email.value, password.value)
                 if (account != null) {
+                    // Set the current profile ID after successful login
+                    profileRepositoryManager.setCurrentProfile(account.profileId)
                     _authState.value = AuthState.Authenticated(account)
                 } else {
                     _errorMessage.value = "Invalid email or password"
@@ -89,6 +93,8 @@ class AuthViewModel(
                 )
                 
                 val account = accountService.signUp(email.value, password.value, profile)
+                // Set the current profile ID after successful signup
+                profileRepositoryManager.setCurrentProfile(account.profileId)
                 _authState.value = AuthState.Authenticated(account)
             } catch (e: Exception) {
                 _errorMessage.value = e.message ?: "Sign up failed"
@@ -102,6 +108,8 @@ class AuthViewModel(
         viewModelScope.launch {
             try {
                 accountService.signOut()
+                // Reset to default profile when signing out
+                profileRepositoryManager.setCurrentProfile("default-profile")
                 _authState.value = AuthState.Unauthenticated
                 clearForm()
             } catch (e: Exception) {
@@ -114,12 +122,18 @@ class AuthViewModel(
         viewModelScope.launch {
             try {
                 val account = accountService.getCurrentAccount()
-                _authState.value = if (account != null) {
-                    AuthState.Authenticated(account)
+                if (account != null) {
+                    // Set the current profile ID when checking auth state
+                    profileRepositoryManager.setCurrentProfile(account.profileId)
+                    _authState.value = AuthState.Authenticated(account)
                 } else {
-                    AuthState.Unauthenticated
+                    // Reset to default profile when no account is found
+                    profileRepositoryManager.setCurrentProfile("default-profile")
+                    _authState.value = AuthState.Unauthenticated
                 }
             } catch (e: Exception) {
+                // Reset to default profile on error
+                profileRepositoryManager.setCurrentProfile("default-profile")
                 _authState.value = AuthState.Unauthenticated
             }
         }
