@@ -84,4 +84,28 @@ val repositoryModule = module {
             { get<NetworkChecker>().isOnline() }
         )
     }
+    
+    // Profile-scoped MedicationDose repositories
+    factory { (profileId: String) -> 
+        RoomMedicationDoseRepositoryImpl(get(), profileId) 
+    }
+    factory { (profileId: String) -> 
+        FirestoreMedicationDoseRepositoryImpl(get(), profileId) 
+    }
+    factory { (profileId: String) -> 
+        HybridMedicationDoseRepositoryImpl(
+            get<RoomMedicationDoseRepositoryImpl> { parametersOf(profileId) },
+            get<FirestoreMedicationDoseRepositoryImpl> { parametersOf(profileId) },
+            { get<NetworkChecker>().isOnline() }
+        )
+    }
+    
+    // MedicationDose repository (using default profile)
+    single<MedicationDoseRepository> { 
+        HybridMedicationDoseRepositoryImpl(
+            get<RoomMedicationDoseRepositoryImpl> { parametersOf("default-profile") },
+            get<FirestoreMedicationDoseRepositoryImpl> { parametersOf("default-profile") },
+            { get<NetworkChecker>().isOnline() }
+        )
+    }
 }

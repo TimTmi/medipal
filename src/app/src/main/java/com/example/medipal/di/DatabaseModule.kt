@@ -20,4 +20,5 @@ val databaseModule = module {
     single { get<MediPalDatabase>().appointmentDao() }
     single { get<MediPalDatabase>().reminderDao() }
     single { get<MediPalDatabase>().profileDao() }
+    single { get<MediPalDatabase>().medicationDoseDao() }
 }

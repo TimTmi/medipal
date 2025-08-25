@@ -6,6 +6,8 @@ import com.example.medipal.domain.model.*
 import com.example.medipal.domain.usecase.GetMedicationsUseCase
 import com.example.medipal.domain.usecase.GetAppointmentsUseCase
 import com.example.medipal.domain.usecase.GetRemindersUseCase
+import com.example.medipal.domain.usecase.AddMedicationDoseUseCase
+import com.example.medipal.domain.usecase.GetMedicationDoseUseCase
 import com.example.medipal.util.ProfileRepositoryManager
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
@@ -26,6 +28,8 @@ class NotificationViewModel(
     private val getMedicationsUseCase: GetMedicationsUseCase,
     private val getAppointmentsUseCase: GetAppointmentsUseCase,
     private val getRemindersUseCase: GetRemindersUseCase,
+    private val addMedicationDoseUseCase: AddMedicationDoseUseCase,
+    private val getMedicationDoseUseCase: GetMedicationDoseUseCase,
     private val profileRepositoryManager: ProfileRepositoryManager
 ) : ViewModel() {
 
@@ -57,8 +61,9 @@ class NotificationViewModel(
             combine(
                 getMedicationsUseCase(profileId),
                 getAppointmentsUseCase(profileId),
-                getRemindersUseCase(profileId)
-            ) { medications, appointments, reminders ->
+                getRemindersUseCase(profileId),
+                getMedicationDoseUseCase(profileId)
+            ) { medications, appointments, reminders, medicationDoses ->
                 val allNotifications = mutableListOf<NotificationItem>()
                 val currentTime = System.currentTimeMillis()
                 val timeFormatter = DateTimeFormatter.ofPattern("h:mm a", Locale.getDefault())
@@ -68,7 +73,20 @@ class NotificationViewModel(
                 
                 // Convert medications to notifications
                 medications.forEach { medication ->
-                    val status = determineStatus(medication.scheduleTime, currentTime)
+                    // Check if there's a dose record for this medication at this time
+                    val doseRecord = medicationDoses.find { 
+                        it.medicationId == medication.id && it.scheduledTime == medication.scheduleTime 
+                    }
+                    
+                    val status = when {
+                        doseRecord != null -> when (doseRecord.status) {
+                            DoseStatus.TAKEN -> NotificationStatus.TAKEN
+                            DoseStatus.SKIPPED -> NotificationStatus.SKIPPED
+                            DoseStatus.MISSED -> NotificationStatus.MISSED
+                        }
+                        else -> determineStatus(medication.scheduleTime, currentTime)
+                    }
+                    
                     val time = Instant.ofEpochMilli(medication.scheduleTime)
                         .atZone(ZoneId.systemDefault())
                         .toLocalTime()
@@ -85,7 +103,7 @@ class NotificationViewModel(
                             scheduleTime = medication.scheduleTime,
                             status = status,
                             type = NotificationType.MEDICATION,
-                            instructions = "Frequency: ${medication.frequency.displayText}",
+                            instructions = medication.description.ifEmpty { "Frequency: ${medication.frequency.displayText}" },
                             originalItem = medication
                         )
                     )
@@ -194,12 +212,86 @@ class NotificationViewModel(
     }
 
     fun markAsTaken(notificationId: String) {
-        // TODO: Implement mark as taken logic
-        // This would update the original item status in the database
+        viewModelScope.launch {
+            try {
+                val notification = getNotificationById(notificationId)
+                if (notification?.type == NotificationType.MEDICATION) {
+                    val medicationId = notificationId.removePrefix("med_")
+                    val profileId = profileRepositoryManager.getCurrentProfileId()
+                    
+                    // Check if dose record already exists
+                    val existingDose = getMedicationDoseUseCase.getByMedicationAndTime(
+                        medicationId, notification.scheduleTime
+                    )
+                    
+                    if (existingDose != null) {
+                        // Update existing dose record
+                        val updatedDose = existingDose.copy(
+                            status = DoseStatus.TAKEN,
+                            actualTime = System.currentTimeMillis(),
+                            updatedAt = System.currentTimeMillis()
+                        )
+                        addMedicationDoseUseCase(updatedDose)
+                    } else {
+                        // Create new dose record
+                        val newDose = MedicationDose(
+                            medicationId = medicationId,
+                            profileId = profileId,
+                            scheduledTime = notification.scheduleTime,
+                            actualTime = System.currentTimeMillis(),
+                            status = DoseStatus.TAKEN
+                        )
+                        addMedicationDoseUseCase(newDose)
+                    }
+                    
+                    // Reload notifications to reflect the change
+                    loadNotifications()
+                }
+            } catch (e: Exception) {
+                println("Error marking as taken: ${e.message}")
+            }
+        }
     }
 
     fun markAsSkipped(notificationId: String) {
-        // TODO: Implement mark as skipped logic
-        // This would update the original item status in the database
+        viewModelScope.launch {
+            try {
+                val notification = getNotificationById(notificationId)
+                if (notification?.type == NotificationType.MEDICATION) {
+                    val medicationId = notificationId.removePrefix("med_")
+                    val profileId = profileRepositoryManager.getCurrentProfileId()
+                    
+                    // Check if dose record already exists
+                    val existingDose = getMedicationDoseUseCase.getByMedicationAndTime(
+                        medicationId, notification.scheduleTime
+                    )
+                    
+                    if (existingDose != null) {
+                        // Update existing dose record
+                        val updatedDose = existingDose.copy(
+                            status = DoseStatus.SKIPPED,
+                            actualTime = System.currentTimeMillis(),
+                            updatedAt = System.currentTimeMillis()
+                        )
+                        addMedicationDoseUseCase(updatedDose)
+                    } else {
+                        // Create new dose record
+                        val newDose = MedicationDose(
+                            medicationId = medicationId,
+                            profileId = profileId,
+                            scheduledTime = notification.scheduleTime,
+                            actualTime = System.currentTimeMillis(),
+                            status = DoseStatus.SKIPPED
+                        )
+                        addMedicationDoseUseCase(newDose)
+                    }
+                    
+                    // Reload notifications to reflect the change
+                    loadNotifications()
+                }
+            } catch (e: Exception) {
+                println("Error marking as skipped: ${e.message}")
+            }
+        }
     }
 }
