@@ -9,13 +9,13 @@ import kotlinx.coroutines.tasks.await
 import kotlinx.serialization.serializer
 
 abstract class FirestoreRepositoryImpl<T : Any>(
-    private val collection: CollectionReference,
+    private val getCollectionReference: () -> CollectionReference,
     private val modelClass: Class<T>,
     private val setId: (T, String) -> T
 ) : RemoteRepository<T> {
 
     override fun getAll(): Flow<List<T>> = callbackFlow {
-        val listener = collection.addSnapshotListener { snapshot, error ->
+        val listener = getCollectionReference().addSnapshotListener { snapshot, error ->
             if (error != null) {
                 close(error)
                 return@addSnapshotListener
@@ -32,32 +32,32 @@ abstract class FirestoreRepositoryImpl<T : Any>(
     }
 
     override suspend fun getAllOnce(): List<T> {
-        val snapshot = collection.get().await()
+        val snapshot = getCollectionReference().get().await()
         return snapshot.documents.mapNotNull { doc ->
             doc.toObject(modelClass)?.let { setId(it, doc.id) }
         }
     }
 
     override suspend fun getById(id: String): T? {
-        val snapshot = collection.document(id).get().await()
+        val snapshot = getCollectionReference().document(id).get().await()
         return snapshot.toObject(modelClass)?.let { setId(it, snapshot.id) }
     }
 
     override suspend fun add(item: T) {
         val id = getId(item) // use the domain ID
         val itemWithId = setId(item, id)
-        collection.document(id).set(itemWithId).await() // suspend until write finishes
+        getCollectionReference().document(id).set(itemWithId).await() // suspend until write finishes
     }
 
     override suspend fun update(item: T) {
-        collection.document(getId(item)).set(item).await()
+        getCollectionReference().document(getId(item)).set(item).await()
     }
 
     override suspend fun remove(id: String) {
-        collection.document(id).delete().await()
+        getCollectionReference().document(id).delete().await()
     }
 
-    override fun getCollection() = collection
+    override fun getCollection() = getCollectionReference()
 
     /** Must return the item's id for update */
     protected abstract fun getId(item: T): String

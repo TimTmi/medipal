@@ -7,17 +7,18 @@ import com.example.medipal.data.mapper.toDomain
 import com.example.medipal.data.mapper.toEntity
 import com.example.medipal.domain.repository.LocalRepository
 import com.example.medipal.domain.repository.MedicationRepository
+import com.example.medipal.util.ProfileRepositoryManager
 
 class RoomMedicationRepositoryImpl(
     private val dao: MedicationDao,
-    private val profileId: String
+    private val profileRepositoryManager: ProfileRepositoryManager
 ) : RoomRepositoryImpl<Medication, MedicationEntity>(
-    { dao.getAllByProfileId(profileId) },
-    { dao.getAllOnceByProfileId(profileId) },
-    { dao.getByIdAndProfileId(it, profileId) },
+    { dao.getAllByProfileId(profileRepositoryManager.getCurrentProfileId()) },
+    { dao.getAllOnceByProfileId(profileRepositoryManager.getCurrentProfileId()) },
+    { dao.getByIdAndProfileId(it, profileRepositoryManager.getCurrentProfileId()) },
     { dao.insert(it) },
     { dao.update(it) },
-    { dao.deleteByIdAndProfileId(it, profileId) },
+    { dao.deleteByIdAndProfileId(it, profileRepositoryManager.getCurrentProfileId()) },
     { it.toDomain() },
     { it.toEntity() },
     { it.id }

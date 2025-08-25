@@ -1,5 +1,6 @@
 package com.example.medipal.presentation.viewmodel
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.medipal.domain.model.Appointment
@@ -19,6 +20,7 @@ class AddAppointmentViewModel(
     private val notificationService: NotificationService,
     private val profileRepositoryManager: ProfileRepositoryManager
 //    private val historyRepository: HistoryRepository
+//    private val profileId: String
 ) : ViewModel() {
 
     private val profileId = profileRepositoryManager.getCurrentProfileId()

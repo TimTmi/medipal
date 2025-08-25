@@ -22,11 +22,9 @@ class AppointmentReminderViewModel(
     private val profileRepositoryManager: ProfileRepositoryManager
 ) : ViewModel() {
 
-    private val profileId = profileRepositoryManager.getCurrentProfileId()
-
-    // Data flows
-    val appointments = getAppointmentsUseCase(profileId)
-    val reminders = getRemindersUseCase(profileId)
+    // Data flows - use current profile ID
+    val appointments = getAppointmentsUseCase(profileRepositoryManager.getCurrentProfileId())
+    val reminders = getRemindersUseCase(profileRepositoryManager.getCurrentProfileId())
 
     // Search functionality
     private val _searchQuery = MutableStateFlow("")

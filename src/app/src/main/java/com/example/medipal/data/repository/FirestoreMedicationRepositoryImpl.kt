@@ -2,13 +2,19 @@ package com.example.medipal.data.repository
 
 import com.example.medipal.domain.model.Medication
 import com.example.medipal.domain.repository.MedicationRepository
+import com.example.medipal.util.ProfileRepositoryManager
 import com.google.firebase.firestore.FirebaseFirestore
 
 class FirestoreMedicationRepositoryImpl(
     firestore: FirebaseFirestore,
-    private val profileId: String
+    private val profileRepositoryManager: ProfileRepositoryManager
 ) : FirestoreRepositoryImpl<Medication>(
-    firestore.collection("profiles").document(profileId).collection("medications"),
+    {
+        firestore.collection("profiles")
+            .document(profileRepositoryManager
+                .getCurrentProfileId())
+            .collection("medications")
+    },
     Medication::class.java,
     setId = { medication, id -> medication.copy(id = id) }
 ), MedicationRepository {
