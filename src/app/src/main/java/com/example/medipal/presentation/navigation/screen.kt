@@ -37,4 +37,6 @@ sealed class Screen(val route: String) {
     object SelectXDays : Screen("select_x_days")
     object SelectSpecificDays : Screen("select_specific_days")
     object SelectXWeeks : Screen("select_x_weeks")
+    object ManageCaregiverAccess : Screen("manage_caregiver_access")
+    object ProfileSelection : Screen("profile_selection")
 }

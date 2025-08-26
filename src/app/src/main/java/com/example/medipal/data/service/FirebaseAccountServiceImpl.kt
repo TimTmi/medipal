@@ -1,6 +1,7 @@
 package com.example.medipal.data.service
 
 import com.example.medipal.domain.model.Account
+import com.example.medipal.domain.model.AccountType
 import com.example.medipal.domain.model.Profile
 import com.example.medipal.domain.service.AccountService
 import com.google.firebase.auth.FirebaseAuth
@@ -23,19 +24,21 @@ class FirebaseAccountServiceImpl(
         return snapshot.toObject(Account::class.java)
     }
 
-    override suspend fun signUp(email: String, password: String, profile: Profile): Account {
+    override suspend fun signUp(email: String, password: String, profile: Profile, accountType: AccountType): Account {
         val result = auth.createUserWithEmailAndPassword(email, password).await()
         val user = result.user ?: throw IllegalStateException("User creation failed")
 
-        // 1. Create Profile
+        // 1. Create Profile (for both customers and caregivers)
         val newProfile = profile.copy(id = profilesCollection.document().id)
         profilesCollection.document(newProfile.id).set(newProfile).await()
+        val profileId = newProfile.id
 
         // 2. Create Account linked to Profile
         val account = Account(
             id = user.uid,
             email = email,
-            profileId = newProfile.id
+            type = accountType,
+            profileId = profileId
         )
         accountsCollection.document(account.id).set(account).await()
 
@@ -44,6 +47,11 @@ class FirebaseAccountServiceImpl(
 
     override suspend fun signOut() {
         auth.signOut()
+    }
+
+    override suspend fun getAccount(id: String): Account? {
+        val snapshot = accountsCollection.document(id).get().await()
+        return snapshot.toObject(Account::class.java)
     }
 
     override suspend fun getCurrentAccount(): Account? {

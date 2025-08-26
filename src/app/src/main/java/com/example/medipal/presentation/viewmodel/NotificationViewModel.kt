@@ -56,14 +56,13 @@ class NotificationViewModel(
         viewModelScope.launch {
             _uiState.value = _uiState.value.copy(isLoading = true)
 
-            val profileId = profileRepositoryManager.getCurrentProfileId()
-            
-            combine(
-                getMedicationsUseCase(profileId),
-                getAppointmentsUseCase(profileId),
-                getRemindersUseCase(profileId),
-                getMedicationDoseUseCase(profileId)
-            ) { medications, appointments, reminders, medicationDoses ->
+            profileRepositoryManager.currentProfileId.flatMapLatest { profileId ->
+                combine(
+                    getMedicationsUseCase(profileId),
+                    getAppointmentsUseCase(profileId),
+                    getRemindersUseCase(profileId),
+                    getMedicationDoseUseCase(profileId)
+                ) { medications, appointments, reminders, medicationDoses ->
                 val allNotifications = mutableListOf<NotificationItem>()
                 val currentTime = System.currentTimeMillis()
                 val timeFormatter = DateTimeFormatter.ofPattern("h:mm a", Locale.getDefault())
@@ -184,11 +183,12 @@ class NotificationViewModel(
                 
                 println("DEBUG: Final - Today: ${todayNotifications.size}, Yesterday: ${yesterdayNotifications.size}")
                 
-                NotificationUiState(
-                    todayNotifications = todayNotifications,
-                    yesterdayNotifications = yesterdayNotifications,
-                    isLoading = false
-                )
+                    NotificationUiState(
+                        todayNotifications = todayNotifications,
+                        yesterdayNotifications = yesterdayNotifications,
+                        isLoading = false
+                    )
+                }
             }.collect { newState ->
                 _uiState.value = newState
                 updateGlobalNotifications(newState.todayNotifications + newState.yesterdayNotifications)

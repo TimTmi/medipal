@@ -3,6 +3,7 @@ package com.example.medipal.presentation.viewmodel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.medipal.domain.model.Account
+import com.example.medipal.domain.model.AccountType
 import com.example.medipal.domain.model.Profile
 import com.example.medipal.domain.service.AccountService
 import com.example.medipal.util.ProfileRepositoryManager
@@ -31,6 +32,7 @@ class AuthViewModel(
     
     // Profile fields for signup
     val fullName = MutableStateFlow("")
+    val accountType = MutableStateFlow(AccountType.CUSTOMER)
     val birthday = MutableStateFlow(0L)
     val height = MutableStateFlow(0f)
     val weight = MutableStateFlow(0f)
@@ -49,8 +51,14 @@ class AuthViewModel(
             try {
                 val account = accountService.signIn(email.value, password.value)
                 if (account != null) {
-                    // Set the current profile ID after successful login
                     profileRepositoryManager.setCurrentProfile(account.profileId)
+//                    // Set the current profile ID after successful login
+//                    if (account.type == AccountType.CUSTOMER) {
+//                        profileRepositoryManager.setCurrentProfile(account.profileId)
+//                    } else {
+//                        // Caregivers don't have profiles, set default
+//                        profileRepositoryManager.setCurrentProfile("caregiver-mode")
+//                    }
                     _authState.value = AuthState.Authenticated(account)
                 } else {
                     _errorMessage.value = "Invalid email or password"
@@ -92,9 +100,15 @@ class AuthViewModel(
                     conditions = conditions.value
                 )
                 
-                val account = accountService.signUp(email.value, password.value, profile)
-                // Set the current profile ID after successful signup
+                val account = accountService.signUp(email.value, password.value, profile, accountType.value)
                 profileRepositoryManager.setCurrentProfile(account.profileId)
+//                // Set the current profile ID after successful signup
+//                if (account.type == AccountType.CUSTOMER) {
+//                    profileRepositoryManager.setCurrentProfile(account.profileId)
+//                } else {
+//                    // Caregivers don't have profiles, set default
+//                    profileRepositoryManager.setCurrentProfile("caregiver-mode")
+//                }
                 _authState.value = AuthState.Authenticated(account)
             } catch (e: Exception) {
                 _errorMessage.value = e.message ?: "Sign up failed"
@@ -123,8 +137,14 @@ class AuthViewModel(
             try {
                 val account = accountService.getCurrentAccount()
                 if (account != null) {
-                    // Set the current profile ID when checking auth state
                     profileRepositoryManager.setCurrentProfile(account.profileId)
+//                    // Set the current profile ID when checking auth state
+//                    if (account.type == AccountType.CUSTOMER) {
+//                        profileRepositoryManager.setCurrentProfile(account.profileId)
+//                    } else {
+//                        // Caregivers don't have profiles, set default
+//                        profileRepositoryManager.setCurrentProfile("caregiver-mode")
+//                    }
                     _authState.value = AuthState.Authenticated(account)
                 } else {
                     // Reset to default profile when no account is found

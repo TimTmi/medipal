@@ -11,6 +11,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.launch
 
 class MedicationListViewModel(
@@ -20,14 +21,14 @@ class MedicationListViewModel(
     private val profileRepositoryManager: ProfileRepositoryManager
 ) : ViewModel() {
 
-    private val profileId = profileRepositoryManager.getCurrentProfileId()
-
     // Search query state
     private val _searchQuery = MutableStateFlow("")
     val searchQuery: StateFlow<String> = _searchQuery.asStateFlow()
 
-    // All medications from repository (profile-scoped)
-    private val allMedications = getMedicationsUseCase(profileId)
+    // All medications from repository (profile-scoped, reactive to profile changes)
+    private val allMedications = profileRepositoryManager.currentProfileId.flatMapLatest { profileId ->
+        getMedicationsUseCase(profileId)
+    }
 
     // Filtered medications based on search query
     val filteredMedications = combine(
