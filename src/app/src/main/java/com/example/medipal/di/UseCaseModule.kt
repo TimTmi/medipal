@@ -24,6 +24,11 @@ val useCaseModule = module {
     factory { RemoveReminderUseCase(get()) }
     factory { UpdateReminderUseCase(get()) }
 
+    // MedicationDose use cases
+    factory { GetMedicationDoseUseCase(get()) }
+    factory { AddMedicationDoseUseCase(get()) }
+    factory { UpdateMedicationDoseUseCase(get()) }
+
     // Combined / shared
 //    factory { GetScheduledEventsUseCase(get(), get(), get()) }
 }

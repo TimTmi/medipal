@@ -21,33 +21,42 @@ val repositoryModule = module {
     single { RoomMedicationRepositoryImpl(get(), get()) }
     single { RoomAppointmentRepositoryImpl(get(), get()) }
     single { RoomReminderRepositoryImpl(get(), get()) }
+    single { RoomMedicationDoseRepositoryImpl(get(), get()) }
 
     // Profile-scoped Firestore repositories
     single { FirestoreMedicationRepositoryImpl(get(), get()) }
     single { FirestoreAppointmentRepositoryImpl(get(), get()) }
     single { FirestoreReminderRepositoryImpl(get(), get()) }
+    single { FirestoreMedicationDoseRepositoryImpl(get(), get()) }
 
 //    // Profile-scoped Hybrid repositories
     single { HybridMedicationRepositoryImpl(
-        get<RoomMedicationRepositoryImpl>(),
-        get<FirestoreMedicationRepositoryImpl>(),
-        { get<NetworkChecker>().isOnline() }
+            get<RoomMedicationRepositoryImpl>(),
+            get<FirestoreMedicationRepositoryImpl>(),
+            { get<NetworkChecker>().isOnline() }
         )
     }
     single { HybridAppointmentRepositoryImpl(
-        get<RoomAppointmentRepositoryImpl>(),
-        get<FirestoreAppointmentRepositoryImpl>(),
+            get<RoomAppointmentRepositoryImpl>(),
+            get<FirestoreAppointmentRepositoryImpl>(),
             { get<NetworkChecker>().isOnline() }
         )
     }
     single { HybridReminderRepositoryImpl(
-        get<RoomReminderRepositoryImpl>(),
-        get<FirestoreReminderRepositoryImpl>(),
+            get<RoomReminderRepositoryImpl>(),
+            get<FirestoreReminderRepositoryImpl>(),
             { get<NetworkChecker>().isOnline() }
         )
+    }
+    single { HybridMedicationDoseRepositoryImpl(
+            get<RoomMedicationDoseRepositoryImpl>(),
+            get<FirestoreMedicationDoseRepositoryImpl>(),
+            { get<NetworkChecker>().isOnline() }
+    )
     }
 
     single<MedicationRepository> { get<HybridMedicationRepositoryImpl>() }
     single<AppointmentRepository> { get<HybridAppointmentRepositoryImpl>() }
     single<ReminderRepository> { get<HybridReminderRepositoryImpl>() }
+    single<MedicationDoseRepository> { get<HybridMedicationDoseRepositoryImpl>()}
 }

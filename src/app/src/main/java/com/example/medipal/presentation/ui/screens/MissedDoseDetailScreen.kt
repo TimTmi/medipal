@@ -24,6 +24,7 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.example.medipal.R
 import com.example.medipal.domain.model.NotificationType
+import com.example.medipal.domain.model.NotificationStatus
 import com.example.medipal.presentation.viewmodel.NotificationViewModel
 import org.koin.androidx.compose.koinViewModel
 
@@ -58,7 +59,7 @@ fun MissedDoseDetailScreen(
                     title = { 
                         Text(
                             text = when (notification?.type) {
-                                NotificationType.MEDICATION -> "Missed Dose"
+                                NotificationType.MEDICATION -> "Missed Medication"
                                 NotificationType.APPOINTMENT -> "Missed Appointment"
                                 NotificationType.REMINDER -> "Missed Reminder"
                                 else -> "Missed Item"
@@ -120,9 +121,19 @@ fun MissedDoseDetailScreen(
                             
                             // Status
                             Text(
-                                text = "Missed",
+                                text = when (notification.status) {
+                                    NotificationStatus.MISSED -> "Missed"
+                                    NotificationStatus.TAKEN -> "Taken"
+                                    NotificationStatus.SKIPPED -> "Skipped"
+                                    NotificationStatus.UPCOMING -> "Upcoming"
+                                },
                                 fontSize = 16.sp,
-                                color = Color(0xFFE57373),
+                                color = when (notification.status) {
+                                    NotificationStatus.MISSED -> Color(0xFFE57373) // Red
+                                    NotificationStatus.TAKEN -> Color(0xFF2196F3) // Blue
+                                    NotificationStatus.SKIPPED -> Color(0xFFFF9800) // Orange
+                                    NotificationStatus.UPCOMING -> Color(0xFF4CAF50) // Green
+                                },
                                 fontWeight = FontWeight.Medium
                             )
                             
@@ -155,11 +166,12 @@ fun MissedDoseDetailScreen(
                         }
                     }
                     
-                    // Action Buttons
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.spacedBy(12.dp)
-                    ) {
+                    // Action Buttons - Only show if not already taken/skipped
+                    if (notification.status == NotificationStatus.MISSED || notification.status == NotificationStatus.UPCOMING) {
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.spacedBy(12.dp)
+                        ) {
                         // Mark as Taken Button
                         Button(
                             onClick = {
@@ -226,6 +238,37 @@ fun MissedDoseDetailScreen(
                                     },
                                     fontSize = 14.sp,
                                     fontWeight = FontWeight.Medium
+                                )
+                            }
+                        }
+                        }
+                    } else {
+                        // Show message for completed actions
+                        Card(
+                            modifier = Modifier.fillMaxWidth(),
+                            colors = CardDefaults.cardColors(containerColor = Color.White),
+                            shape = RoundedCornerShape(12.dp)
+                        ) {
+                            Column(
+                                modifier = Modifier.padding(20.dp),
+                                horizontalAlignment = Alignment.CenterHorizontally
+                            ) {
+                                Icon(
+                                    imageVector = if (notification.status == NotificationStatus.TAKEN) Icons.Default.Check else Icons.Default.Close,
+                                    contentDescription = null,
+                                    tint = if (notification.status == NotificationStatus.TAKEN) Color(0xFF2196F3) else Color(0xFFFF9800),
+                                    modifier = Modifier.size(48.dp)
+                                )
+                                Spacer(modifier = Modifier.height(16.dp))
+                                Text(
+                                    text = when (notification.status) {
+                                        NotificationStatus.TAKEN -> "This medication has been marked as taken"
+                                        NotificationStatus.SKIPPED -> "This medication has been marked as skipped"
+                                        else -> "Action completed"
+                                    },
+                                    fontSize = 16.sp,
+                                    color = Color.Gray,
+                                    textAlign = androidx.compose.ui.text.style.TextAlign.Center
                                 )
                             }
                         }

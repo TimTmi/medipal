@@ -105,7 +105,7 @@ fun HomeScreen(navController: NavController, viewModel: HomeViewModel) {
             ) {
                 item {
                     Text(
-                        "Welcome, bro",
+                        "Welcome",
                         color = Color.White,
                         fontSize = 24.sp,
                         fontWeight = FontWeight.Bold

@@ -107,7 +107,10 @@ fun NotificationsScreen(navController: NavController) {
                                                     NotificationStatus.UPCOMING -> {
                                                         navController.navigate("upcoming_dose_detail/${notification.id}")
                                                     }
-                                                    else -> {}
+                                                    NotificationStatus.TAKEN, NotificationStatus.SKIPPED -> {
+                                                        // Show completed dose detail
+                                                        navController.navigate("missed_dose_detail/${notification.id}")
+                                                    }
                                                 }
                                             }
                                         )
@@ -148,7 +151,10 @@ fun NotificationsScreen(navController: NavController) {
                                                     NotificationStatus.UPCOMING -> {
                                                         navController.navigate("upcoming_dose_detail/${notification.id}")
                                                     }
-                                                    else -> {}
+                                                    NotificationStatus.TAKEN, NotificationStatus.SKIPPED -> {
+                                                        // Show completed dose detail
+                                                        navController.navigate("missed_dose_detail/${notification.id}")
+                                                    }
                                                 }
                                             }
                                         )
@@ -226,9 +232,10 @@ fun NotificationItemCard(
                 .size(40.dp)
                 .background(
                     color = when (notification.status) {
-                        NotificationStatus.MISSED -> Color(0xFFE57373)
-                        NotificationStatus.UPCOMING -> Color(0xFF4CAF50)
-                        else -> Color.Gray
+                        NotificationStatus.MISSED -> Color(0xFFE57373) // Red
+                        NotificationStatus.UPCOMING -> Color(0xFF4CAF50) // Green
+                        NotificationStatus.TAKEN -> Color(0xFF2196F3) // Blue
+                        NotificationStatus.SKIPPED -> Color(0xFFFF9800) // Orange
                     },
                     shape = CircleShape
                 ),
@@ -239,7 +246,8 @@ fun NotificationItemCard(
                     NotificationType.MEDICATION -> when (notification.status) {
                         NotificationStatus.MISSED -> Icons.Default.Cancel
                         NotificationStatus.UPCOMING -> Icons.Default.AccessTime
-                        else -> Icons.Default.CheckCircle
+                        NotificationStatus.TAKEN -> Icons.Default.CheckCircle
+                        NotificationStatus.SKIPPED -> Icons.Default.Cancel
                     }
                     NotificationType.APPOINTMENT -> Icons.Default.Person
                     NotificationType.REMINDER -> Icons.Default.AccessTime
@@ -256,9 +264,10 @@ fun NotificationItemCard(
         Column(modifier = Modifier.weight(1f)) {
             Text(
                 text = when (notification.status) {
-                    NotificationStatus.MISSED -> "Missed ${notification.subtitle}"
-                    NotificationStatus.UPCOMING -> "Upcoming ${notification.subtitle}"
-                    else -> notification.subtitle
+                    NotificationStatus.MISSED -> notification.title
+                    NotificationStatus.UPCOMING -> notification.title
+                    NotificationStatus.TAKEN -> "${notification.title} (Taken)"
+                    NotificationStatus.SKIPPED -> "${notification.title} (Skipped)"
                 },
                 fontSize = 16.sp,
                 fontWeight = FontWeight.Medium,
@@ -266,7 +275,7 @@ fun NotificationItemCard(
             )
             
             Text(
-                text = "Time: ${notification.time} | ${notification.title}",
+                text = "Time: ${notification.time} ",
                 fontSize = 14.sp,
                 color = Color.Gray,
                 modifier = Modifier.padding(top = 2.dp)
