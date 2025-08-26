@@ -45,6 +45,7 @@ import com.example.medipal.presentation.viewmodel.AddHealthcareReminderViewModel
 import com.example.medipal.presentation.viewmodel.AddAppointmentViewModel
 import com.example.medipal.presentation.viewmodel.HomeViewModel
 import com.example.medipal.presentation.viewmodel.NotificationViewModel
+import com.example.medipal.domain.model.NotificationStatus
 import com.example.medipal.domain.service.InAppNotificationManager
 import com.example.medipal.presentation.viewmodel.AppointmentsViewModel
 import com.example.medipal.presentation.viewmodel.RemindersViewModel
@@ -71,9 +72,7 @@ fun MainScreen() {
 
     // In-app notification state
     var currentNotification by remember { mutableStateOf<com.example.medipal.domain.model.NotificationItem?>(null) }
-//    var profileIds by remember { mutableStateOf<List<String>>(emptyList()) }
-//    var profileNames by remember { mutableStateOf<Map<String, String>>(emptyMap()) }
-
+    
     // Listen for in-app notifications
     LaunchedEffect(Unit) {
         InAppNotificationManager.notificationFlow.collect { notification ->
@@ -106,11 +105,13 @@ fun MainScreen() {
     val addHealthcareReminderViewModel: AddHealthcareReminderViewModel = koinViewModel()
     val addAppointmentViewModel: AddAppointmentViewModel = koinViewModel()
     val notificationViewModel: NotificationViewModel = koinViewModel()
-
+    
     // Get today's notification count for badge
     val notificationUiState by notificationViewModel.uiState.collectAsState()
-    val todayNotificationCount = notificationUiState.todayNotifications.size
-
+    val todayNotificationCount = notificationUiState.todayNotifications.count { notification ->
+        notification.status == NotificationStatus.MISSED || notification.status == NotificationStatus.UPCOMING
+    }
+    
     // Debug logging
     LaunchedEffect(todayNotificationCount) {
         println("DEBUG MainScreen: todayNotificationCount = $todayNotificationCount")
@@ -143,9 +144,9 @@ fun MainScreen() {
                 .map { id -> async { accountService.getAccount(id) } }
                 .awaitAll()
                 .filterNotNull()
-        
+
             profileIds = accounts.map { it.profileId }.filterNotNull()
-        
+
             // Fetch profile names
             val names = accounts.associate { account ->
                 val profile = async { accountService.getProfile(account.profileId) }
@@ -340,7 +341,7 @@ fun MainScreen() {
             Screen.AppointmentReminder.route,
             Screen.Notifications.route
         )
-        
+
         if (account?.type == AccountType.CAREGIVER && profileNames.isNotEmpty() && showProfileButton) {
             val currentProfileId = profileRepositoryManager.getCurrentProfileId()
             val currentProfileName = profileNames[currentProfileId] ?: "Select Profile"
@@ -354,8 +355,8 @@ fun MainScreen() {
                 Card(
                     modifier = Modifier
                         .padding(horizontal = 16.dp)
-                        .clickable { 
-                            navController.navigate(Screen.ProfileSelection.route) 
+                        .clickable {
+                            navController.navigate(Screen.ProfileSelection.route)
                         },
                     colors = CardDefaults.cardColors(
                         containerColor = MaterialTheme.colorScheme.primaryContainer

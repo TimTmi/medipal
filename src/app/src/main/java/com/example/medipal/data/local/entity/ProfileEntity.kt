@@ -13,6 +13,7 @@ data class ProfileEntity(
     val height: Float = 0f,
     val weight: Float = 0f,
     val conditions: String = "",
+    val avatarUrl: String = "",
     val updatedAt: Long = System.currentTimeMillis(),
     val deletedAt: Long? = null
 )

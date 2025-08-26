@@ -1,17 +1,25 @@
 package com.example.medipal.presentation.viewmodel
 
+import android.net.Uri
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.medipal.domain.model.Profile
 import com.example.medipal.domain.service.AccountService
+import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.storage.FirebaseStorage
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.tasks.await
+import java.text.SimpleDateFormat
+import java.util.*
 
 data class ProfileUiState(
     val userName: String = "",
     val userEmail: String = "",
-    val dateOfBirth: String = "August 20, 1987",
+    val dateOfBirth: String = "",
     val height: String = "",
     val weight: String = "",
     val conditions: String = "",
@@ -25,6 +33,10 @@ class ProfileViewModel(
 ) : ViewModel() {
     private val _uiState = MutableStateFlow(ProfileUiState())
     val uiState: StateFlow<ProfileUiState> = _uiState.asStateFlow()
+    
+    private val firestore = FirebaseFirestore.getInstance()
+    private val storage = FirebaseStorage.getInstance()
+    private var currentProfileId: String? = null
 
     init {
         loadUserProfile()
@@ -35,24 +47,50 @@ class ProfileViewModel(
             _uiState.value = _uiState.value.copy(isLoading = true)
 
             try {
-                // Get current user from AccountService
                 val currentUser = accountService.getCurrentAccount()
                 if (currentUser != null) {
-                    // Get user profile from Firestore
-                    val userProfile = accountService.getProfile(currentUser.profileId)
-                    if (userProfile != null) {
-                        _uiState.value = _uiState.value.copy(
-                            userName = if (userProfile.fullName.isNotEmpty()) userProfile.fullName else "User",
-                            userEmail = currentUser.email,
-                            dateOfBirth = if (userProfile.birthday > 0) "Birthday set" else "Not set",
-                         //   healthInformation = if (userProfile.conditions.isNotEmpty()) userProfile.conditions else "No health conditions recorded",
-                            avatarUrl = "",
-                            isLoading = false
-                        )
+                    currentProfileId = currentUser.profileId
+                    
+                    // Load profile from Firestore
+                    val profileDoc = firestore.collection("profiles")
+                        .document(currentUser.profileId)
+                        .get()
+                        .await()
+                    
+                    if (profileDoc.exists()) {
+                        val profile = profileDoc.toObject(Profile::class.java)
+                        profile?.let {
+                            val dateFormatter = SimpleDateFormat("MMMM dd, yyyy", Locale.getDefault())
+                            val birthdayString = if (it.birthday > 0) {
+                                dateFormatter.format(Date(it.birthday))
+                            } else "Not set"
+                            
+                            _uiState.value = _uiState.value.copy(
+                                userName = it.fullName.ifEmpty { currentUser.email.split("@").first() },
+                                userEmail = currentUser.email,
+                                dateOfBirth = birthdayString,
+                                height = if (it.height > 0) it.height.toString() else "",
+                                weight = if (it.weight > 0) it.weight.toString() else "",
+                                conditions = it.conditions,
+                                avatarUrl = it.avatarUrl,
+                                isLoading = false
+                            )
+                        }
                     } else {
-                        // If no profile exists, use basic user info
+                        // Create new profile if doesn't exist
+                        val newProfile = Profile(
+                            id = currentUser.profileId,
+                            fullName = currentUser.email.split("@").first(),
+                            avatarUrl = ""
+                        )
+                        
+                        firestore.collection("profiles")
+                            .document(currentUser.profileId)
+                            .set(newProfile)
+                            .await()
+                        
                         _uiState.value = _uiState.value.copy(
-                            userName = currentUser.email.split("@").firstOrNull()?.replaceFirstChar { it.uppercase() } ?: "User",
+                            userName = newProfile.fullName,
                             userEmail = currentUser.email,
                             isLoading = false
                         )
@@ -84,17 +122,32 @@ class ProfileViewModel(
             _uiState.value = _uiState.value.copy(isLoading = true)
 
             try {
-                // TODO: Update user profile in Firestore
-                // val updatedProfile = UserProfile(
-                //     name = name,
-                //     dateOfBirth = dateOfBirth,
-                //     height = height.toFloatOrNull() ?: 0f,
-                //     weight = weight.toFloatOrNull() ?: 0f,
-                //     conditions = conditions,
-                //     email = _uiState.value.userEmail,
-                //     avatarUrl = _uiState.value.avatarUrl
-                // )
-                // firestoreRepository.updateUserProfile(updatedProfile)
+                val profileId = currentProfileId ?: return@launch
+                
+                // Parse date of birth to timestamp
+                val birthdayTimestamp = if (dateOfBirth.isNotEmpty() && dateOfBirth != "Not set") {
+                    try {
+                        val dateFormatter = SimpleDateFormat("MMMM dd, yyyy", Locale.getDefault())
+                        dateFormatter.parse(dateOfBirth)?.time ?: 0L
+                    } catch (e: Exception) {
+                        0L
+                    }
+                } else 0L
+                
+                val updatedProfile = mapOf(
+                    "fullName" to name,
+                    "birthday" to birthdayTimestamp,
+                    "height" to (height.toFloatOrNull() ?: 0f),
+                    "weight" to (weight.toFloatOrNull() ?: 0f),
+                    "conditions" to conditions,
+                    "avatarUrl" to _uiState.value.avatarUrl,
+                    "updatedAt" to System.currentTimeMillis()
+                )
+
+                firestore.collection("profiles")
+                    .document(profileId)
+                    .update(updatedProfile)
+                    .await()
 
                 _uiState.value = _uiState.value.copy(
                     userName = name,
@@ -104,6 +157,9 @@ class ProfileViewModel(
                     conditions = conditions,
                     isLoading = false
                 )
+                
+                // Reload profile to ensure consistency
+                loadUserProfile()
             } catch (e: Exception) {
                 _uiState.value = _uiState.value.copy(
                     isLoading = false,
@@ -113,22 +169,51 @@ class ProfileViewModel(
         }
     }
 
-    fun updateAvatar(avatarUrl: String) {
+    fun uploadAvatar(imageUri: Uri) {
         viewModelScope.launch {
             _uiState.value = _uiState.value.copy(isLoading = true)
 
             try {
-                // TODO: Update avatar in Firestore
-                // firestoreRepository.updateUserAvatar(avatarUrl)
+                val profileId = currentProfileId ?: return@launch
+                Log.d("ProfileViewModel", "Starting avatar upload for profileId: $profileId")
+                
+                // Create storage reference
+                val storageRef = storage.reference
+                val avatarRef = storageRef.child("avatars/$profileId.jpg")
+                Log.d("ProfileViewModel", "Storage reference created: avatars/$profileId.jpg")
+                
+                // Upload image
+                val uploadTask = avatarRef.putFile(imageUri).await()
+                Log.d("ProfileViewModel", "Image uploaded successfully")
+                
+                val downloadUrl = avatarRef.downloadUrl.await()
+                Log.d("ProfileViewModel", "Download URL obtained: $downloadUrl")
+                
+                // Update profile with new avatar URL
+                firestore.collection("profiles")
+                    .document(profileId)
+                    .update(
+                        mapOf(
+                            "avatarUrl" to downloadUrl.toString(),
+                            "updatedAt" to System.currentTimeMillis()
+                        )
+                    )
+                    .await()
+                Log.d("ProfileViewModel", "Firestore updated with avatarUrl: ${downloadUrl}")
 
                 _uiState.value = _uiState.value.copy(
-                    avatarUrl = avatarUrl,
+                    avatarUrl = downloadUrl.toString(),
                     isLoading = false
                 )
+                Log.d("ProfileViewModel", "UI state updated with new avatar URL")
+                
+                // Reload profile to ensure consistency
+                loadUserProfile()
             } catch (e: Exception) {
+                Log.e("ProfileViewModel", "Avatar upload failed", e)
                 _uiState.value = _uiState.value.copy(
                     isLoading = false,
-                    errorMessage = "Failed to update avatar: ${e.message}"
+                    errorMessage = "Failed to upload avatar: ${e.message}"
                 )
             }
         }
@@ -137,11 +222,9 @@ class ProfileViewModel(
     fun logout() {
         viewModelScope.launch {
             try {
-                // TODO: Sign out from Firebase Auth
-                // firebaseAuth.signOut()
-
-                // Clear local data if needed
+                accountService.signOut()
                 _uiState.value = ProfileUiState()
+                currentProfileId = null
             } catch (e: Exception) {
                 _uiState.value = _uiState.value.copy(
                     errorMessage = "Failed to logout: ${e.message}"
@@ -155,14 +238,11 @@ class ProfileViewModel(
     }
 
     fun resetProfile() {
-        _uiState.value = ProfileUiState(
-            userName = "User",
-            userEmail = "",
-            dateOfBirth = "Not set",
-            //healthInformation = "",
-            avatarUrl = "",
-            isLoading = false,
-            errorMessage = null
-        )
+        _uiState.value = ProfileUiState()
+        currentProfileId = null
+    }
+
+    fun refreshProfile() {
+        loadUserProfile()
     }
 }

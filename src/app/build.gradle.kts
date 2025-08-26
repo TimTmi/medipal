@@ -87,6 +87,7 @@ dependencies {
     implementation(platform(libs.firebase.bom))
     implementation(libs.firebase.auth)
     implementation(libs.firebase.firestore)
+    implementation(libs.firebase.storage)
 
     implementation(libs.androidx.work.runtime.ktx)
 
@@ -101,6 +102,10 @@ dependencies {
     implementation(libs.grpc.okhttp)
     implementation(libs.grpc.protobuf.lite)
     implementation(libs.grpc.stub)
+
+    // Image picker and loading
+    implementation("io.coil-kt:coil-compose:2.5.0")
+    implementation("androidx.activity:activity-compose:1.8.2")
 }
 
 kotlin {

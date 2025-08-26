@@ -266,8 +266,16 @@ fun NotificationItemCard(
                 text = when (notification.status) {
                     NotificationStatus.MISSED -> notification.title
                     NotificationStatus.UPCOMING -> notification.title
-                    NotificationStatus.TAKEN -> "${notification.title} (Taken)"
-                    NotificationStatus.SKIPPED -> "${notification.title} (Skipped)"
+                    NotificationStatus.TAKEN -> when (notification.type) {
+                        NotificationType.MEDICATION -> "${notification.title} (Taken)"
+                        NotificationType.APPOINTMENT -> "${notification.title} (Attended)"
+                        NotificationType.REMINDER -> "${notification.title} (Completed)"
+                    }
+                    NotificationStatus.SKIPPED -> when (notification.type) {
+                        NotificationType.MEDICATION -> "${notification.title} (Skipped)"
+                        NotificationType.APPOINTMENT -> "${notification.title} (Missed)"
+                        NotificationType.REMINDER -> "${notification.title} (Skipped)"
+                    }
                 },
                 fontSize = 16.sp,
                 fontWeight = FontWeight.Medium,

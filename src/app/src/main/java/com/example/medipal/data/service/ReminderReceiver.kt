@@ -28,7 +28,11 @@ class ReminderReceiver : BroadcastReceiver(), KoinComponent {
 
         // Show in-app notification
         val notificationItem = NotificationItem(
-            id = notificationId,
+            id = when (type) {
+                "MEDICATION" -> "med_$notificationId"
+                "APPOINTMENT" -> "apt_$notificationId"
+                else -> "rem_$notificationId"
+            },
             title = title,
             subtitle = content,
             time = System.currentTimeMillis().toString(),

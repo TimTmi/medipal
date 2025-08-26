@@ -16,7 +16,7 @@ val viewModelModule = module {
     viewModel { HistoryViewModel(get(), get(), get(), get()) }
     viewModel { CalendarViewModel() }
     viewModel { ProfileViewModel(get()) }
-    viewModel { NotificationViewModel(get(), get(), get(), get(), get(), get()) }
+    viewModel { NotificationViewModel(get(), get(), get(), get(), get(), get(), get(), get(), get(), get(), get(), get(), get(), get()) }
     viewModel { AppointmentsViewModel(get(), get(), get()) }
     viewModel { RemindersViewModel(get(), get(), get()) }
     viewModel { AppointmentReminderViewModel(get(), get(), get(), get(), get()) }
