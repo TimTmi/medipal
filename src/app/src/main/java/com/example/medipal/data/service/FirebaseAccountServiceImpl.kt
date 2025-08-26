@@ -19,8 +19,26 @@ class FirebaseAccountServiceImpl(
         val result = auth.signInWithEmailAndPassword(email, password).await()
         val user = result.user ?: return null
 
+        println("DEBUG FirebaseAccountServiceImpl: User authenticated: ${user.uid}, email: ${user.email}")
+        
         val snapshot = accountsCollection.document(user.uid).get().await()
-        return snapshot.toObject(Account::class.java)
+        val account = snapshot.toObject(Account::class.java)
+        
+        if (account == null) {
+            println("DEBUG FirebaseAccountServiceImpl: No account document found for user ${user.uid}")
+            // Create account document if it doesn't exist
+            val newAccount = Account(
+                id = user.uid,
+                email = user.email ?: email,
+                profileId = user.uid // Use user.uid as profile ID for existing users
+            )
+            accountsCollection.document(user.uid).set(newAccount).await()
+            println("DEBUG FirebaseAccountServiceImpl: Created account document for existing user")
+            return newAccount
+        }
+        
+        println("DEBUG FirebaseAccountServiceImpl: Found existing account: $account")
+        return account
     }
 
     override suspend fun signUp(email: String, password: String, profile: Profile): Account {

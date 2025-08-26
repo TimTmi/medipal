@@ -23,7 +23,7 @@ class AddHealthcareReminderViewModel(
 //    private val historyRepository: HistoryRepository
 ) : ViewModel() {
 
-    private val profileId = profileRepositoryManager.getCurrentProfileId()
+    // Sử dụng profile hiện tại động thay vì cố định
 
     // --- CÁC TRẠNG THÁI CHO LUỒNG THÊM LỜI NHẮC ---
     val reminderCategories = mapOf(
@@ -126,7 +126,7 @@ class AddHealthcareReminderViewModel(
                 description = "Sessions: ${sessionCount.value}"
             )
             // Gọi UseCase (là một suspend function) bên trong coroutine
-            addReminderUseCase(newReminder, profileId)
+            addReminderUseCase(newReminder, profileRepositoryManager.getCurrentProfileId())
             
             // Schedule notification
             notificationService.scheduleReminderNotification(newReminder)

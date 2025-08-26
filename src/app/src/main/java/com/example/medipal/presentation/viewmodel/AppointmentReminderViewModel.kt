@@ -12,19 +12,24 @@ import com.example.medipal.util.ProfileRepositoryManager
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.launch
 
 class AppointmentReminderViewModel(
-    getAppointmentsUseCase: GetAppointmentsUseCase,
-    getRemindersUseCase: GetRemindersUseCase,
+    private val getAppointmentsUseCase: GetAppointmentsUseCase,
+    private val getRemindersUseCase: GetRemindersUseCase,
     private val removeAppointmentUseCase: RemoveAppointmentUseCase,
     private val removeReminderUseCase: RemoveReminderUseCase,
     private val profileRepositoryManager: ProfileRepositoryManager
 ) : ViewModel() {
 
-    // Data flows - use current profile ID
-    val appointments = getAppointmentsUseCase(profileRepositoryManager.getCurrentProfileId())
-    val reminders = getRemindersUseCase(profileRepositoryManager.getCurrentProfileId())
+    val appointments = profileRepositoryManager.currentProfileId.flatMapLatest { profileId ->
+        getAppointmentsUseCase(profileId)
+    }
+    
+    val reminders = profileRepositoryManager.currentProfileId.flatMapLatest { profileId ->
+        getRemindersUseCase(profileId)
+    }
 
     // Search functionality
     private val _searchQuery = MutableStateFlow("")
@@ -125,5 +130,16 @@ class AppointmentReminderViewModel(
 
     fun hideAddSheet() {
         _isAddSheetVisible.value = false
+    }
+    
+    fun clearData() {
+        _searchQuery.value = ""
+        _isSearchVisible.value = false
+        _selectedAppointment.value = null
+        _isAppointmentDetailVisible.value = false
+        _selectedReminder.value = null
+        _isReminderDetailVisible.value = false
+        _isAddSheetVisible.value = false
+        // Data will be automatically refreshed when profile changes
     }
 }

@@ -8,17 +8,19 @@ import com.example.medipal.domain.usecase.RemoveAppointmentUseCase
 import com.example.medipal.util.ProfileRepositoryManager
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.launch
 
 class AppointmentsViewModel(
-    getAppointmentsUseCase: GetAppointmentsUseCase,
+    private val getAppointmentsUseCase: GetAppointmentsUseCase,
     private val removeAppointmentUseCase: RemoveAppointmentUseCase,
     private val profileRepositoryManager: ProfileRepositoryManager
 ) : ViewModel() {
 
-    val profileId = profileRepositoryManager.getCurrentProfileId()
-
-    val appointments = getAppointmentsUseCase(profileId)
+    // Lắng nghe thay đổi profile và cập nhật dữ liệu động
+    val appointments = profileRepositoryManager.currentProfileId.flatMapLatest { profileId ->
+        getAppointmentsUseCase(profileId)
+    }
 
     private val _selectedAppointment = MutableStateFlow<Appointment?>(null)
     val selectedAppointment = _selectedAppointment.asStateFlow()
@@ -41,5 +43,11 @@ class AppointmentsViewModel(
             removeAppointmentUseCase(appointmentId)
             hideAppointmentDetail()
         }
+    }
+    
+    fun clearData() {
+        _selectedAppointment.value = null
+        _isDetailDialogVisible.value = false
+        // Data will be automatically refreshed when profile changes
     }
 }

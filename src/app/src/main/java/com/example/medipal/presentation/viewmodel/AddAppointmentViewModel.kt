@@ -23,7 +23,7 @@ class AddAppointmentViewModel(
 //    private val profileId: String
 ) : ViewModel() {
 
-    private val profileId = profileRepositoryManager.getCurrentProfileId()
+    // Sử dụng profile hiện tại động thay vì cố định
 
     // Các trạng thái cho form
     val doctorName = MutableStateFlow("")
@@ -138,7 +138,7 @@ class AddAppointmentViewModel(
                 location = location.value,
                 description = "Date: ${date.value}"
             )
-            addAppointmentUseCase(newAppointment, profileId)
+            addAppointmentUseCase(newAppointment, profileRepositoryManager.getCurrentProfileId())
             
             // Schedule notification
             notificationService.scheduleAppointmentNotification(newAppointment)

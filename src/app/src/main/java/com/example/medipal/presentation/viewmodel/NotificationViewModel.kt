@@ -35,6 +35,15 @@ class NotificationViewModel(
 
     private val _uiState = MutableStateFlow(NotificationUiState())
     val uiState: StateFlow<NotificationUiState> = _uiState.asStateFlow()
+    
+    // Lắng nghe thay đổi profile để tự động reload notifications
+    init {
+        viewModelScope.launch {
+            profileRepositoryManager.currentProfileId.collect { profileId ->
+                loadNotifications()
+            }
+        }
+    }
 
     companion object {
         private var globalNotifications: List<NotificationItem> = emptyList()
@@ -68,8 +77,7 @@ class NotificationViewModel(
                 val currentTime = System.currentTimeMillis()
                 val timeFormatter = DateTimeFormatter.ofPattern("h:mm a", Locale.getDefault())
                 
-                // Debug logging
-                println("DEBUG: Loading notifications - Medications: ${medications.size}, Appointments: ${appointments.size}, Reminders: ${reminders.size}")
+                // Debug logging removed for performance
                 
                 // Convert medications to notifications
                 medications.forEach { medication ->
@@ -92,7 +100,6 @@ class NotificationViewModel(
                         .toLocalTime()
                         .format(timeFormatter)
                     
-                    println("DEBUG: Medication - ${medication.name}, scheduleTime: ${medication.scheduleTime}, status: $status")
                     
                     allNotifications.add(
                         NotificationItem(
@@ -117,7 +124,6 @@ class NotificationViewModel(
                         .toLocalTime()
                         .format(timeFormatter)
                     
-                    println("DEBUG: Appointment - ${appointment.title}, scheduleTime: ${appointment.dateTime}, status: $status")
                     
                     allNotifications.add(
                         NotificationItem(
@@ -142,7 +148,6 @@ class NotificationViewModel(
                         .toLocalTime()
                         .format(timeFormatter)
                     
-                    println("DEBUG: Reminder - ${reminder.title}, scheduleTime: ${reminder.dateTime}, status: $status")
                     
                     allNotifications.add(
                         NotificationItem(
@@ -162,14 +167,12 @@ class NotificationViewModel(
                 val today = LocalDate.now()
                 val yesterday = today.minusDays(1)
                 
-                println("DEBUG: Today: $today, Yesterday: $yesterday")
                 
                 val todayNotifications = allNotifications.filter { notification ->
                     val notificationDate = Instant.ofEpochMilli(notification.scheduleTime)
                         .atZone(ZoneId.systemDefault())
                         .toLocalDate()
                     val isToday = notificationDate == today
-                    println("DEBUG: ${notification.title} - Date: $notificationDate, IsToday: $isToday")
                     isToday
                 }.sortedBy { it.scheduleTime }
                 
@@ -178,11 +181,9 @@ class NotificationViewModel(
                         .atZone(ZoneId.systemDefault())
                         .toLocalDate()
                     val isYesterday = notificationDate == yesterday
-                    println("DEBUG: ${notification.title} - Date: $notificationDate, IsYesterday: $isYesterday")
                     isYesterday
                 }.sortedBy { it.scheduleTime }
                 
-                println("DEBUG: Final - Today: ${todayNotifications.size}, Yesterday: ${yesterdayNotifications.size}")
                 
                 NotificationUiState(
                     todayNotifications = todayNotifications,
@@ -248,7 +249,7 @@ class NotificationViewModel(
                     loadNotifications()
                 }
             } catch (e: Exception) {
-                println("Error marking as taken: ${e.message}")
+                // Error handled silently
             }
         }
     }
@@ -290,8 +291,13 @@ class NotificationViewModel(
                     loadNotifications()
                 }
             } catch (e: Exception) {
-                println("Error marking as skipped: ${e.message}")
+                // Error handled silently
             }
         }
+    }
+    
+    fun clearData() {
+        _uiState.value = NotificationUiState()
+        globalNotifications = emptyList()
     }
 }

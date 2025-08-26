@@ -10,6 +10,7 @@ import com.example.medipal.domain.usecase.GetRemindersUseCase
 import com.example.medipal.util.ProfileRepositoryManager
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.flatMapLatest
 import java.text.SimpleDateFormat
 import java.time.Instant
 import java.time.LocalDateTime
@@ -33,12 +34,13 @@ class HistoryViewModel(
     private val profileRepositoryManager: ProfileRepositoryManager
 ) : ViewModel() {
 
-    private val profileId = profileRepositoryManager.getCurrentProfileId()
-    val historyItems: Flow<List<HistoryItem>> = combine(
-        getMedicationsUseCase(profileId),
-        getAppointmentsUseCase(profileId),
-        getRemindersUseCase(profileId)
-    ) { medications, appointments, reminders ->
+    // Lắng nghe thay đổi profile và cập nhật dữ liệu động
+    val historyItems: Flow<List<HistoryItem>> = profileRepositoryManager.currentProfileId.flatMapLatest { profileId ->
+        combine(
+            getMedicationsUseCase(profileId),
+            getAppointmentsUseCase(profileId),
+            getRemindersUseCase(profileId)
+        ) { medications, appointments, reminders ->
         val allItems = mutableListOf<HistoryItem>()
         
         // Convert medications to history items
@@ -56,8 +58,13 @@ class HistoryViewModel(
             reminder.toHistoryItem()
         })
         
-        // Sort by timestamp (most recent first)
-        allItems.sortedByDescending { it.timestamp }
+            // Sort by timestamp (most recent first)
+            allItems.sortedByDescending { it.timestamp }
+        }
+    }
+    
+    fun clearData() {
+        // Data will be automatically refreshed when profile changes
     }
 }
 

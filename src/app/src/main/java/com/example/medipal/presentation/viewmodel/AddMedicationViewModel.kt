@@ -19,7 +19,7 @@ class AddMedicationViewModel(
     private val profileRepositoryManager: ProfileRepositoryManager
 ) : ViewModel() {
 
-    private val profileId = profileRepositoryManager.getCurrentProfileId()
+    // Sử dụng profile hiện tại động thay vì cố định
 
     val medicineName = MutableStateFlow("")
     val dosage = MutableStateFlow("")
@@ -103,7 +103,7 @@ class AddMedicationViewModel(
                 description = "Frequency: ${selectedFrequencyObject.value.displayText}",
                 frequency = selectedFrequencyObject.value
             )
-            addMedicationUseCase(newMedication, profileId)
+            addMedicationUseCase(newMedication, profileRepositoryManager.getCurrentProfileId())
             
             // Schedule notification
             notificationService.scheduleMedicationNotification(newMedication)

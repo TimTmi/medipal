@@ -60,6 +60,15 @@ fun MainScreen() {
 
     val authState by authViewModel.authState.collectAsState()
 
+    // Navigate to Home when authenticated (after login/account switch)
+    LaunchedEffect(authState) {
+        if (authState is AuthState.Authenticated) {
+            navController.navigate(Screen.Home.route) {
+                popUpTo(0) { inclusive = true }
+            }
+        }
+    }
+
     // Show loading screen while checking auth state
     if (authState is AuthState.Initial) {
         LoadingScreen()
@@ -80,11 +89,7 @@ fun MainScreen() {
     val notificationUiState by notificationViewModel.uiState.collectAsState()
     val todayNotificationCount = notificationUiState.todayNotifications.size
     
-    // Debug logging
-    LaunchedEffect(todayNotificationCount) {
-        println("DEBUG MainScreen: todayNotificationCount = $todayNotificationCount")
-        println("DEBUG MainScreen: todayNotifications = ${notificationUiState.todayNotifications.map { it.title }}")
-    }
+    // Debug logging removed for performance
 
     // THAY ĐỔI QUAN TRỌNG: Thêm mã để điều khiển màu sắc icon trên status bar
     val view = LocalView.current

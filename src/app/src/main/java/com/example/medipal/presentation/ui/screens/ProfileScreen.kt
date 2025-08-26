@@ -49,11 +49,18 @@ fun ProfileScreen(navController: NavController) {
     
     val authState by authViewModel.authState.collectAsState()
     
-    // Listen for auth state changes
+    // Listen for auth state changes and refresh profile when authenticated
     LaunchedEffect(authState) {
-        if (authState is AuthState.Unauthenticated) {
-            viewModel.resetProfile()
-            Toast.makeText(context, "Successfully logged out", Toast.LENGTH_SHORT).show()
+        when (authState) {
+            is AuthState.Authenticated -> {
+                // Refresh profile data when user logs in or switches accounts
+                viewModel.refreshProfile()
+            }
+            is AuthState.Unauthenticated -> {
+                viewModel.resetProfile()
+                Toast.makeText(context, "Successfully logged out", Toast.LENGTH_SHORT).show()
+            }
+            else -> {}
         }
     }
     
@@ -178,7 +185,7 @@ fun ProfileScreen(navController: NavController) {
                 confirmButton = {
                     TextButton(
                         onClick = {
-                            authViewModel.signOut()
+                            viewModel.logout()
                             showLogoutDialog = false
                         }
                     ) {

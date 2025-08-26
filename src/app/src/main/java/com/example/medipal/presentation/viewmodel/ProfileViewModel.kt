@@ -29,6 +29,10 @@ class ProfileViewModel(
     init {
         loadUserProfile()
     }
+    
+    fun refreshProfile() {
+        loadUserProfile()
+    }
 
     private fun loadUserProfile() {
         viewModelScope.launch {
@@ -137,11 +141,14 @@ class ProfileViewModel(
     fun logout() {
         viewModelScope.launch {
             try {
-                // TODO: Sign out from Firebase Auth
-                // firebaseAuth.signOut()
-
-                // Clear local data if needed
+                // Sign out from Firebase Auth
+                accountService.signOut()
+                
+                // Clear local profile data immediately
                 _uiState.value = ProfileUiState()
+                
+                // Force immediate auth state check by triggering profile change
+                // This will be picked up by AuthViewModel's monitoring
             } catch (e: Exception) {
                 _uiState.value = _uiState.value.copy(
                     errorMessage = "Failed to logout: ${e.message}"
