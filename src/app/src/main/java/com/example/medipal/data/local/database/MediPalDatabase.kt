@@ -16,7 +16,7 @@ import androidx.room.TypeConverters
         AppointmentStatusEntity::class,
         ReminderStatusEntity::class
     ],
-    version = 19,
+    version = 20,
     exportSchema = false
 )
 @TypeConverters(Converters::class)
