@@ -67,8 +67,4 @@ class HybridMedicationDoseRepositoryImpl(
     override suspend fun getByMedicationAndTime(medicationId: String, scheduledTime: Long): MedicationDose? {
         return roomRepository.getByMedicationAndTime(medicationId, scheduledTime)
     }
-    
-    override fun getByProfileId(profileId: String): Flow<List<MedicationDose>> {
-        return roomRepository.getByProfileId(profileId)
-    }
 }

@@ -16,11 +16,16 @@ interface MedicationDoseDao {
     @Query("SELECT * FROM medication_dose WHERE id = :id LIMIT 1")
     suspend fun getById(id: String): MedicationDoseEntity?
 
-    @Query("SELECT * FROM medication_dose WHERE medicationId = :medicationId")
-    fun getByMedicationId(medicationId: String): Flow<List<MedicationDoseEntity>>
+    @Query("SELECT * FROM medication_dose WHERE medicationId = :medicationId AND profileId = :profileId")
+    fun getByMedicationIdAndProfileId(medicationId: String, profileId: String): Flow<List<MedicationDoseEntity>>
 
-    @Query("SELECT * FROM medication_dose WHERE medicationId = :medicationId AND scheduledTime = :scheduledTime LIMIT 1")
-    suspend fun getByMedicationAndTime(medicationId: String, scheduledTime: Long): MedicationDoseEntity?
+    @Query("SELECT * FROM medication_dose WHERE medicationId = :medicationId AND scheduledTime = :scheduledTime AND profileId = :profileId LIMIT 1")
+    suspend fun getByMedicationAndTimeAndProfileId(
+        medicationId: String,
+        scheduledTime: Long,
+        profileId: String
+    ): MedicationDoseEntity?
+
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insert(entity: MedicationDoseEntity)

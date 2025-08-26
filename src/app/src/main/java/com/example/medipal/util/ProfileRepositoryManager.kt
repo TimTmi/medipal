@@ -11,12 +11,13 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 
 class ProfileRepositoryManager : KoinComponent {
-    
-    private var _currentProfileId = "default-profile"
-    
+    private val _currentProfileId = MutableStateFlow("default-profile")
+    val currentProfileId: StateFlow<String> = _currentProfileId.asStateFlow()
+
     fun setCurrentProfile(profileId: String) {
-        _currentProfileId = profileId.ifBlank { "default-profile" }
+        _currentProfileId.value = profileId.ifBlank { "default-profile" }
     }
-    
-    fun getCurrentProfileId(): String = _currentProfileId.ifBlank { "default-profile" }
+
+    fun getCurrentProfileId(): String = _currentProfileId.value.ifBlank { "default-profile" }
 }
+

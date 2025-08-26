@@ -9,7 +9,7 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 
 open class HybridRepositoryImpl<T>(
-    private val localRepo: LocalRepository<T>,
+    protected val localRepo: LocalRepository<T>,
     private val remoteRepo: RemoteRepository<T>,
     private val networkChecker: () -> Boolean,
     private val getId: (T) -> String,

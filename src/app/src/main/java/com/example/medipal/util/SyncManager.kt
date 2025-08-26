@@ -11,14 +11,20 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.distinctUntilChanged
+import org.koin.core.component.KoinComponent
+import org.koin.core.component.inject
 
-object SyncManager {
+object SyncManager : KoinComponent {
 
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
     private var isMonitoring = false
 
     // Repos that need syncing
     private val hybridRepositories = mutableListOf<HybridRepositoryImpl<*>>()
+
+    // Profile manager reference (injected via Koin)
+    private val profileRepositoryManager: ProfileRepositoryManager by inject()
 
     /** Register repositories that should sync */
     fun register(vararg repos: HybridRepositoryImpl<*>) {
@@ -30,11 +36,17 @@ object SyncManager {
         }
     }
 
-    /** Start monitoring network changes */
+    /** Start monitoring network and profile changes */
     fun startMonitoring(context: Context) {
         if (isMonitoring) return
         isMonitoring = true
 
+        startNetworkMonitoring(context)
+        startProfileMonitoring()
+    }
+
+    /** Start monitoring network changes */
+    private fun startNetworkMonitoring(context: Context) {
         val connectivityManager =
             context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
 
@@ -52,8 +64,18 @@ object SyncManager {
         connectivityManager.registerNetworkCallback(request, callback)
     }
 
+    /** Start monitoring profile changes */
+    private fun startProfileMonitoring() {
+        scope.launch {
+            profileRepositoryManager.currentProfileId.collect { newProfileId ->
+                hybridRepositories.forEach { it.syncAll() }
+            }
+        }
+    }
+
     /** Manually trigger a full sync for all registered repos */
     suspend fun syncAllNow() {
         hybridRepositories.forEach { it.syncAll() }
     }
 }
+
