@@ -23,7 +23,7 @@ class AddAppointmentViewModel(
 //    private val profileId: String
 ) : ViewModel() {
 
-    private val profileId = profileRepositoryManager.getCurrentProfileId()
+    // Sử dụng profile hiện tại động thay vì cố định
 
     // Các trạng thái cho form
     val doctorName = MutableStateFlow("")
@@ -39,7 +39,74 @@ class AddAppointmentViewModel(
     private val _lastSavedAppointmentTitle = MutableStateFlow<String?>(null)
     val lastSavedAppointmentTitle = _lastSavedAppointmentTitle.asStateFlow()
 
+    // Validation error states
+    private val _doctorNameError = MutableStateFlow<String?>(null)
+    val doctorNameError = _doctorNameError.asStateFlow()
+    
+    private val _locationError = MutableStateFlow<String?>(null)
+    val locationError = _locationError.asStateFlow()
+    
+    private val _dateError = MutableStateFlow<String?>(null)
+    val dateError = _dateError.asStateFlow()
+    
+    private val _timeError = MutableStateFlow<String?>(null)
+    val timeError = _timeError.asStateFlow()
+
+    fun validateFields(): Boolean {
+        var isValid = true
+        
+        if (doctorName.value.isBlank()) {
+            _doctorNameError.value = "Doctor's name is required"
+            isValid = false
+        } else {
+            _doctorNameError.value = null
+        }
+        
+        if (location.value.isBlank()) {
+            _locationError.value = "Location is required"
+            isValid = false
+        } else {
+            _locationError.value = null
+        }
+        
+        if (date.value.isBlank()) {
+            _dateError.value = "Date is required"
+            isValid = false
+        } else {
+            _dateError.value = null
+        }
+        
+        if (time.value.isBlank()) {
+            _timeError.value = "Time is required"
+            isValid = false
+        } else {
+            _timeError.value = null
+        }
+        
+        return isValid
+    }
+
+    fun clearDoctorNameError() {
+        _doctorNameError.value = null
+    }
+    
+    fun clearLocationError() {
+        _locationError.value = null
+    }
+    
+    fun clearDateError() {
+        _dateError.value = null
+    }
+    
+    fun clearTimeError() {
+        _timeError.value = null
+    }
+
     fun saveAppointment() {
+        if (!validateFields()) {
+            return
+        }
+        
         viewModelScope.launch {
             // Convert user-selected time to timestamp with current date
             val timeString = time.value.ifEmpty { "09:00 AM" }
@@ -71,7 +138,7 @@ class AddAppointmentViewModel(
                 location = location.value,
                 description = "Date: ${date.value}"
             )
-            addAppointmentUseCase(newAppointment, profileId)
+            addAppointmentUseCase(newAppointment, profileRepositoryManager.getCurrentProfileId())
             
             // Schedule notification
             notificationService.scheduleAppointmentNotification(newAppointment)

@@ -78,6 +78,11 @@ fun AppointmentFormScreen(
     val time by viewModel.time.collectAsState()
     val reasonForVisit by viewModel.reasonForVisit.collectAsState()
     
+    val doctorNameError by viewModel.doctorNameError.collectAsState()
+    val locationError by viewModel.locationError.collectAsState()
+    val dateError by viewModel.dateError.collectAsState()
+    val timeError by viewModel.timeError.collectAsState()
+    
     var showDatePicker by remember { mutableStateOf(false) }
     var showTimePicker by remember { mutableStateOf(false) }
 
@@ -91,19 +96,33 @@ fun AppointmentFormScreen(
         // Doctor's name field
         OutlinedTextField(
             value = doctorName,
-            onValueChange = { viewModel.doctorName.value = it },
+            onValueChange = { 
+                viewModel.doctorName.value = it
+                if (doctorNameError != null) {
+                    viewModel.clearDoctorNameError()
+                }
+            },
             label = { Text("Doctor's name") },
-            placeholder = { Text("Input doctorName's name") },
-            modifier = Modifier.fillMaxWidth()
+            placeholder = { Text("Input doctor's name") },
+            modifier = Modifier.fillMaxWidth(),
+            isError = doctorNameError != null,
+            supportingText = doctorNameError?.let { { Text(it, color = MaterialTheme.colorScheme.error) } }
         )
 
         // Location field
         OutlinedTextField(
             value = location,
-            onValueChange = { viewModel.location.value = it },
+            onValueChange = { 
+                viewModel.location.value = it
+                if (locationError != null) {
+                    viewModel.clearLocationError()
+                }
+            },
             label = { Text("Location") },
             placeholder = { Text("Input location") },
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier.fillMaxWidth(),
+            isError = locationError != null,
+            supportingText = locationError?.let { { Text(it, color = MaterialTheme.colorScheme.error) } }
         )
 
         // Date field
@@ -114,8 +133,15 @@ fun AppointmentFormScreen(
             placeholder = { Text("Input date") },
             modifier = Modifier.fillMaxWidth(),
             readOnly = true,
+            isError = dateError != null,
+            supportingText = dateError?.let { { Text(it, color = MaterialTheme.colorScheme.error) } },
             trailingIcon = {
-                TextButton(onClick = { showDatePicker = true }) {
+                TextButton(onClick = { 
+                    showDatePicker = true
+                    if (dateError != null) {
+                        viewModel.clearDateError()
+                    }
+                }) {
                     Text("Select")
                 }
             }
@@ -129,8 +155,15 @@ fun AppointmentFormScreen(
             placeholder = { Text("Input time") },
             modifier = Modifier.fillMaxWidth(),
             readOnly = true,
+            isError = timeError != null,
+            supportingText = timeError?.let { { Text(it, color = MaterialTheme.colorScheme.error) } },
             trailingIcon = {
-                TextButton(onClick = { showTimePicker = true }) {
+                TextButton(onClick = { 
+                    showTimePicker = true
+                    if (timeError != null) {
+                        viewModel.clearTimeError()
+                    }
+                }) {
                     Text("Select")
                 }
             }

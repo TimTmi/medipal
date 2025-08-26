@@ -68,6 +68,13 @@ class NotificationServiceAndroidNotif(
             putExtra("notification_title", title)
             putExtra("notification_content", content)
             putExtra("notification_type", type)
+            // Add current profile ID to the notification intent
+            try {
+                val profileRepositoryManager = org.koin.core.context.GlobalContext.get().get<com.example.medipal.util.ProfileRepositoryManager>()
+                putExtra("profile_id", profileRepositoryManager.getCurrentProfileId())
+            } catch (e: Exception) {
+                // If we can't get profile ID, don't add it
+            }
         }
 
         val pendingIntent = PendingIntent.getBroadcast(
@@ -142,5 +149,10 @@ class NotificationServiceAndroidNotif(
         )
         alarmManager.cancel(pendingIntent)
         notificationManager.cancel(id.hashCode())
+    }
+    
+    fun cancelAllNotifications() {
+        // Cancel all active notifications in the notification manager
+        notificationManager.cancelAll()
     }
 }

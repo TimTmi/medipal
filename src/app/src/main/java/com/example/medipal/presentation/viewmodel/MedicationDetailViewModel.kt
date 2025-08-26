@@ -25,7 +25,7 @@ class MedicationDetailViewModel(
 ) : ViewModel() {
 
     private val medicationId: String = checkNotNull(savedStateHandle["medicationId"])
-    private val profileId = profileRepositoryManager.getCurrentProfileId()
+    // Sử dụng profile hiện tại động thay vì cố định
 
     private val _medication = MutableStateFlow<Medication?>(null)
     val medication = _medication.asStateFlow()
@@ -52,7 +52,7 @@ class MedicationDetailViewModel(
     init {
         Log.d("ViewModelLifecycle", "MedicationDetailViewModel created for medicationId: $medicationId. Instance: ${this.hashCode()}")
         viewModelScope.launch {
-            val med = getMedicationByIdUseCase(medicationId, profileId)
+            val med = getMedicationByIdUseCase(medicationId, profileRepositoryManager.getCurrentProfileId())
             _medication.value = med
 
             med?.let { medicationData ->

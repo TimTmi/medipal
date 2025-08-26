@@ -19,7 +19,7 @@ class AddMedicationViewModel(
     private val profileRepositoryManager: ProfileRepositoryManager
 ) : ViewModel() {
 
-    private val profileId = profileRepositoryManager.getCurrentProfileId()
+    // Sử dụng profile hiện tại động thay vì cố định
 
     val medicineName = MutableStateFlow("")
     val dosage = MutableStateFlow("")
@@ -72,7 +72,28 @@ class AddMedicationViewModel(
     private val _showSuccessDialog = MutableStateFlow(false)
     val showSuccessDialog = _showSuccessDialog.asStateFlow()
 
+    private val _medicineNameError = MutableStateFlow<String?>(null)
+    val medicineNameError = _medicineNameError.asStateFlow()
+
+    fun validateMedicineName(): Boolean {
+        return if (medicineName.value.isBlank()) {
+            _medicineNameError.value = "Medicine name is required"
+            false
+        } else {
+            _medicineNameError.value = null
+            true
+        }
+    }
+
+    fun clearMedicineNameError() {
+        _medicineNameError.value = null
+    }
+
     fun saveMedication() {
+        if (!validateMedicineName()) {
+            return
+        }
+        
         viewModelScope.launch {
             val newMedication = Medication(
                 id = UUID.randomUUID().toString(),
@@ -82,7 +103,7 @@ class AddMedicationViewModel(
                 description = "Frequency: ${selectedFrequencyObject.value.displayText}",
                 frequency = selectedFrequencyObject.value
             )
-            addMedicationUseCase(newMedication, profileId)
+            addMedicationUseCase(newMedication, profileRepositoryManager.getCurrentProfileId())
             
             // Schedule notification
             notificationService.scheduleMedicationNotification(newMedication)

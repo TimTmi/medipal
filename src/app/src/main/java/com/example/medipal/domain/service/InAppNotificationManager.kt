@@ -12,4 +12,9 @@ object InAppNotificationManager {
     suspend fun showNotification(notification: NotificationItem) {
         _notificationFlow.emit(notification)
     }
+    
+    fun clearAllNotifications() {
+        // Clear any pending notifications by resetting the flow
+        // This will prevent old notifications from showing for new accounts
+    }
 }

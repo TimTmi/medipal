@@ -25,11 +25,11 @@ class HomeViewModel(
     val medications = profileRepositoryManager.currentProfileId.flatMapLatest { profileId ->
         getMedicationsUseCase(profileId)
     }
-    
+
     val appointments = profileRepositoryManager.currentProfileId.flatMapLatest { profileId ->
         getAppointmentsUseCase(profileId)
     }
-    
+
     val reminders = profileRepositoryManager.currentProfileId.flatMapLatest { profileId ->
         getRemindersUseCase(profileId)
     }
@@ -44,5 +44,10 @@ class HomeViewModel(
 
     fun hideAddSheet() {
         _isAddSheetVisible.value = false
+    }
+
+    fun clearData() {
+        _isAddSheetVisible.value = false
+        // Data will be automatically refreshed when profile changes
     }
 }

@@ -6,18 +6,46 @@ import com.example.medipal.domain.model.Account
 import com.example.medipal.domain.model.AccountType
 import com.example.medipal.domain.model.Profile
 import com.example.medipal.domain.service.AccountService
+import com.example.medipal.domain.service.NotificationService
 import com.example.medipal.util.ProfileRepositoryManager
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import org.koin.core.component.KoinComponent
+import org.koin.core.component.inject
 
 class AuthViewModel(
     private val accountService: AccountService,
-    private val profileRepositoryManager: ProfileRepositoryManager
-) : ViewModel() {
+    private val profileRepositoryManager: ProfileRepositoryManager,
+    private val notificationService: NotificationService
+) : ViewModel(), KoinComponent {
 
     private val _authState = MutableStateFlow<AuthState>(AuthState.Initial)
     val authState = _authState.asStateFlow()
+    
+    init {
+        // Monitor auth state changes continuously
+        viewModelScope.launch {
+            while (true) {
+                try {
+                    val account = accountService.getCurrentAccount()
+                    val currentState = _authState.value
+                    
+                    if (account != null && currentState !is AuthState.Authenticated) {
+                        profileRepositoryManager.setCurrentProfile(account.profileId)
+                        _authState.value = AuthState.Authenticated(account)
+                    } else if (account == null && currentState !is AuthState.Unauthenticated && currentState !is AuthState.Initial) {
+                        profileRepositoryManager.setCurrentProfile("default-profile")
+                        clearAllViewModelsData()
+                        _authState.value = AuthState.Unauthenticated
+                    }
+                } catch (e: Exception) {
+                    // Handle error silently
+                }
+                kotlinx.coroutines.delay(500) // Check every 500ms for faster logout detection
+            }
+        }
+    }
 
     private val _isLoading = MutableStateFlow(false)
     val isLoading = _isLoading.asStateFlow()
@@ -124,11 +152,57 @@ class AuthViewModel(
                 accountService.signOut()
                 // Reset to default profile when signing out
                 profileRepositoryManager.setCurrentProfile("default-profile")
+                
+                // Clear data from all ViewModels that might have user-specific data
+                clearAllViewModelsData()
+                
+                // Cancel all scheduled notifications for the old account
+                clearAllScheduledNotifications()
+                
+                // Cancel all system notifications
+                (notificationService as? com.example.medipal.data.service.NotificationServiceAndroidNotif)?.cancelAllNotifications()
+                
+                // Clear in-app notifications
+                com.example.medipal.domain.service.InAppNotificationManager.clearAllNotifications()
+                
                 _authState.value = AuthState.Unauthenticated
                 clearForm()
             } catch (e: Exception) {
                 _errorMessage.value = e.message ?: "Sign out failed"
             }
+        }
+    }
+    
+    private fun clearAllViewModelsData() {
+        try {
+            // Clear HomeViewModel data by getting a fresh instance
+            val homeViewModel: HomeViewModel? = getKoin().getOrNull()
+            homeViewModel?.clearData()
+            
+            // Clear NotificationViewModel data
+            val notificationViewModel: NotificationViewModel? = getKoin().getOrNull()
+            notificationViewModel?.clearData()
+            
+            // Clear MedicationListViewModel data
+            val medicationListViewModel: MedicationListViewModel? = getKoin().getOrNull()
+            medicationListViewModel?.clearData()
+            
+            // Clear other ViewModels as needed
+            val appointmentsViewModel: AppointmentsViewModel? = getKoin().getOrNull()
+            appointmentsViewModel?.clearData()
+            
+            val remindersViewModel: RemindersViewModel? = getKoin().getOrNull()
+            remindersViewModel?.clearData()
+            
+            val appointmentReminderViewModel: AppointmentReminderViewModel? = getKoin().getOrNull()
+            appointmentReminderViewModel?.clearData()
+            
+            val historyViewModel: HistoryViewModel? = getKoin().getOrNull()
+            historyViewModel?.clearData()
+            
+        } catch (e: Exception) {
+            // Log error but don't fail logout
+            println("Error clearing ViewModels data: ${e.message}")
         }
     }
 
@@ -161,6 +235,23 @@ class AuthViewModel(
 
     fun clearError() {
         _errorMessage.value = null
+    }
+    
+    private fun clearAllScheduledNotifications() {
+        viewModelScope.launch {
+            try {
+                // Get all current data before clearing to cancel their notifications
+                val homeViewModel: HomeViewModel? = getKoin().getOrNull()
+                val notificationViewModel: NotificationViewModel? = getKoin().getOrNull()
+                
+                // Cancel all scheduled notifications by clearing the notification service
+                // Since we don't have direct access to current data flows, we'll rely on
+                // the notification service's cancelAllNotifications method
+                (notificationService as? com.example.medipal.data.service.NotificationServiceAndroidNotif)?.cancelAllNotifications()
+            } catch (e: Exception) {
+                println("Error clearing scheduled notifications: ${e.message}")
+            }
+        }
     }
 
     private fun clearForm() {

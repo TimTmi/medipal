@@ -8,17 +8,19 @@ import com.example.medipal.domain.usecase.RemoveReminderUseCase
 import com.example.medipal.util.ProfileRepositoryManager
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.launch
 
 class RemindersViewModel(
-    getRemindersUseCase: GetRemindersUseCase,
+    private val getRemindersUseCase: GetRemindersUseCase,
     private val removeReminderUseCase: RemoveReminderUseCase,
     private val profileRepositoryManager: ProfileRepositoryManager
 ) : ViewModel() {
 
-    private val profileId = profileRepositoryManager.getCurrentProfileId()
-
-    val reminders = getRemindersUseCase(profileId)
+    // Lắng nghe thay đổi profile và cập nhật dữ liệu động
+    val reminders = profileRepositoryManager.currentProfileId.flatMapLatest { profileId ->
+        getRemindersUseCase(profileId)
+    }
 
     private val _selectedReminder = MutableStateFlow<Reminder?>(null)
     val selectedReminder = _selectedReminder.asStateFlow()
@@ -41,5 +43,11 @@ class RemindersViewModel(
             removeReminderUseCase(reminderId)
             hideReminderDetail()
         }
+    }
+    
+    fun clearData() {
+        _selectedReminder.value = null
+        _isDetailDialogVisible.value = false
+        // Data will be automatically refreshed when profile changes
     }
 }

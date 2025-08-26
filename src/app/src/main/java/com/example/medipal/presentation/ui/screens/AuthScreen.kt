@@ -94,7 +94,7 @@ fun AuthScreen(
                     Button(
                         onClick = {
                             showSignUp = false
-                            println("DEBUG: Back button clicked - returning to Sign In")
+                            // Back button clicked - returning to Sign In
                         },
                         colors = ButtonDefaults.buttonColors(
                             containerColor = Color.White.copy(alpha = 0.2f)
@@ -197,7 +197,7 @@ fun AuthScreen(
                             interactionSource = remember { MutableInteractionSource() }
                         ) {
                             showSignUp = true
-                            println("DEBUG: Switched to Sign Up mode")
+                            // Switched to Sign Up mode
                         },
                     colors = CardDefaults.cardColors(
                         containerColor = Color.White.copy(alpha = 0.1f)

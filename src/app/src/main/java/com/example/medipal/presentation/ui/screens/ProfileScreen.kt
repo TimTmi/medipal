@@ -1,8 +1,5 @@
 package com.example.medipal.presentation.ui.screens
 
-import android.app.AlarmManager
-import android.app.PendingIntent
-import android.content.Context
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -31,6 +28,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import coil.compose.AsyncImage
 import com.example.medipal.R
@@ -51,7 +49,7 @@ fun ProfileScreen(navController: NavController) {
     val authViewModel: AuthViewModel = GlobalContext.get().get<AuthViewModel>()
     val context = LocalContext.current
     val profileRepositoryManager: ProfileRepositoryManager = koinInject<ProfileRepositoryManager>()
-    
+
     val uiState by viewModel.uiState.collectAsState()
     var showLogoutDialog by remember { mutableStateOf(false) }
     
@@ -61,12 +59,19 @@ fun ProfileScreen(navController: NavController) {
     LaunchedEffect(Unit) {
         viewModel.refreshProfile()
     }
-    
+
     // Listen for auth state changes
     LaunchedEffect(authState) {
-        if (authState is AuthState.Unauthenticated) {
-            viewModel.resetProfile()
-            Toast.makeText(context, "Successfully logged out", Toast.LENGTH_SHORT).show()
+        when (authState) {
+            is AuthState.Authenticated -> {
+                // Refresh profile data when user logs in or switches accounts
+                viewModel.refreshProfile()
+            }
+            is AuthState.Unauthenticated -> {
+                viewModel.resetProfile()
+                Toast.makeText(context, "Successfully logged out", Toast.LENGTH_SHORT).show()
+            }
+            else -> {}
         }
     }
     
@@ -207,9 +212,8 @@ fun ProfileScreen(navController: NavController) {
                 confirmButton = {
                     TextButton(
                         onClick = {
-                            authViewModel.signOut()
+                            viewModel.logout()
                             showLogoutDialog = false
-                            profileRepositoryManager.setCurrentProfile("default-profile")
                         }
                     ) {
                         Text(

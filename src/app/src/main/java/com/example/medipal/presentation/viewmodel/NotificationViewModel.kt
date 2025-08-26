@@ -52,6 +52,15 @@ class NotificationViewModel(
     private val _uiState = MutableStateFlow(NotificationUiState())
     val uiState: StateFlow<NotificationUiState> = _uiState.asStateFlow()
 
+    // Lắng nghe thay đổi profile để tự động reload notifications
+    init {
+        viewModelScope.launch {
+            profileRepositoryManager.currentProfileId.collect { profileId ->
+                loadNotifications()
+            }
+        }
+    }
+
     companion object {
         private var globalNotifications: List<NotificationItem> = emptyList()
 
@@ -466,5 +475,10 @@ class NotificationViewModel(
                 e.printStackTrace()
             }
         }
+    }
+
+    fun clearData() {
+        _uiState.value = NotificationUiState()
+        globalNotifications = emptyList()
     }
 }

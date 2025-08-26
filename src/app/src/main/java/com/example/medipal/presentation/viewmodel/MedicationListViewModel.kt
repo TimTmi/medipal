@@ -112,6 +112,13 @@ class MedicationListViewModel(
             else -> MedicationStatus.TAKEN // Assume taken if very old
         }
     }
+
+    fun clearData() {
+        _searchQuery.value = ""
+        _selectedMedication.value = null
+        _isEditDialogVisible.value = false
+        // Data will be automatically refreshed when profile changes
+    }
 }
 
 enum class MedicationStatus {

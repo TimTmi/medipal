@@ -43,4 +43,10 @@ class AppointmentsViewModel(
             hideAppointmentDetail()
         }
     }
+
+    fun clearData() {
+        _selectedAppointment.value = null
+        _isDetailDialogVisible.value = false
+        // Data will be automatically refreshed when profile changes
+    }
 }
