@@ -1,15 +1,21 @@
 package com.example.medipal.presentation.ui.screens
 
+import android.net.Uri
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -21,28 +27,43 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.ColorMatrix
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import coil.compose.AsyncImage
 import com.example.medipal.R
 import com.example.medipal.presentation.viewmodel.ProfileViewModel
 import org.koin.androidx.compose.koinViewModel
+import java.text.SimpleDateFormat
+import java.util.*
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun EditProfileScreen(navController: NavController) {
     val viewModel: ProfileViewModel = koinViewModel()
+    val context = LocalContext.current
     
     val uiState by viewModel.uiState.collectAsState()
     
-    var name by remember { mutableStateOf(uiState.userName) }
-    var dateOfBirth by remember { mutableStateOf(uiState.dateOfBirth) }
-    var height by remember { mutableStateOf(uiState.height) }
-    var weight by remember { mutableStateOf(uiState.weight) }
-    var conditions by remember { mutableStateOf(uiState.conditions) }
+    var name by remember { mutableStateOf("") }
+    var dateOfBirth by remember { mutableStateOf("") }
+    var height by remember { mutableStateOf("") }
+    var weight by remember { mutableStateOf("") }
+    var conditions by remember { mutableStateOf("") }
+    var selectedImageUri by remember { mutableStateOf<Uri?>(null) }
+    var showDatePicker by remember { mutableStateOf(false) }
+    
+    // Image picker launcher
+    val imagePickerLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.GetContent()
+    ) { uri: Uri? ->
+        selectedImageUri = uri
+        uri?.let { viewModel.uploadAvatar(it) }
+    }
     
     // Update local state when uiState changes
     LaunchedEffect(uiState) {
@@ -85,6 +106,7 @@ fun EditProfileScreen(navController: NavController) {
                         TextButton(
                             onClick = {
                                 viewModel.updateProfile(name, dateOfBirth, height, weight, conditions)
+                                viewModel.refreshProfile() // Refresh to ensure ProfileScreen updates
                                 navController.navigateUp()
                             }
                         ) {
@@ -105,10 +127,11 @@ fun EditProfileScreen(navController: NavController) {
                 modifier = Modifier
                     .fillMaxSize()
                     .padding(padding)
+                    .verticalScroll(rememberScrollState())
                     .padding(horizontal = 24.dp),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                Spacer(modifier = Modifier.height(40.dp))
+                Spacer(modifier = Modifier.height(24.dp))
                 
                 // Profile Avatar with Edit Button
                 Box(
@@ -121,16 +144,27 @@ fun EditProfileScreen(navController: NavController) {
                             .clip(CircleShape)
                             .background(Color.White.copy(alpha = 0.2f))
                             .clickable {
-                                // TODO: Open image picker for avatar
+                                imagePickerLauncher.launch("image/*")
                             },
                         contentAlignment = Alignment.Center
                     ) {
-                        Icon(
-                            imageVector = Icons.Default.Person,
-                            contentDescription = "Profile Avatar",
-                            modifier = Modifier.size(60.dp),
-                            tint = Color.White
-                        )
+                        if (selectedImageUri != null || uiState.avatarUrl.isNotEmpty()) {
+                            AsyncImage(
+                                model = selectedImageUri ?: uiState.avatarUrl,
+                                contentDescription = "Profile Avatar",
+                                modifier = Modifier
+                                    .size(120.dp)
+                                    .clip(CircleShape),
+                                contentScale = ContentScale.Crop
+                            )
+                        } else {
+                            Icon(
+                                imageVector = Icons.Default.Person,
+                                contentDescription = "Profile Avatar",
+                                modifier = Modifier.size(60.dp),
+                                tint = Color.White
+                            )
+                        }
                     }
                     
                     // Add icon overlay
@@ -154,13 +188,13 @@ fun EditProfileScreen(navController: NavController) {
                 Spacer(modifier = Modifier.height(16.dp))
                 
                 Text(
-                    text = "Edit Avatar",
+                    text = "Tap to change avatar",
                     color = Color.White,
-                    fontSize = 16.sp,
+                    fontSize = 14.sp,
                     fontWeight = FontWeight.Medium
                 )
                 
-                Spacer(modifier = Modifier.height(40.dp))
+                Spacer(modifier = Modifier.height(32.dp))
                 
                 // Edit Form
                 Card(
@@ -178,18 +212,51 @@ fun EditProfileScreen(navController: NavController) {
                             label = "Name",
                             value = name,
                             onValueChange = { name = it },
-                            placeholder = "Tap to edit"
+                            placeholder = "Enter your full name"
                         )
                         
                         Spacer(modifier = Modifier.height(24.dp))
                         
-                        // Date of Birth Field
-                        ProfileEditField(
-                            label = "Date of Birth",
-                            value = dateOfBirth,
-                            onValueChange = { dateOfBirth = it },
-                            placeholder = "August 20, 1987"
-                        )
+                        // Date of Birth Field with Date Picker
+                        Column {
+                            Text(
+                                text = "Date of Birth",
+                                color = Color.White,
+                                fontSize = 16.sp,
+                                fontWeight = FontWeight.Medium
+                            )
+                            
+                            Spacer(modifier = Modifier.height(8.dp))
+                            
+                            OutlinedTextField(
+                                value = dateOfBirth,
+                                onValueChange = { },
+                                placeholder = {
+                                    Text(
+                                        text = "Select date of birth",
+                                        color = Color.White.copy(alpha = 0.6f)
+                                    )
+                                },
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .clickable { showDatePicker = true },
+                                enabled = false,
+                                colors = OutlinedTextFieldDefaults.colors(
+                                    disabledTextColor = Color.White,
+                                    disabledBorderColor = Color.White.copy(alpha = 0.6f),
+                                    disabledPlaceholderColor = Color.White.copy(alpha = 0.6f)
+                                ),
+                                trailingIcon = {
+                                    IconButton(onClick = { showDatePicker = true }) {
+                                        Icon(
+                                            imageVector = Icons.Default.DateRange,
+                                            contentDescription = "Select Date",
+                                            tint = Color.White
+                                        )
+                                    }
+                                }
+                            )
+                        }
                         
                         Spacer(modifier = Modifier.height(24.dp))
                         
@@ -226,7 +293,41 @@ fun EditProfileScreen(navController: NavController) {
                     }
                 }
                 
-                Spacer(modifier = Modifier.weight(1f))
+                Spacer(modifier = Modifier.height(32.dp))
+            }
+        }
+        
+        // Date Picker Dialog
+        if (showDatePicker) {
+            val datePickerState = rememberDatePickerState()
+            
+            DatePickerDialog(
+                onDismissRequest = { showDatePicker = false },
+                confirmButton = {
+                    TextButton(
+                        onClick = {
+                            datePickerState.selectedDateMillis?.let { millis ->
+                                val formatter = SimpleDateFormat("MMMM dd, yyyy", Locale.getDefault())
+                                dateOfBirth = formatter.format(Date(millis))
+                            }
+                            showDatePicker = false
+                        }
+                    ) {
+                        Text("OK", color = Color(0xFF1C5F55))
+                    }
+                },
+                dismissButton = {
+                    TextButton(onClick = { showDatePicker = false }) {
+                        Text("Cancel", color = Color.Gray)
+                    }
+                }
+            ) {
+                DatePicker(
+                    state = datePickerState,
+                    colors = DatePickerDefaults.colors(
+                        containerColor = Color.White
+                    )
+                )
             }
         }
         
@@ -243,7 +344,6 @@ fun EditProfileScreen(navController: NavController) {
         // Error message
         uiState.errorMessage?.let { error ->
             LaunchedEffect(error) {
-                // Show snackbar or handle error
                 viewModel.clearError()
             }
         }

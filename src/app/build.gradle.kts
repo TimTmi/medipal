@@ -102,8 +102,9 @@ dependencies {
     implementation(libs.grpc.protobuf.lite)
     implementation(libs.grpc.stub)
 
-    // Coil for image loading
+    // Image picker and loading
     implementation("io.coil-kt:coil-compose:2.5.0")
+    implementation("androidx.activity:activity-compose:1.8.2")
 }
 
 kotlin {

@@ -17,7 +17,6 @@ class AppointmentsViewModel(
     private val profileRepositoryManager: ProfileRepositoryManager
 ) : ViewModel() {
 
-    // Lắng nghe thay đổi profile và cập nhật dữ liệu động
     val appointments = profileRepositoryManager.currentProfileId.flatMapLatest { profileId ->
         getAppointmentsUseCase(profileId)
     }
@@ -44,7 +43,7 @@ class AppointmentsViewModel(
             hideAppointmentDetail()
         }
     }
-    
+
     fun clearData() {
         _selectedAppointment.value = null
         _isDetailDialogVisible.value = false

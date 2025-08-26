@@ -33,7 +33,7 @@ class ReminderReceiver : BroadcastReceiver(), KoinComponent {
             try {
                 val currentAccount = accountService.getCurrentAccount()
                 val currentProfileId = profileRepositoryManager.getCurrentProfileId()
-                
+
                 // Only show notification if:
                 // 1. User is still authenticated
                 // 2. The notification belongs to the current profile
@@ -41,30 +41,30 @@ class ReminderReceiver : BroadcastReceiver(), KoinComponent {
                     // Show system notification
                     (notificationService as NotificationServiceAndroidNotif).showSystemNotification(notificationId, title, content)
 
-                    // Show in-app notification
-                    val notificationItem = NotificationItem(
-                        id = notificationId,
-                        title = title,
-                        subtitle = content,
-                        time = System.currentTimeMillis().toString(),
-                        scheduleTime = System.currentTimeMillis(),
-                        status = NotificationStatus.UPCOMING,
-                        type = when (type) {
-                            "MEDICATION" -> NotificationType.MEDICATION
-                            "APPOINTMENT" -> NotificationType.APPOINTMENT
-                            else -> NotificationType.REMINDER
-                        },
-                        instructions = content,
-                        doctorName = "",
-                        originalItem = null
-                    )
+        // Show in-app notification
+        val notificationItem = NotificationItem(
+            id = when (type) {
+                "MEDICATION" -> "med_$notificationId"
+                "APPOINTMENT" -> "apt_$notificationId"
+                else -> "rem_$notificationId"
+            },
+            title = title,
+            subtitle = content,
+            time = System.currentTimeMillis().toString(),
+            scheduleTime = System.currentTimeMillis(),
+            status = NotificationStatus.UPCOMING,
+            type = when (type) {
+                "MEDICATION" -> NotificationType.MEDICATION
+                "APPOINTMENT" -> NotificationType.APPOINTMENT
+                else -> NotificationType.REMINDER
+            },
+            instructions = content,
+            doctorName = "",
+            originalItem = null
+        )
 
-                    InAppNotificationManager.showNotification(notificationItem)
-                }
-                // If user is not authenticated or notification doesn't belong to current profile, ignore it
-            } catch (e: Exception) {
-                // If there's an error checking auth state, don't show the notification
-            }
+        CoroutineScope(Dispatchers.Main).launch {
+            InAppNotificationManager.showNotification(notificationItem)
         }
     }
 }

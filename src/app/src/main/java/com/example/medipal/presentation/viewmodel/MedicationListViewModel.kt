@@ -25,7 +25,7 @@ class MedicationListViewModel(
     private val _searchQuery = MutableStateFlow("")
     val searchQuery: StateFlow<String> = _searchQuery.asStateFlow()
 
-    // All medications from repository (profile-scoped) - lắng nghe thay đổi profile
+    // All medications from repository (profile-scoped, reactive to profile changes)
     private val allMedications = profileRepositoryManager.currentProfileId.flatMapLatest { profileId ->
         getMedicationsUseCase(profileId)
     }
@@ -112,7 +112,7 @@ class MedicationListViewModel(
             else -> MedicationStatus.TAKEN // Assume taken if very old
         }
     }
-    
+
     fun clearData() {
         _searchQuery.value = ""
         _selectedMedication.value = null

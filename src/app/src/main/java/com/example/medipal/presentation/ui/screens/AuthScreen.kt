@@ -24,6 +24,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.example.medipal.R
+import com.example.medipal.domain.model.AccountType
 import com.example.medipal.presentation.navigation.Screen
 import com.example.medipal.presentation.viewmodel.AuthState
 import com.example.medipal.presentation.viewmodel.AuthViewModel
@@ -172,7 +173,7 @@ fun AuthScreen(
             }
 
             // Social login buttons
-            SocialLoginButtons()
+//            SocialLoginButtons()
 
             Spacer(modifier = Modifier.height(16.dp))
 
@@ -320,6 +321,7 @@ fun SignUpForm(viewModel: AuthViewModel) {
     val password by viewModel.password.collectAsState()
     val confirmPassword by viewModel.confirmPassword.collectAsState()
     val fullName by viewModel.fullName.collectAsState()
+    val accountType by viewModel.accountType.collectAsState()
 
     Column(
         modifier = Modifier.fillMaxWidth(),
@@ -429,6 +431,32 @@ fun SignUpForm(viewModel: AuthViewModel) {
             visualTransformation = androidx.compose.ui.text.input.PasswordVisualTransformation()
         )
 
+        Spacer(modifier = Modifier.height(16.dp))
+
+        // Account type selection
+        Text("Account Type", color = Color.White.copy(alpha = 0.8f))
+
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            RadioButton(
+                selected = accountType == AccountType.CUSTOMER,
+                onClick = { viewModel.accountType.value = AccountType.CUSTOMER },
+                colors = RadioButtonDefaults.colors(selectedColor = Color(0xFF1C5F55))
+            )
+            Text("Customer", color = Color.White)
+
+            Spacer(modifier = Modifier.width(16.dp))
+
+            RadioButton(
+                selected = accountType == AccountType.CAREGIVER,
+                onClick = { viewModel.accountType.value = AccountType.CAREGIVER },
+                colors = RadioButtonDefaults.colors(selectedColor = Color(0xFF1C5F55))
+            )
+            Text("Caregiver", color = Color.White)
+        }
+
         Spacer(modifier = Modifier.height(24.dp))
 
         // Sign up button
@@ -452,55 +480,56 @@ fun SignUpForm(viewModel: AuthViewModel) {
     }
 }
 
-@Composable
-fun SocialLoginButtons() {
-    Column(
-        modifier = Modifier.fillMaxWidth(),
-        verticalArrangement = Arrangement.spacedBy(12.dp)
-    ) {
-        // Facebook button
-        OutlinedButton(
-            onClick = { /* TODO: Implement Facebook login */ },
-            modifier = Modifier.fillMaxWidth(),
-            colors = ButtonDefaults.outlinedButtonColors(
-                contentColor = Color.White
-            ),
-            border = androidx.compose.foundation.BorderStroke(1.dp, Color.White),
-            shape = RoundedCornerShape(12.dp)
-        ) {
-            Text("f", color = Color(0xFF1877F2), fontWeight = FontWeight.Bold)
-            Spacer(modifier = Modifier.width(8.dp))
-            Text("Continue with Facebook")
-        }
 
-        // Apple button
-        OutlinedButton(
-            onClick = { /* TODO: Implement Apple login */ },
-            modifier = Modifier.fillMaxWidth(),
-            colors = ButtonDefaults.outlinedButtonColors(
-                contentColor = Color.White
-            ),
-            border = androidx.compose.foundation.BorderStroke(1.dp, Color.White),
-            shape = RoundedCornerShape(12.dp)
-        ) {
-            Text("🍎", fontSize = 16.sp)
-            Spacer(modifier = Modifier.width(8.dp))
-            Text("Continue with Apple")
-        }
-
-        // Google button
-        OutlinedButton(
-            onClick = { /* TODO: Implement Google login */ },
-            modifier = Modifier.fillMaxWidth(),
-            colors = ButtonDefaults.outlinedButtonColors(
-                contentColor = Color.White
-            ),
-            border = androidx.compose.foundation.BorderStroke(1.dp, Color.White),
-            shape = RoundedCornerShape(12.dp)
-        ) {
-            Text("G", color = Color(0xFFDB4437), fontWeight = FontWeight.Bold)
-            Spacer(modifier = Modifier.width(8.dp))
-            Text("Continue with Google")
-        }
-    }
-}
+//@Composable
+//fun SocialLoginButtons() {
+//    Column(
+//        modifier = Modifier.fillMaxWidth(),
+//        verticalArrangement = Arrangement.spacedBy(12.dp)
+//    ) {
+//        // Facebook button
+//        OutlinedButton(
+//            onClick = { /* TODO: Implement Facebook login */ },
+//            modifier = Modifier.fillMaxWidth(),
+//            colors = ButtonDefaults.outlinedButtonColors(
+//                contentColor = Color.White
+//            ),
+//            border = androidx.compose.foundation.BorderStroke(1.dp, Color.White),
+//            shape = RoundedCornerShape(12.dp)
+//        ) {
+//            Text("f", color = Color(0xFF1877F2), fontWeight = FontWeight.Bold)
+//            Spacer(modifier = Modifier.width(8.dp))
+//            Text("Continue with Facebook")
+//        }
+//
+//        // Apple button
+//        OutlinedButton(
+//            onClick = { /* TODO: Implement Apple login */ },
+//            modifier = Modifier.fillMaxWidth(),
+//            colors = ButtonDefaults.outlinedButtonColors(
+//                contentColor = Color.White
+//            ),
+//            border = androidx.compose.foundation.BorderStroke(1.dp, Color.White),
+//            shape = RoundedCornerShape(12.dp)
+//        ) {
+//            Text("🍎", fontSize = 16.sp)
+//            Spacer(modifier = Modifier.width(8.dp))
+//            Text("Continue with Apple")
+//        }
+//
+//        // Google button
+//        OutlinedButton(
+//            onClick = { /* TODO: Implement Google login */ },
+//            modifier = Modifier.fillMaxWidth(),
+//            colors = ButtonDefaults.outlinedButtonColors(
+//                contentColor = Color.White
+//            ),
+//            border = androidx.compose.foundation.BorderStroke(1.dp, Color.White),
+//            shape = RoundedCornerShape(12.dp)
+//        ) {
+//            Text("G", color = Color(0xFFDB4437), fontWeight = FontWeight.Bold)
+//            Spacer(modifier = Modifier.width(8.dp))
+//            Text("Continue with Google")
+//        }
+//    }
+//}

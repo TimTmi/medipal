@@ -30,12 +30,17 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
+import coil.compose.AsyncImage
 import com.example.medipal.R
+import com.example.medipal.presentation.navigation.Screen
 import com.example.medipal.presentation.viewmodel.ProfileViewModel
 import com.example.medipal.presentation.viewmodel.AuthViewModel
 import com.example.medipal.presentation.viewmodel.AuthState
+import com.example.medipal.util.ProfileRepositoryManager
 import org.koin.androidx.compose.koinViewModel
+import org.koin.compose.koinInject
 import org.koin.core.context.GlobalContext
+import android.util.Log
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -43,13 +48,19 @@ fun ProfileScreen(navController: NavController) {
     val viewModel: ProfileViewModel = koinViewModel()
     val authViewModel: AuthViewModel = GlobalContext.get().get<AuthViewModel>()
     val context = LocalContext.current
-    
+    val profileRepositoryManager: ProfileRepositoryManager = koinInject<ProfileRepositoryManager>()
+
     val uiState by viewModel.uiState.collectAsState()
     var showLogoutDialog by remember { mutableStateOf(false) }
     
     val authState by authViewModel.authState.collectAsState()
     
-    // Listen for auth state changes and refresh profile when authenticated
+    // Refresh profile when screen becomes visible
+    LaunchedEffect(Unit) {
+        viewModel.refreshProfile()
+    }
+
+    // Listen for auth state changes
     LaunchedEffect(authState) {
         when (authState) {
             is AuthState.Authenticated -> {
@@ -105,12 +116,28 @@ fun ProfileScreen(navController: NavController) {
                         .background(Color.White.copy(alpha = 0.2f)),
                     contentAlignment = Alignment.Center
                 ) {
-                    Icon(
-                        imageVector = Icons.Default.Person,
-                        contentDescription = "Profile Avatar",
-                        modifier = Modifier.size(60.dp),
-                        tint = Color.White
-                    )
+                    Log.d("ProfileScreen", "Avatar URL in UI: '${uiState.avatarUrl}'")
+                    if (uiState.avatarUrl.isNotEmpty()) {
+                        Log.d("ProfileScreen", "Displaying AsyncImage with URL: ${uiState.avatarUrl}")
+                        AsyncImage(
+                            model = uiState.avatarUrl,
+                            contentDescription = "Profile Avatar",
+                            modifier = Modifier
+                                .size(120.dp)
+                                .clip(CircleShape),
+                            contentScale = ContentScale.Crop,
+                            onSuccess = { Log.d("ProfileScreen", "Avatar loaded successfully") },
+                            onError = { Log.e("ProfileScreen", "Avatar failed to load: ${it.result.throwable}") }
+                        )
+                    } else {
+                        Log.d("ProfileScreen", "Showing default person icon - no avatar URL")
+                        Icon(
+                            imageVector = Icons.Default.Person,
+                            contentDescription = "Profile Avatar",
+                            modifier = Modifier.size(60.dp),
+                            tint = Color.White
+                        )
+                    }
                 }
                 
                 Spacer(modifier = Modifier.height(24.dp))
@@ -147,7 +174,7 @@ fun ProfileScreen(navController: NavController) {
                     icon = Icons.Default.SupervisorAccount,
                     text = "Manage Caregiver Access",
                     onClick = { 
-                        // TODO: Navigate to caregiver management screen
+                        navController.navigate(Screen.ManageCaregiverAccess.route)
                     }
                 )
                 
