@@ -25,6 +25,7 @@ import com.example.medipal.presentation.viewmodel.AddHealthcareReminderViewModel
 import com.example.medipal.presentation.viewmodel.AddAppointmentViewModel
 import com.example.medipal.presentation.viewmodel.HomeViewModel
 import com.example.medipal.presentation.viewmodel.NotificationViewModel
+import com.example.medipal.domain.model.NotificationStatus
 import com.example.medipal.domain.service.InAppNotificationManager
 import com.example.medipal.presentation.viewmodel.AppointmentsViewModel
 import com.example.medipal.presentation.viewmodel.RemindersViewModel
@@ -76,9 +77,11 @@ fun MainScreen() {
     val addAppointmentViewModel: AddAppointmentViewModel = koinViewModel()
     val notificationViewModel: NotificationViewModel = koinViewModel()
     
-    // Get today's notification count for badge
+    // Get today's notification count for badge - only count MISSED and UPCOMING
     val notificationUiState by notificationViewModel.uiState.collectAsState()
-    val todayNotificationCount = notificationUiState.todayNotifications.size
+    val todayNotificationCount = notificationUiState.todayNotifications.count { notification ->
+        notification.status == NotificationStatus.MISSED || notification.status == NotificationStatus.UPCOMING
+    }
     
     // Debug logging
     LaunchedEffect(todayNotificationCount) {

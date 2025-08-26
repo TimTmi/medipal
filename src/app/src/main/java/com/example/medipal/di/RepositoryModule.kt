@@ -22,12 +22,16 @@ val repositoryModule = module {
     single { RoomAppointmentRepositoryImpl(get(), get()) }
     single { RoomReminderRepositoryImpl(get(), get()) }
     single { RoomMedicationDoseRepositoryImpl(get(), get()) }
+    single { RoomAppointmentStatusRepositoryImpl(get(), get()) }
+    single { RoomReminderStatusRepositoryImpl(get(), get()) }
 
     // Profile-scoped Firestore repositories
     single { FirestoreMedicationRepositoryImpl(get(), get()) }
     single { FirestoreAppointmentRepositoryImpl(get(), get()) }
     single { FirestoreReminderRepositoryImpl(get(), get()) }
     single { FirestoreMedicationDoseRepositoryImpl(get(), get()) }
+    single { FirestoreAppointmentStatusRepositoryImpl(get(), get()) }
+    single { FirestoreReminderStatusRepositoryImpl(get(), get()) }
 
 //    // Profile-scoped Hybrid repositories
     single { HybridMedicationRepositoryImpl(
@@ -54,9 +58,23 @@ val repositoryModule = module {
             { get<NetworkChecker>().isOnline() }
     )
     }
+    single { HybridAppointmentStatusRepositoryImpl(
+            get<RoomAppointmentStatusRepositoryImpl>(),
+            get<FirestoreAppointmentStatusRepositoryImpl>(),
+            { get<NetworkChecker>().isOnline() }
+    )
+    }
+    single { HybridReminderStatusRepositoryImpl(
+            get<RoomReminderStatusRepositoryImpl>(),
+            get<FirestoreReminderStatusRepositoryImpl>(),
+            { get<NetworkChecker>().isOnline() }
+    )
+    }
 
     single<MedicationRepository> { get<HybridMedicationRepositoryImpl>() }
     single<AppointmentRepository> { get<HybridAppointmentRepositoryImpl>() }
     single<ReminderRepository> { get<HybridReminderRepositoryImpl>() }
     single<MedicationDoseRepository> { get<HybridMedicationDoseRepositoryImpl>()}
+    single<AppointmentStatusRepository> { get<HybridAppointmentStatusRepositoryImpl>()}
+    single<ReminderStatusRepository> { get<HybridReminderStatusRepositoryImpl>()}
 }

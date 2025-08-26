@@ -12,9 +12,11 @@ import androidx.room.TypeConverters
         AppointmentEntity::class,
         ReminderEntity::class,
         ProfileEntity::class,
-        MedicationDoseEntity::class
+        MedicationDoseEntity::class,
+        AppointmentStatusEntity::class,
+        ReminderStatusEntity::class
     ],
-    version = 18,
+    version = 19,
     exportSchema = false
 )
 @TypeConverters(Converters::class)
@@ -24,4 +26,6 @@ abstract class MediPalDatabase : RoomDatabase() {
     abstract fun reminderDao(): ReminderDao
     abstract fun profileDao(): ProfileDao
     abstract fun medicationDoseDao(): MedicationDoseDao
+    abstract fun appointmentStatusDao(): AppointmentStatusDao
+    abstract fun reminderStatusDao(): ReminderStatusDao
 }
