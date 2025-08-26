@@ -101,6 +101,9 @@ dependencies {
     implementation(libs.grpc.okhttp)
     implementation(libs.grpc.protobuf.lite)
     implementation(libs.grpc.stub)
+
+    // Coil for image loading
+    implementation("io.coil-kt:coil-compose:2.5.0")
 }
 
 kotlin {

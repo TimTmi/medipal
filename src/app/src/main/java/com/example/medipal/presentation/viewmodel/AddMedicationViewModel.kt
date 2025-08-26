@@ -72,7 +72,28 @@ class AddMedicationViewModel(
     private val _showSuccessDialog = MutableStateFlow(false)
     val showSuccessDialog = _showSuccessDialog.asStateFlow()
 
+    private val _medicineNameError = MutableStateFlow<String?>(null)
+    val medicineNameError = _medicineNameError.asStateFlow()
+
+    fun validateMedicineName(): Boolean {
+        return if (medicineName.value.isBlank()) {
+            _medicineNameError.value = "Medicine name is required"
+            false
+        } else {
+            _medicineNameError.value = null
+            true
+        }
+    }
+
+    fun clearMedicineNameError() {
+        _medicineNameError.value = null
+    }
+
     fun saveMedication() {
+        if (!validateMedicineName()) {
+            return
+        }
+        
         viewModelScope.launch {
             val newMedication = Medication(
                 id = UUID.randomUUID().toString(),

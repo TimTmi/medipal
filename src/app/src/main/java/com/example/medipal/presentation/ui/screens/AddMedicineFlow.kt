@@ -117,6 +117,8 @@ fun AddMedicineFlow(
 @Composable
 fun SelectMedicineNameScreen(viewModel: AddMedicationViewModel, onNext: () -> Unit, onCancel: () -> Unit) {
     val medicineName by viewModel.medicineName.collectAsState()
+    val medicineNameError by viewModel.medicineNameError.collectAsState()
+    
     Scaffold(
         topBar = {
             CenterAlignedTopAppBar(
@@ -136,12 +138,25 @@ fun SelectMedicineNameScreen(viewModel: AddMedicationViewModel, onNext: () -> Un
             Spacer(modifier = Modifier.height(16.dp))
             OutlinedTextField(
                 value = medicineName,
-                onValueChange = { viewModel.medicineName.value = it },
+                onValueChange = { 
+                    viewModel.medicineName.value = it
+                    if (medicineNameError != null) {
+                        viewModel.clearMedicineNameError()
+                    }
+                },
                 label = { Text("Medicine Name") },
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier.fillMaxWidth(),
+                isError = medicineNameError != null,
+                supportingText = medicineNameError?.let { { Text(it, color = MaterialTheme.colorScheme.error) } }
             )
             Spacer(modifier = Modifier.weight(1f))
-            Button(onClick = onNext) {
+            Button(
+                onClick = {
+                    if (viewModel.validateMedicineName()) {
+                        onNext()
+                    }
+                }
+            ) {
                 Text("Next")
             }
         }
