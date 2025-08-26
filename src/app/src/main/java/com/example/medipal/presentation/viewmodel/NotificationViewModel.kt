@@ -244,33 +244,39 @@ class NotificationViewModel(
             try {
                 println("DEBUG: markAsTaken called with notificationId: $notificationId")
                 val notification = getNotificationById(notificationId)
-                if (notification?.type == NotificationType.MEDICATION) {
-                    val medicationId = notificationId.removePrefix("med_")
-                    val profileId = profileRepositoryManager.getCurrentProfileId()
-                    
-                    // Check if dose record already exists
-                    val existingDose = getMedicationDoseUseCase.getByMedicationAndTime(
-                        medicationId, notification.scheduleTime
-                    )
-                    
-                    if (existingDose != null) {
-                        // Update existing dose record
-                        val updatedDose = existingDose.copy(
-                            status = DoseStatus.TAKEN,
-                            actualTime = System.currentTimeMillis(),
-                            updatedAt = System.currentTimeMillis()
+                println("DEBUG: Found notification: ${notification?.title}, type: ${notification?.type}")
+
+                when (notification?.type) {
+                    NotificationType.MEDICATION -> {
+                        val medicationId = notificationId.removePrefix("med_")
+                        val profileId = profileRepositoryManager.getCurrentProfileId()
+                        println("DEBUG: medicationId: $medicationId, profileId: $profileId")
+                        println("DEBUG: scheduleTime: ${notification.scheduleTime}")
+
+                        val existingDose = getMedicationDoseUseCase.getByMedicationAndTime(
+                            medicationId, notification.scheduleTime
                         )
-                        addMedicationDoseUseCase(updatedDose)
-                    } else {
-                        // Create new dose record
-                        val newDose = MedicationDose(
-                            medicationId = medicationId,
-                            profileId = profileId,
-                            scheduledTime = notification.scheduleTime,
-                            actualTime = System.currentTimeMillis(),
-                            status = DoseStatus.TAKEN
-                        )
-                        addMedicationDoseUseCase(newDose)
+                        println("DEBUG: existingDose: $existingDose")
+
+                        if (existingDose != null) {
+                            val updatedDose = existingDose.copy(
+                                status = DoseStatus.TAKEN,
+                                actualTime = System.currentTimeMillis(),
+                                updatedAt = System.currentTimeMillis()
+                            )
+                            println("DEBUG: Updating existing dose: $updatedDose")
+                            addMedicationDoseUseCase(updatedDose)
+                        } else {
+                            val newDose = MedicationDose(
+                                medicationId = medicationId,
+                                profileId = profileId,
+                                scheduledTime = notification.scheduleTime,
+                                actualTime = System.currentTimeMillis(),
+                                status = DoseStatus.TAKEN
+                            )
+                            println("DEBUG: Creating new dose: $newDose")
+                            addMedicationDoseUseCase(newDose)
+                        }
                     }
 
                     NotificationType.APPOINTMENT -> {
@@ -347,6 +353,7 @@ class NotificationViewModel(
 
             } catch (e: Exception) {
                 println("Error marking as taken: ${e.message}")
+                e.printStackTrace()
             }
         }
     }
@@ -354,34 +361,41 @@ class NotificationViewModel(
     fun markAsSkipped(notificationId: String) {
         viewModelScope.launch {
             try {
+                println("DEBUG: markAsSkipped called with notificationId: $notificationId")
                 val notification = getNotificationById(notificationId)
-                if (notification?.type == NotificationType.MEDICATION) {
-                    val medicationId = notificationId.removePrefix("med_")
-                    val profileId = profileRepositoryManager.getCurrentProfileId()
-                    
-                    // Check if dose record already exists
-                    val existingDose = getMedicationDoseUseCase.getByMedicationAndTime(
-                        medicationId, notification.scheduleTime
-                    )
-                    
-                    if (existingDose != null) {
-                        // Update existing dose record
-                        val updatedDose = existingDose.copy(
-                            status = DoseStatus.SKIPPED,
-                            actualTime = System.currentTimeMillis(),
-                            updatedAt = System.currentTimeMillis()
+                println("DEBUG: Found notification: ${notification?.title}, type: ${notification?.type}")
+
+                when (notification?.type) {
+                    NotificationType.MEDICATION -> {
+                        val medicationId = notificationId.removePrefix("med_")
+                        val profileId = profileRepositoryManager.getCurrentProfileId()
+                        println("DEBUG: medicationId: $medicationId, profileId: $profileId")
+                        println("DEBUG: scheduleTime: ${notification.scheduleTime}")
+
+                        val existingDose = getMedicationDoseUseCase.getByMedicationAndTime(
+                            medicationId, notification.scheduleTime
                         )
-                        addMedicationDoseUseCase(updatedDose)
-                    } else {
-                        // Create new dose record
-                        val newDose = MedicationDose(
-                            medicationId = medicationId,
-                            profileId = profileId,
-                            scheduledTime = notification.scheduleTime,
-                            actualTime = System.currentTimeMillis(),
-                            status = DoseStatus.SKIPPED
-                        )
-                        addMedicationDoseUseCase(newDose)
+                        println("DEBUG: existingDose: $existingDose")
+
+                        if (existingDose != null) {
+                            val updatedDose = existingDose.copy(
+                                status = DoseStatus.SKIPPED,
+                                actualTime = System.currentTimeMillis(),
+                                updatedAt = System.currentTimeMillis()
+                            )
+                            println("DEBUG: Updating existing dose: $updatedDose")
+                            addMedicationDoseUseCase(updatedDose)
+                        } else {
+                            val newDose = MedicationDose(
+                                medicationId = medicationId,
+                                profileId = profileId,
+                                scheduledTime = notification.scheduleTime,
+                                actualTime = System.currentTimeMillis(),
+                                status = DoseStatus.SKIPPED
+                            )
+                            println("DEBUG: Creating new dose: $newDose")
+                            addMedicationDoseUseCase(newDose)
+                        }
                     }
 
                     NotificationType.APPOINTMENT -> {
@@ -458,6 +472,7 @@ class NotificationViewModel(
 
             } catch (e: Exception) {
                 println("Error marking as skipped: ${e.message}")
+                e.printStackTrace()
             }
         }
     }

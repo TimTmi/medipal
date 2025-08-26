@@ -7,7 +7,6 @@ import androidx.lifecycle.viewModelScope
 import com.example.medipal.domain.model.Profile
 import com.example.medipal.domain.service.AccountService
 import com.google.firebase.firestore.FirebaseFirestore
-import com.google.firebase.storage.FirebaseStorage
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -35,7 +34,6 @@ class ProfileViewModel(
     val uiState: StateFlow<ProfileUiState> = _uiState.asStateFlow()
 
     private val firestore = FirebaseFirestore.getInstance()
-    private val storage = FirebaseStorage.getInstance()
     private var currentProfileId: String? = null
 
     init {
@@ -174,52 +172,52 @@ class ProfileViewModel(
     }
 
     fun uploadAvatar(imageUri: Uri) {
-        viewModelScope.launch {
-            _uiState.value = _uiState.value.copy(isLoading = true)
-
-            try {
-                val profileId = currentProfileId ?: return@launch
-                Log.d("ProfileViewModel", "Starting avatar upload for profileId: $profileId")
-
-                // Create storage reference
-                val storageRef = storage.reference
-                val avatarRef = storageRef.child("avatars/$profileId.jpg")
-                Log.d("ProfileViewModel", "Storage reference created: avatars/$profileId.jpg")
-
-                // Upload image
-                val uploadTask = avatarRef.putFile(imageUri).await()
-                Log.d("ProfileViewModel", "Image uploaded successfully")
-
-                val downloadUrl = avatarRef.downloadUrl.await()
-                Log.d("ProfileViewModel", "Download URL obtained: $downloadUrl")
-
-                // Update profile with new avatar URL
-                firestore.collection("profiles")
-                    .document(profileId)
-                    .update(
-                        mapOf(
-                            "avatarUrl" to downloadUrl.toString(),
-                            "updatedAt" to System.currentTimeMillis()
-                        )
-                    )
-                    .await()
-                Log.d("ProfileViewModel", "Firestore updated with avatarUrl: ${downloadUrl}")
-
-                _uiState.value = _uiState.value.copy(
-                    avatarUrl = downloadUrl.toString(),
-                    isLoading = false
-                )
-                Log.d("ProfileViewModel", "UI state updated with new avatar URL")
-
-                // Reload profile to ensure consistency
-                loadUserProfile()
-            } catch (e: Exception) {
-                _uiState.value = _uiState.value.copy(
-                    isLoading = false,
-                    errorMessage = "Failed to upload avatar: ${e.message}"
-                )
-            }
-        }
+//        viewModelScope.launch {
+//            _uiState.value = _uiState.value.copy(isLoading = true)
+//
+//            try {
+//                val profileId = currentProfileId ?: return@launch
+//                Log.d("ProfileViewModel", "Starting avatar upload for profileId: $profileId")
+//
+//                // Create storage reference
+//                val storageRef = storage.reference
+//                val avatarRef = storageRef.child("avatars/$profileId.jpg")
+//                Log.d("ProfileViewModel", "Storage reference created: avatars/$profileId.jpg")
+//
+//                // Upload image
+//                val uploadTask = avatarRef.putFile(imageUri).await()
+//                Log.d("ProfileViewModel", "Image uploaded successfully")
+//
+//                val downloadUrl = avatarRef.downloadUrl.await()
+//                Log.d("ProfileViewModel", "Download URL obtained: $downloadUrl")
+//
+//                // Update profile with new avatar URL
+//                firestore.collection("profiles")
+//                    .document(profileId)
+//                    .update(
+//                        mapOf(
+//                            "avatarUrl" to downloadUrl.toString(),
+//                            "updatedAt" to System.currentTimeMillis()
+//                        )
+//                    )
+//                    .await()
+//                Log.d("ProfileViewModel", "Firestore updated with avatarUrl: ${downloadUrl}")
+//
+//                _uiState.value = _uiState.value.copy(
+//                    avatarUrl = downloadUrl.toString(),
+//                    isLoading = false
+//                )
+//                Log.d("ProfileViewModel", "UI state updated with new avatar URL")
+//
+//                // Reload profile to ensure consistency
+//                loadUserProfile()
+//            } catch (e: Exception) {
+//                _uiState.value = _uiState.value.copy(
+//                    isLoading = false,
+//                    errorMessage = "Failed to upload avatar: ${e.message}"
+//                )
+//            }
+//        }
     }
 
     fun logout() {
@@ -243,9 +241,5 @@ class ProfileViewModel(
     fun resetProfile() {
         _uiState.value = ProfileUiState()
         currentProfileId = null
-    }
-
-    fun refreshProfile() {
-        loadUserProfile()
     }
 }
