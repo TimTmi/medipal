@@ -5,14 +5,20 @@ import java.util.UUID
 @Suppress("unused")
 enum class AccountType {
     CUSTOMER,
-    CARETAKER
+    CAREGIVER
 }
 
 data class Account(
     val id: String = "",
     val email: String = "",
+    val type: AccountType = AccountType.CUSTOMER,
     val profileId: String = ""
 ) {
     // No-argument constructor for Firestore
-    constructor() : this("", "", "")
+    constructor() : this("", "", AccountType.CUSTOMER, "")
 }
+
+data class CaregiverAssignment(
+    val caregiverId: String = "",
+    val customerId: String = ""
+)

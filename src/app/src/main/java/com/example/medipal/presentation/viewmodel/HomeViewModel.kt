@@ -10,22 +10,29 @@ import com.example.medipal.util.NetworkObserver
 import com.example.medipal.util.ProfileRepositoryManager
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.launch
 import org.koin.dsl.module
 
 class HomeViewModel(
-    getMedicationsUseCase: GetMedicationsUseCase,
-    getAppointmentsUseCase: GetAppointmentsUseCase,
-    getRemindersUseCase: GetRemindersUseCase,
-    profileRepositoryManager: ProfileRepositoryManager
+    private val getMedicationsUseCase: GetMedicationsUseCase,
+    private val getAppointmentsUseCase: GetAppointmentsUseCase,
+    private val getRemindersUseCase: GetRemindersUseCase,
+    private val profileRepositoryManager: ProfileRepositoryManager
 ) : ViewModel() {
 
-    val profileId = profileRepositoryManager.getCurrentProfileId()
-
-    // Giữ trạng thái của các danh sách riêng biệt
-    val medications = getMedicationsUseCase(profileId)
-    val appointments = getAppointmentsUseCase(profileId)
-    val reminders = getRemindersUseCase(profileId)
+    // Observe profile changes and update data accordingly
+    val medications = profileRepositoryManager.currentProfileId.flatMapLatest { profileId ->
+        getMedicationsUseCase(profileId)
+    }
+    
+    val appointments = profileRepositoryManager.currentProfileId.flatMapLatest { profileId ->
+        getAppointmentsUseCase(profileId)
+    }
+    
+    val reminders = profileRepositoryManager.currentProfileId.flatMapLatest { profileId ->
+        getRemindersUseCase(profileId)
+    }
 
     // Giữ trạng thái hiển thị của BottomSheet
     private val _isAddSheetVisible = MutableStateFlow(false)

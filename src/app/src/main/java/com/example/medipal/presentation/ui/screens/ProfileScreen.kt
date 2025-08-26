@@ -1,5 +1,8 @@
 package com.example.medipal.presentation.ui.screens
 
+import android.app.AlarmManager
+import android.app.PendingIntent
+import android.content.Context
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -28,14 +31,16 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import coil.compose.AsyncImage
 import com.example.medipal.R
+import com.example.medipal.presentation.navigation.Screen
 import com.example.medipal.presentation.viewmodel.ProfileViewModel
 import com.example.medipal.presentation.viewmodel.AuthViewModel
 import com.example.medipal.presentation.viewmodel.AuthState
+import com.example.medipal.util.ProfileRepositoryManager
 import org.koin.androidx.compose.koinViewModel
+import org.koin.compose.koinInject
 import org.koin.core.context.GlobalContext
 import android.util.Log
 
@@ -45,6 +50,7 @@ fun ProfileScreen(navController: NavController) {
     val viewModel: ProfileViewModel = koinViewModel()
     val authViewModel: AuthViewModel = GlobalContext.get().get<AuthViewModel>()
     val context = LocalContext.current
+    val profileRepositoryManager: ProfileRepositoryManager = koinInject<ProfileRepositoryManager>()
     
     val uiState by viewModel.uiState.collectAsState()
     var showLogoutDialog by remember { mutableStateOf(false) }
@@ -163,7 +169,7 @@ fun ProfileScreen(navController: NavController) {
                     icon = Icons.Default.SupervisorAccount,
                     text = "Manage Caregiver Access",
                     onClick = { 
-                        // TODO: Navigate to caregiver management screen
+                        navController.navigate(Screen.ManageCaregiverAccess.route)
                     }
                 )
                 
@@ -203,6 +209,7 @@ fun ProfileScreen(navController: NavController) {
                         onClick = {
                             authViewModel.signOut()
                             showLogoutDialog = false
+                            profileRepositoryManager.setCurrentProfile("default-profile")
                         }
                     ) {
                         Text(

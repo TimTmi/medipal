@@ -72,26 +72,26 @@ class NotificationViewModel(
         viewModelScope.launch {
             _uiState.value = _uiState.value.copy(isLoading = true)
 
-            val profileId = profileRepositoryManager.getCurrentProfileId()
-            
-            combine(
-                getMedicationsUseCase(profileId),
-                getAppointmentsUseCase(profileId),
-                getRemindersUseCase(profileId),
-                getMedicationDoseUseCase(profileId),
-                getAppointmentStatusUseCase.getAll(),
-                getReminderStatusUseCase.getAll()
-            ) { flows: Array<Any> ->
-                val medications = flows[0] as List<Medication>
-                val appointments = flows[1] as List<Appointment>
-                val reminders = flows[2] as List<Reminder>
-                val medicationDoses = flows[3] as List<MedicationDose>
-                val appointmentStatuses = flows[4] as List<AppointmentStatus>
-                val reminderStatuses = flows[5] as List<ReminderStatus>
-                
-                val allNotifications = mutableListOf<NotificationItem>()
-                val currentTime = System.currentTimeMillis()
-                val timeFormatter = DateTimeFormatter.ofPattern("h:mm a", Locale.getDefault())
+            profileRepositoryManager.currentProfileId
+                .flatMapLatest { profileId ->
+                    combine(
+                        getMedicationsUseCase(profileId),
+                        getAppointmentsUseCase(profileId),
+                        getRemindersUseCase(profileId),
+                        getMedicationDoseUseCase(profileId),
+                        getAppointmentStatusUseCase.getAll(),
+                        getReminderStatusUseCase.getAll()
+                    ) { flows: Array<Any> ->
+                        val medications = flows[0] as List<Medication>
+                        val appointments = flows[1] as List<Appointment>
+                        val reminders = flows[2] as List<Reminder>
+                        val medicationDoses = flows[3] as List<MedicationDose>
+                        val appointmentStatuses = flows[4] as List<AppointmentStatus>
+                        val reminderStatuses = flows[5] as List<ReminderStatus>
+
+                        val allNotifications = mutableListOf<NotificationItem>()
+                        val currentTime = System.currentTimeMillis()
+                        val timeFormatter = DateTimeFormatter.ofPattern("h:mm a", Locale.getDefault())
                 
                 // Debug logging
                 println("DEBUG: Loading notifications - Medications: ${medications.size}, Appointments: ${appointments.size}, Reminders: ${reminders.size}")
@@ -138,20 +138,20 @@ class NotificationViewModel(
                 appointments.forEach { appointment ->
                     val appointmentId = appointment.id
                     val existingStatus = appointmentStatuses.find { it.appointmentId == appointmentId && it.scheduledTime == appointment.dateTime }
-                    
+
                     val status = when (existingStatus?.status) {
                         AppointmentStatusType.ATTENDED -> NotificationStatus.TAKEN
                         AppointmentStatusType.MISSED -> NotificationStatus.SKIPPED
                         else -> determineStatus(appointment.dateTime, currentTime)
                     }
-                    
+
                     val subtitle = when (status) {
                         NotificationStatus.TAKEN -> "Attended"
                         NotificationStatus.SKIPPED -> "Missed"
                         NotificationStatus.MISSED -> "Missed"
                         NotificationStatus.UPCOMING -> "Upcoming"
                     }
-                    
+
                     val time = Instant.ofEpochMilli(appointment.dateTime)
                         .atZone(ZoneId.systemDefault())
                         .toLocalTime()
@@ -178,20 +178,20 @@ class NotificationViewModel(
                 reminders.forEach { reminder ->
                     val reminderId = reminder.id
                     val existingStatus = reminderStatuses.find { it.reminderId == reminderId && it.scheduledTime == reminder.dateTime }
-                    
+
                     val status = when (existingStatus?.status) {
                         ReminderStatusType.COMPLETED -> NotificationStatus.TAKEN
                         ReminderStatusType.MISSED, ReminderStatusType.SKIPPED -> NotificationStatus.SKIPPED
                         else -> determineStatus(reminder.dateTime, currentTime)
                     }
-                    
+
                     val subtitle = when (status) {
                         NotificationStatus.TAKEN -> "Completed"
                         NotificationStatus.SKIPPED -> "Skipped"
                         NotificationStatus.MISSED -> "Overdue"
                         NotificationStatus.UPCOMING -> "Pending"
                     }
-                    
+
                     val time = Instant.ofEpochMilli(reminder.dateTime)
                         .atZone(ZoneId.systemDefault())
                         .toLocalTime()
@@ -272,22 +272,22 @@ class NotificationViewModel(
                 println("DEBUG: markAsTaken called with notificationId: $notificationId")
                 val notification = getNotificationById(notificationId)
                 println("DEBUG: Found notification: ${notification?.title}, type: ${notification?.type}")
-                
+
                 when (notification?.type) {
                     NotificationType.MEDICATION -> {
                         val medicationId = notificationId.removePrefix("med_")
                         val profileId = profileRepositoryManager.getCurrentProfileId()
-                        
+
                         println("DEBUG: medicationId: $medicationId, profileId: $profileId")
                         println("DEBUG: scheduleTime: ${notification.scheduleTime}")
-                        
+
                         // Check if dose record already exists
                         val existingDose = getMedicationDoseUseCase.getByMedicationAndTime(
                             medicationId, notification.scheduleTime
                         )
-                        
+
                         println("DEBUG: existingDose: $existingDose")
-                        
+
                         if (existingDose != null) {
                             // Update existing dose record
                             val updatedDose = existingDose.copy(
@@ -314,18 +314,18 @@ class NotificationViewModel(
                     NotificationType.APPOINTMENT -> {
                         val appointmentId = notificationId.removePrefix("apt_")
                         println("DEBUG: Marking appointment as attended: $appointmentId")
-                        
+
                         val notification = getNotificationById(notificationId)
                         if (notification != null) {
                             val profileId = profileRepositoryManager.getCurrentProfileId()
-                            
+
                             // Check if appointment status record already exists
                             val existingStatus = getAppointmentStatusUseCase.getByAppointmentAndTime(
                                 appointmentId, notification.scheduleTime
                             )
-                            
+
                             println("DEBUG: existingStatus: $existingStatus")
-                            
+
                             if (existingStatus != null) {
                                 // Update existing status record
                                 val updatedStatus = existingStatus.copy(
@@ -349,22 +349,22 @@ class NotificationViewModel(
                             }
                         }
                     }
-                    
+
                     NotificationType.REMINDER -> {
                         val reminderId = notificationId.removePrefix("rem_")
                         println("DEBUG: Marking reminder as completed: $reminderId")
-                        
+
                         val notification = getNotificationById(notificationId)
                         if (notification != null) {
                             val profileId = profileRepositoryManager.getCurrentProfileId()
-                            
+
                             // Check if reminder status record already exists
                             val existingStatus = getReminderStatusUseCase.getByReminderAndTime(
                                 reminderId, notification.scheduleTime
                             )
-                            
+
                             println("DEBUG: existingStatus: $existingStatus")
-                            
+
                             if (existingStatus != null) {
                                 // Update existing status record
                                 val updatedStatus = existingStatus.copy(
@@ -388,12 +388,12 @@ class NotificationViewModel(
                             }
                         }
                     }
-                    
+
                     else -> {
                         println("DEBUG: Unknown notification type: ${notification?.type}")
                     }
                 }
-                
+
                 println("DEBUG: Calling loadNotifications() to refresh")
                 // Reload notifications to reflect the change
                 loadNotifications()
@@ -410,22 +410,22 @@ class NotificationViewModel(
                 println("DEBUG: markAsSkipped called with notificationId: $notificationId")
                 val notification = getNotificationById(notificationId)
                 println("DEBUG: Found notification: ${notification?.title}, type: ${notification?.type}")
-                
+
                 when (notification?.type) {
                     NotificationType.MEDICATION -> {
                         val medicationId = notificationId.removePrefix("med_")
                         val profileId = profileRepositoryManager.getCurrentProfileId()
-                        
+
                         println("DEBUG: medicationId: $medicationId, profileId: $profileId")
                         println("DEBUG: scheduleTime: ${notification.scheduleTime}")
-                        
+
                         // Check if dose record already exists
                         val existingDose = getMedicationDoseUseCase.getByMedicationAndTime(
                             medicationId, notification.scheduleTime
                         )
-                        
+
                         println("DEBUG: existingDose: $existingDose")
-                        
+
                         if (existingDose != null) {
                             // Update existing dose record
                             val updatedDose = existingDose.copy(
@@ -452,7 +452,7 @@ class NotificationViewModel(
                     NotificationType.APPOINTMENT -> {
                         val appointmentId = notificationId.removePrefix("apt_")
                         println("DEBUG: Marking appointment as missed: $appointmentId")
-                        
+
                         // Get the appointment from originalItem and update its status
                         val appointment = notification.originalItem as? Appointment
                         if (appointment != null) {
@@ -481,11 +481,11 @@ class NotificationViewModel(
                             }
                         }
                     }
-                    
+
                     NotificationType.REMINDER -> {
                         val reminderId = notificationId.removePrefix("rem_")
                         println("DEBUG: Marking reminder as missed: $reminderId")
-                        
+
                         // Get the reminder from originalItem and update its status
                         val reminder = notification.originalItem as? Reminder
                         if (reminder != null) {
@@ -514,12 +514,12 @@ class NotificationViewModel(
                             }
                         }
                     }
-                    
+
                     else -> {
                         println("DEBUG: Unknown notification type: ${notification?.type}")
                     }
                 }
-                
+
                 println("DEBUG: Calling loadNotifications() to refresh")
                 // Reload notifications to reflect the change
                 loadNotifications()

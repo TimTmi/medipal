@@ -30,6 +30,7 @@ val repositoryModule = module {
     single { FirestoreAppointmentRepositoryImpl(get(), get()) }
     single { FirestoreReminderRepositoryImpl(get(), get()) }
     single { FirestoreMedicationDoseRepositoryImpl(get(), get()) }
+    single { FirestoreCaregiverAssignmentRepositoryImpl(get()) }
     single { FirestoreAppointmentStatusRepositoryImpl(get(), get()) }
     single { FirestoreReminderStatusRepositoryImpl(get(), get()) }
 
@@ -75,6 +76,7 @@ val repositoryModule = module {
     single<AppointmentRepository> { get<HybridAppointmentRepositoryImpl>() }
     single<ReminderRepository> { get<HybridReminderRepositoryImpl>() }
     single<MedicationDoseRepository> { get<HybridMedicationDoseRepositoryImpl>()}
+    single<CaregiverAssignmentRepository> { get<FirestoreCaregiverAssignmentRepositoryImpl>() }
     single<AppointmentStatusRepository> { get<HybridAppointmentStatusRepositoryImpl>()}
     single<ReminderStatusRepository> { get<HybridReminderStatusRepositoryImpl>()}
 }
