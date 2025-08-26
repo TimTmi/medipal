@@ -14,7 +14,7 @@ import androidx.room.TypeConverters
         ProfileEntity::class,
         MedicationDoseEntity::class
     ],
-    version = 16,
+    version = 18,
     exportSchema = false
 )
 @TypeConverters(Converters::class)

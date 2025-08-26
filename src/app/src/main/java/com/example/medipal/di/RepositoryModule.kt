@@ -21,71 +21,42 @@ val repositoryModule = module {
     single { RoomMedicationRepositoryImpl(get(), get()) }
     single { RoomAppointmentRepositoryImpl(get(), get()) }
     single { RoomReminderRepositoryImpl(get(), get()) }
+    single { RoomMedicationDoseRepositoryImpl(get(), get()) }
 
     // Profile-scoped Firestore repositories
     single { FirestoreMedicationRepositoryImpl(get(), get()) }
     single { FirestoreAppointmentRepositoryImpl(get(), get()) }
     single { FirestoreReminderRepositoryImpl(get(), get()) }
+    single { FirestoreMedicationDoseRepositoryImpl(get(), get()) }
 
 //    // Profile-scoped Hybrid repositories
     single { HybridMedicationRepositoryImpl(
-        get<RoomMedicationRepositoryImpl>(),
-        get<FirestoreMedicationRepositoryImpl>(),
-        { get<NetworkChecker>().isOnline() }
+            get<RoomMedicationRepositoryImpl>(),
+            get<FirestoreMedicationRepositoryImpl>(),
+            { get<NetworkChecker>().isOnline() }
         )
     }
     single { HybridAppointmentRepositoryImpl(
-        get<RoomAppointmentRepositoryImpl>(),
-        get<FirestoreAppointmentRepositoryImpl>(),
+            get<RoomAppointmentRepositoryImpl>(),
+            get<FirestoreAppointmentRepositoryImpl>(),
             { get<NetworkChecker>().isOnline() }
         )
     }
     single { HybridReminderRepositoryImpl(
-        get<RoomReminderRepositoryImpl>(),
-        get<FirestoreReminderRepositoryImpl>(),
+            get<RoomReminderRepositoryImpl>(),
+            get<FirestoreReminderRepositoryImpl>(),
             { get<NetworkChecker>().isOnline() }
         )
     }
-    single<AppointmentRepository> {
-        HybridAppointmentRepositoryImpl(
-            get<RoomAppointmentRepositoryImpl> { parametersOf("default-profile") },
-            get<FirestoreAppointmentRepositoryImpl> { parametersOf("default-profile") },
+    single { HybridMedicationDoseRepositoryImpl(
+            get<RoomMedicationDoseRepositoryImpl>(),
+            get<FirestoreMedicationDoseRepositoryImpl>(),
             { get<NetworkChecker>().isOnline() }
-        )
-    }
-    single<ReminderRepository> {
-        HybridReminderRepositoryImpl(
-            get<RoomReminderRepositoryImpl> { parametersOf("default-profile") },
-            get<FirestoreReminderRepositoryImpl> { parametersOf("default-profile") },
-            { get<NetworkChecker>().isOnline() }
-        )
-    }
-
-    // Profile-scoped MedicationDose repositories
-    factory { (profileId: String) ->
-        RoomMedicationDoseRepositoryImpl(get(), profileId)
-    }
-    factory { (profileId: String) ->
-        FirestoreMedicationDoseRepositoryImpl(get(), profileId)
-    }
-    factory { (profileId: String) ->
-        HybridMedicationDoseRepositoryImpl(
-            get<RoomMedicationDoseRepositoryImpl> { parametersOf(profileId) },
-            get<FirestoreMedicationDoseRepositoryImpl> { parametersOf(profileId) },
-            { get<NetworkChecker>().isOnline() }
-        )
-    }
-
-    // MedicationDose repository (using default profile)
-    single<MedicationDoseRepository> {
-        HybridMedicationDoseRepositoryImpl(
-            get<RoomMedicationDoseRepositoryImpl> { parametersOf("default-profile") },
-            get<FirestoreMedicationDoseRepositoryImpl> { parametersOf("default-profile") },
-            { get<NetworkChecker>().isOnline() }
-        )
+    )
     }
 
     single<MedicationRepository> { get<HybridMedicationRepositoryImpl>() }
     single<AppointmentRepository> { get<HybridAppointmentRepositoryImpl>() }
     single<ReminderRepository> { get<HybridReminderRepositoryImpl>() }
+    single<MedicationDoseRepository> { get<HybridMedicationDoseRepositoryImpl>()}
 }
