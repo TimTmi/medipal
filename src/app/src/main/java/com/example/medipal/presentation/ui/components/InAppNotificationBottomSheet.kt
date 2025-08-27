@@ -17,6 +17,19 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.medipal.domain.model.NotificationItem
 import com.example.medipal.domain.model.NotificationType
+import java.time.Instant
+import java.time.ZoneId
+import java.time.format.DateTimeFormatter
+
+private fun formatNotificationTime(epochMillis: String): String {
+    val millis = epochMillis.toLongOrNull()
+        ?: return "Invalid time" // fallback if parsing fails
+
+    val formatter = DateTimeFormatter.ofPattern("MMM dd, yyyy • HH:mm")
+        .withZone(ZoneId.systemDefault())
+
+    return formatter.format(Instant.ofEpochMilli(millis))
+}
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -73,7 +86,7 @@ fun InAppNotificationBottomSheet(
                 Spacer(modifier = Modifier.height(4.dp))
                 
                 Text(
-                    text = "Time: ${notification.time}",
+                    text = "Time: ${formatNotificationTime(notification.time)}",
                     fontSize = 14.sp,
                     color = Color.Gray
                 )
